@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/app_theme.dart';
 import '../application/auth_controller.dart';
-import '../data/demo_auth_repository.dart';
 import '../domain/auth_repository.dart';
 
 import 'auth_widgets.dart';
@@ -44,25 +43,34 @@ class _LoginFormState extends ConsumerState<_LoginForm> {
         .read(authControllerProvider.notifier)
         .signIn(_email.text, _password.text);
     if (!mounted) return;
-    if (ref.read(authControllerProvider).asData?.value != null) {
+    if (!ref.read(authControllerProvider).hasError &&
+        ref.read(authControllerProvider).valueOrNull != null) {
       Navigator.of(context).pushNamedAndRemoveUntil('/home', (_) => false);
     }
   }
 
-  void _passwordHelp() {
-    showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Password help'),
-        content: const Text(
-          'This version uses a demo account. No reset email is sent.\n\nEmail: reader@bookswap.app\nPassword: BookSwap123!\n\nFor a newly registered demo account, use the password you chose. Email recovery will be available when Firebase Authentication is connected.',
+  bool _usingGoogle = false;
+
+  Future<void> _google() async {
+    if (ref.read(authControllerProvider).isLoading) return;
+    setState(() => _usingGoogle = true);
+    await ref.read(authControllerProvider.notifier).signInWithGoogle();
+    if (!mounted) return;
+    setState(() => _usingGoogle = false);
+    final state = ref.read(authControllerProvider);
+    if (!state.hasError && state.valueOrNull != null) {
+      Navigator.of(context).pushNamedAndRemoveUntil('/home', (_) => false);
+    }
+  }
+
+  Future<void> _passwordHelp() async {
+    await ref.read(authControllerProvider.notifier).resetPassword(_email.text);
+    if (!mounted || ref.read(authControllerProvider).hasError) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'If an account uses this email, you will receive a password reset link.',
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Got it'),
-          ),
-        ],
       ),
     );
   }
@@ -160,10 +168,11 @@ class _LoginFormState extends ConsumerState<_LoginForm> {
                                 Navigator.pushNamed(context, '/register').then((
                                   _,
                                 ) {
-                                  if (mounted)
+                                  if (mounted) {
                                     ref
                                         .read(authControllerProvider.notifier)
                                         .clearError();
+                                  }
                                 });
                               },
                         child: const Text('Register new user'),
@@ -182,6 +191,16 @@ class _LoginFormState extends ConsumerState<_LoginForm> {
                 ],
               ),
             ),
+            if (loading && _usingGoogle)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Semantics(
+                  liveRegion: true,
+                  child: Text(
+                    'Complete sign-in in the Google popup. If it is hidden, check your other browser windows.',
+                  ),
+                ),
+              ),
             if (error != null) ...[
               Semantics(
                 liveRegion: true,
@@ -218,35 +237,17 @@ class _LoginFormState extends ConsumerState<_LoginForm> {
                   : const Text('Sign in  →'),
             ),
             const SizedBox(height: 26),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFFEFF1E8),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Take a look around',
-                    style: TextStyle(fontWeight: FontWeight.w700),
-                  ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'Try the login flow with a demo account. No real account is needed.',
-                  ),
-                  TextButton.icon(
-                    onPressed: loading
-                        ? null
-                        : () {
-                            _email.text = DemoAuthRepository.email;
-                            _password.text = DemoAuthRepository.password;
-                          },
-                    icon: const Icon(Icons.arrow_forward_rounded, size: 18),
-                    label: const Text('Fill demo details'),
-                  ),
-                ],
-              ),
+            OutlinedButton.icon(
+              key: const Key('googleSignIn'),
+              onPressed: loading ? null : _google,
+              icon: const Icon(Icons.account_circle_outlined),
+              label: const Text('Sign in with Google'),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'New here? Google sign-up still requires the registration form. Existing members can use the same Google email to sign in.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 12, color: Color(0xFF617065)),
             ),
             const SizedBox(height: 26),
             const Text(

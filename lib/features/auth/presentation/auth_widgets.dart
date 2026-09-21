@@ -2,28 +2,31 @@ import 'package:flutter/material.dart';
 import '../../../core/app_theme.dart';
 
 class BookSwapBrand extends StatelessWidget {
-  const BookSwapBrand();
+  const BookSwapBrand({super.key});
   @override
-  Widget build(BuildContext context) => const Row(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      Icon(Icons.auto_stories_rounded, color: forest, size: 30),
-      SizedBox(width: 10),
-      Text(
-        'bookswap',
-        style: TextStyle(
-          fontSize: 26,
-          fontWeight: FontWeight.w800,
-          letterSpacing: -1,
-          color: forest,
+  Widget build(BuildContext context) => const FittedBox(
+    fit: BoxFit.scaleDown,
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(Icons.auto_stories_rounded, color: forest, size: 30),
+        SizedBox(width: 10),
+        Text(
+          'bookswap',
+          style: TextStyle(
+            fontSize: 26,
+            fontWeight: FontWeight.w800,
+            letterSpacing: -1,
+            color: forest,
+          ),
         ),
-      ),
-    ],
+      ],
+    ),
   );
 }
 
 class BookArt extends StatelessWidget {
-  const BookArt({this.compact = false});
+  const BookArt({super.key, this.compact = false});
   final bool compact;
   @override
   Widget build(BuildContext context) => ExcludeSemantics(

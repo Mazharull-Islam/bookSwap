@@ -41,12 +41,12 @@ const communityTerms = <(String, String)>[
     'Future recommendations, book metadata and AI-assisted condition estimates may be incomplete or inaccurate. Check important details yourself and confirm condition with the owner. Offline or delayed synchronization can leave availability out of date; confirm an exchange before travelling. BookSwap cannot promise that every listed book will be available.',
   ),
   (
-    '10. This demo and your data',
-    'This build is an academic prototype. Registration details, consent records and demo credentials stay only in the running app’s memory and disappear when it restarts or the web page is refreshed. No email or SMS is sent, no real identity is verified, and book exchanges are not yet implemented. Use fictional personal details and a password you do not use elsewhere. Signing out ends the session but keeps demo accounts available until the app restarts.',
+    '10. Your registration data',
+    'BookSwap uses Firebase Authentication to manage sign-in and Cloud Firestore to store your registration profile and terms acceptance. Email/password registration sends a confirmation link to your email. Google verifies your email when you use Google sign-up; you must still complete the registration form. Signing out does not delete your account. Book exchanges are not yet implemented.',
   ),
   (
     '11. Future changes and your choice',
-    'You may stop using the demo at any time; restarting it clears its temporary accounts. Before a public launch, BookSwap must publish its actual operator and contact details, a privacy notice describing storage and deletion, and updated terms for the live features. Material changes should be clearly shown and fresh acceptance requested where needed. Accepting this version records agreement to version 1.0; it does not accept unpublished future rules.',
+    'You may stop using BookSwap at any time. Restarting the app does not delete your registered account. Before a public launch, BookSwap must publish its actual operator and contact details, a privacy notice describing storage and deletion, and updated terms for the live features. Material changes should be clearly shown and fresh acceptance requested where needed. Accepting this version records agreement to version 1.1; it does not accept unpublished future rules.',
   ),
 ];
 
@@ -73,7 +73,7 @@ class TermsPage extends StatelessWidget {
           style: Theme.of(context).textTheme.headlineLarge,
         ),
         const SizedBox(height: 12),
-        const Text('Version $termsVersion · 20 September 2026'),
+        const Text('Version $termsVersion · 21 September 2026'),
         const SizedBox(height: 20),
         Container(
           padding: const EdgeInsets.all(20),
@@ -82,7 +82,7 @@ class TermsPage extends StatelessWidget {
             borderRadius: BorderRadius.circular(18),
           ),
           child: const Text(
-            'Share stories. Respect people. Care for every book.\nThese terms apply to the BookSwap academic demo and describe the ground rules for the planned lending community.',
+            'Share stories. Respect people. Care for every book.\nThese terms apply to the BookSwap academic prototype and describe the ground rules for the planned lending community.',
           ),
         ),
         const SizedBox(height: 24),

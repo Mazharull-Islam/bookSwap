@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:bookswap_login/features/auth/data/demo_auth_repository.dart';
+import 'support/demo_auth_repository.dart';
 import 'package:bookswap_login/features/auth/domain/auth_repository.dart';
 
 void main() {

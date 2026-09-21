@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:bookswap_login/features/auth/data/demo_auth_repository.dart';
+import 'support/demo_auth_repository.dart';
 import 'package:bookswap_login/features/auth/domain/auth_repository.dart';
 import 'package:bookswap_login/features/auth/domain/registration.dart';
 
@@ -29,6 +29,9 @@ void main() {
       expect(user.profile!.preferences, ['Fiction']);
       expect(user.profile!.acceptedTermsVersion, termsVersion);
       expect(user.profile!.acceptedTermsAt.isUtc, isTrue);
+      expect(user.isMember, isFalse);
+      expect(repo.verificationEmails, 1);
+      repo.verifyEmail(user.email);
       await repo.signOut();
       expect(
         (await SignIn(repo)(' SAM@EXAMPLE.COM ', 'Reading123')).id,
