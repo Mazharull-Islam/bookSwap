@@ -54,4 +54,8 @@ out/
 **/android/**/GeneratedPluginRegistrant.java
 
 # Web related
-lib/generated_plugin_registrant.dart
+# Local Firebase configuration and emulator artifacts
+config/firebase.*.json
+!config/firebase.example.json
+.firebase/
+node_modules/

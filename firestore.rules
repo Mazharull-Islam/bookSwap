@@ -1,0 +1,46 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function owns(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+    function member() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && exists(/databases/$(database)/documents/profiles/$(request.auth.uid));
+    }
+    function text(value, min, max) {
+      return value is string && value.size() >= min && value.size() <= max;
+    }
+    function validProfile(data) {
+      return data.keys().hasAll(['email', 'firstName', 'lastName', 'gender', 'mobile', 'address', 'preferences', 'favoriteBook', 'acceptedTermsVersion', 'acceptedTermsAt'])
+        && data.keys().hasOnly(['email', 'firstName', 'lastName', 'gender', 'mobile', 'address', 'preferences', 'favoriteBook', 'acceptedTermsVersion', 'acceptedTermsAt'])
+        && data.email == request.auth.token.email.lower()
+        && text(data.firstName, 1, 100) && data.firstName.matches('.*[^ ].*')
+        && text(data.lastName, 1, 100) && data.lastName.matches('.*[^ ].*')
+        && data.gender in ['Woman', 'Man', 'Non-binary', 'Self-described / other', 'Prefer not to say']
+        && text(data.mobile, 10, 32) && data.mobile.matches('[+]?([ ()-]*[0-9]){10,15}[ ()-]*')
+        && text(data.address, 1, 200) && data.address.matches('.*[^ ].*')
+        && data.preferences is list && data.preferences.size() > 0 && data.preferences.size() <= 12
+        && data.preferences.hasOnly(['Fiction', 'Mystery', 'Fantasy', 'Science fiction', 'Romance', 'History', 'Biography', 'Self-development', 'Science & technology', 'Academic', 'Poetry', 'Other'])
+        && text(data.favoriteBook, 0, 200)
+        && data.acceptedTermsVersion == '1.1'
+        && data.acceptedTermsAt == request.time;
+    }
+    match /profiles/{uid} {
+      // Pending accounts can finish registration and read only their own profile.
+      allow get: if owns(uid);
+      allow create: if owns(uid) && validProfile(request.resource.data);
+      allow list, update, delete: if false;
+    }
+    // Membership is derived from a validated profile AND a verified Firebase token.
+    // Use member() for future member-only collections as well.
+    match /books/{bookId} {
+      allow read: if member();
+      allow write: if false;
+    }
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
