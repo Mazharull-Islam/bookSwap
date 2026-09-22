@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:bookswap_login/app/app.dart';
 import 'package:bookswap_login/features/authentication/domain/models/auth_user.dart';
 import 'package:bookswap_login/features/authentication/presentation/providers/auth_providers.dart';
@@ -24,6 +25,9 @@ Future<void> tapVisible(WidgetTester tester, Finder finder) async {
   await tester.pumpAndSettle();
 }
 
+Future<void> goToProfile(WidgetTester tester) =>
+    tapVisible(tester, find.text('Profile'));
+
 class PendingGoogleRepository extends DemoAuthRepository {
   final result = Completer<AuthUser?>();
   @override
@@ -44,9 +48,9 @@ void main() {
         );
       await tester.pumpWidget(testApp(repository));
       await tester.pumpAndSettle();
-      Navigator.of(
+      GoRouter.of(
         tester.element(find.text('Join the neighbourhood.')),
-      ).pushNamed('/login');
+      ).go('/login');
       await tester.pumpAndSettle();
       expect(find.text('Join the neighbourhood.'), findsOneWidget);
       expect(find.text('Welcome back.'), findsNothing);
@@ -114,6 +118,8 @@ void main() {
     );
     await tester.enterText(find.byKey(const Key('password')), 'BookSwap123!');
     await tapVisible(tester, find.byKey(const Key('signIn')));
+    expect(find.text('Your shelf is empty'), findsOneWidget);
+    await goToProfile(tester);
     expect(find.text('Welcome, Reader.'), findsOneWidget);
     await tapVisible(tester, find.text('Sign out'));
     expect(find.text('Welcome back.'), findsOneWidget);
@@ -189,11 +195,15 @@ void main() {
       );
       repository.verifyEmail('sam@example.com');
       await tapVisible(tester, find.text('I have verified my email'));
+      expect(find.text('Your shelf is empty'), findsOneWidget);
+      await goToProfile(tester);
       expect(find.text('Welcome, Sam.'), findsOneWidget);
       await tapVisible(tester, find.text('Sign out'));
       await enter('email', 'sam@example.com');
       await enter('password', 'Reading123');
       await tapVisible(tester, find.byKey(const Key('signIn')));
+      expect(find.text('Your shelf is empty'), findsOneWidget);
+      await goToProfile(tester);
       expect(find.text('Welcome, Sam.'), findsOneWidget);
       expect(tester.takeException(), isNull);
     },
@@ -238,6 +248,8 @@ void main() {
       await tapVisible(tester, find.widgetWithText(FilterChip, 'Fiction'));
       await tapVisible(tester, find.byKey(const Key('termsConsent')));
       await tapVisible(tester, find.byKey(const Key('createAccount')));
+      expect(find.text('Your shelf is empty'), findsOneWidget);
+      await goToProfile(tester);
       expect(find.text('Welcome, Sam.'), findsOneWidget);
       expect(find.text('Verify your email'), findsNothing);
       expect(repository.verificationEmails, 0);

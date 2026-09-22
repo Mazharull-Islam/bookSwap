@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../app/theme.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../providers/auth_providers.dart';
@@ -41,11 +42,6 @@ class _LoginFormState extends ConsumerState<_LoginForm> {
     await ref
         .read(authControllerProvider.notifier)
         .signIn(_email.text, _password.text);
-    if (!mounted) return;
-    if (!ref.read(authControllerProvider).hasError &&
-        ref.read(authControllerProvider).valueOrNull != null) {
-      Navigator.of(context).pushNamedAndRemoveUntil('/home', (_) => false);
-    }
   }
 
   bool _usingGoogle = false;
@@ -56,10 +52,6 @@ class _LoginFormState extends ConsumerState<_LoginForm> {
     await ref.read(authControllerProvider.notifier).signInWithGoogle();
     if (!mounted) return;
     setState(() => _usingGoogle = false);
-    final state = ref.read(authControllerProvider);
-    if (!state.hasError && state.valueOrNull != null) {
-      Navigator.of(context).pushNamedAndRemoveUntil('/home', (_) => false);
-    }
   }
 
   Future<void> _passwordHelp() async {
@@ -164,9 +156,7 @@ class _LoginFormState extends ConsumerState<_LoginForm> {
                                 ref
                                     .read(authControllerProvider.notifier)
                                     .clearError();
-                                Navigator.pushNamed(context, '/register').then((
-                                  _,
-                                ) {
+                                context.push('/register').then((_) {
                                   if (mounted) {
                                     ref
                                         .read(authControllerProvider.notifier)

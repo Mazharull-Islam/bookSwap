@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../app/theme.dart';
 import '../widgets/auth_widgets.dart';
 
@@ -48,7 +49,7 @@ class WelcomePage extends StatelessWidget {
                       const SizedBox(height: 32),
                       FilledButton(
                         key: const Key('getStarted'),
-                        onPressed: () => Navigator.pushNamed(context, '/login'),
+                        onPressed: () => context.push('/login'),
                         child: const Text('Get started  →'),
                       ),
                       const SizedBox(height: 20),
@@ -66,7 +67,7 @@ class WelcomePage extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       TextButton(
-                        onPressed: () => Navigator.pushNamed(context, '/terms'),
+                        onPressed: () => context.push('/terms'),
                         child: const Text('Terms & Conditions'),
                       ),
                     ],

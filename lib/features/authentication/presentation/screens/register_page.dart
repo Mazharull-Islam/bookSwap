@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../app/theme.dart';
 import '../../domain/models/registration.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -55,14 +56,10 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     setState(() => _usingGoogle = true);
     await ref.read(authControllerProvider.notifier).signInWithGoogle();
     if (!mounted) return;
-    setState(() => _usingGoogle = false);
-    final state = ref.read(authControllerProvider);
-    if (state.hasError || state.valueOrNull == null) return;
-    if (state.valueOrNull!.profile != null) {
-      Navigator.of(context).pushNamedAndRemoveUntil('/home', (_) => false);
-    } else {
-      setState(_prefill);
-    }
+    setState(() {
+      _usingGoogle = false;
+      _prefill();
+    });
   }
 
   @override
@@ -96,11 +93,6 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
             acceptedTerms: _accepted,
           ),
         );
-    if (!mounted) return;
-    if (!ref.read(authControllerProvider).hasError &&
-        ref.read(authControllerProvider).valueOrNull != null) {
-      Navigator.of(context).pushNamedAndRemoveUntil('/home', (_) => false);
-    }
   }
 
   Widget _field(
@@ -408,7 +400,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                       TextButton(
                         onPressed: loading
                             ? null
-                            : () => Navigator.pushNamed(context, '/terms'),
+                            : () => context.push('/terms'),
                         child: const Text('Read Terms & Conditions →'),
                       ),
                       if (field.hasError)
@@ -465,32 +457,16 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                 TextButton(
                   onPressed: loading
                       ? null
-                      : () {
+                      : () async {
                           ref
                               .read(authControllerProvider.notifier)
                               .clearError();
                           if (user != null) {
-                            ref
+                            await ref
                                 .read(authControllerProvider.notifier)
-                                .signOut()
-                                .then((_) {
-                                  if (context.mounted &&
-                                      !ref
-                                          .read(authControllerProvider)
-                                          .hasError) {
-                                    Navigator.of(
-                                      context,
-                                    ).pushNamedAndRemoveUntil(
-                                      '/login',
-                                      (_) => false,
-                                    );
-                                  }
-                                });
-                          } else {
-                            Navigator.of(
-                              context,
-                            ).pushNamedAndRemoveUntil('/login', (_) => false);
+                                .signOut();
                           }
+                          if (context.mounted) context.go('/login');
                         },
                   child: Text(
                     user != null
