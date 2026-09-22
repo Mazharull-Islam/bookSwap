@@ -1,8 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../shared/providers/current_user_provider.dart';
-import '../data/fake_book_repository.dart';
-import '../domain/book.dart';
-import '../domain/book_repository.dart';
+import '../../../../app/providers/current_user_provider.dart';
+import '../../application/use_cases/book_use_cases.dart';
+import '../../data/repositories/fake_book_repository.dart';
+import '../../domain/models/book.dart';
+import '../../domain/repositories/book_repository.dart';
 
 final bookRepositoryProvider = Provider<BookRepository>(
   (ref) => FakeBookRepository(),

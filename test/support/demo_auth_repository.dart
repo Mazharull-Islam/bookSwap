@@ -1,5 +1,6 @@
-import 'package:bookswap_login/features/auth/domain/auth_repository.dart';
-import 'package:bookswap_login/features/auth/domain/registration.dart';
+import 'package:bookswap_login/features/authentication/domain/models/auth_user.dart';
+import 'package:bookswap_login/features/authentication/domain/models/registration.dart';
+import 'package:bookswap_login/features/authentication/domain/repositories/auth_repository.dart';
 
 /// Prototype only: all accounts and credentials disappear on app restart.
 /// Do not enter real personal information or reuse a real password.

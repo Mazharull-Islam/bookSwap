@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'support/demo_auth_repository.dart';
-import 'package:bookswap_login/features/auth/domain/auth_repository.dart';
+import 'package:bookswap_login/features/authentication/application/use_cases/auth_use_cases.dart';
+import 'package:bookswap_login/features/authentication/domain/repositories/auth_repository.dart';
 
 void main() {
   test('Rejects malformed input before authenticating', () {

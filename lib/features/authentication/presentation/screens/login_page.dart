@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/app_theme.dart';
-import '../application/auth_controller.dart';
-import '../domain/auth_repository.dart';
-
-import 'auth_widgets.dart';
+import '../../../../app/theme.dart';
+import '../../domain/repositories/auth_repository.dart';
+import '../providers/auth_providers.dart';
+import '../widgets/auth_widgets.dart';
 
 class LoginPage extends ConsumerWidget {
   const LoginPage({super.key});

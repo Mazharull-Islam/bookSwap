@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:bookswap_login/main.dart';
-import 'package:bookswap_login/features/auth/application/auth_controller.dart';
+import 'package:bookswap_login/app/app.dart';
+import 'package:bookswap_login/features/authentication/domain/models/auth_user.dart';
+import 'package:bookswap_login/features/authentication/presentation/providers/auth_providers.dart';
 import 'support/demo_auth_repository.dart';
-import 'package:bookswap_login/features/auth/domain/auth_repository.dart';
 
 Widget testApp([DemoAuthRepository? repository]) => ProviderScope(
   overrides: [

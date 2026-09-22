@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../core/app_theme.dart';
-import '../domain/registration.dart';
-import 'auth_widgets.dart';
+import '../../../../app/theme.dart';
+import '../../domain/models/registration.dart';
+import '../widgets/auth_widgets.dart';
 
 const communityTerms = <(String, String)>[
   (

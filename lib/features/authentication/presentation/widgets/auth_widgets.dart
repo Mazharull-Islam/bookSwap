@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../core/app_theme.dart';
+import '../../../../app/theme.dart';
 
 class BookSwapBrand extends StatelessWidget {
   const BookSwapBrand({super.key});

@@ -1,4 +1,4 @@
-import 'auth_repository.dart';
+import '../repositories/auth_repository.dart';
 
 const termsVersion = '1.1';
 const bookGenres = [

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../core/app_theme.dart';
-import 'auth_widgets.dart';
+import '../../../../app/theme.dart';
+import '../widgets/auth_widgets.dart';
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});

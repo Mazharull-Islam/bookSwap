@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import '../domain/book.dart';
-import '../domain/book_repository.dart';
+import '../../domain/models/book.dart';
+import '../../domain/repositories/book_repository.dart';
 
 /// Prototype only: in-memory book store used until Hive + Firestore-backed
 /// repositories land. Keeps the books feature buildable and testable on its

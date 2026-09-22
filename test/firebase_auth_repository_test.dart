@@ -5,11 +5,11 @@ import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:bookswap_login/features/auth/data/firebase_auth_repository.dart';
-import 'package:bookswap_login/features/auth/domain/auth_repository.dart';
+import 'package:bookswap_login/features/authentication/data/repositories/firebase_auth_repository.dart';
+import 'package:bookswap_login/features/authentication/domain/repositories/auth_repository.dart';
 import 'registration_test.dart' show details;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:bookswap_login/features/auth/application/auth_controller.dart';
+import 'package:bookswap_login/features/authentication/presentation/providers/auth_providers.dart';
 
 // MockUser intentionally exposes mutable display-name fields for Firebase tests.
 // ignore: must_be_immutable
