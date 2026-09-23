@@ -19,6 +19,8 @@ class BookMetadata {
   final List<String> genres;
   final String? publishedYear;
   final String? synopsis;
+
+  String? get workKey => null;
 }
 
 class BookLookupFailure implements Exception {

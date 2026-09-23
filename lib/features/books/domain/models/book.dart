@@ -40,6 +40,7 @@ abstract class Book with _$Book {
     @Default('') String description,
     String? coverPhotoUrl,
     String? isbn,
+    String? workKey,
     @Default(BookStatus.available) BookStatus status,
   }) = _Book;
 

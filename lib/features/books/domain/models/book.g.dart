@@ -17,6 +17,7 @@ _Book _$BookFromJson(Map<String, dynamic> json) => _Book(
   description: json['description'] as String? ?? '',
   coverPhotoUrl: json['coverPhotoUrl'] as String?,
   isbn: json['isbn'] as String?,
+  workKey: json['workKey'] as String?,
   status:
       $enumDecodeNullable(_$BookStatusEnumMap, json['status']) ??
       BookStatus.available,
@@ -33,6 +34,7 @@ Map<String, dynamic> _$BookToJson(_Book instance) => <String, dynamic>{
   'description': instance.description,
   'coverPhotoUrl': instance.coverPhotoUrl,
   'isbn': instance.isbn,
+  'workKey': instance.workKey,
   'status': _$BookStatusEnumMap[instance.status]!,
 };
 

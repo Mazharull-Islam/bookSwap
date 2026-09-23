@@ -43,6 +43,7 @@ class _AddBookPageState extends ConsumerState<AddBookPage> {
   String? _publishedYear;
   String? _coverPhotoUrl;
   String? _isbn;
+  String? _workKey;
 
   bool _saving = false;
   String? _error;
@@ -60,6 +61,7 @@ class _AddBookPageState extends ConsumerState<AddBookPage> {
         : _genre.split(',').map((g) => g.trim()).toList();
     _coverPhotoUrl = existing?.coverPhotoUrl;
     _isbn = existing?.isbn;
+    _workKey = existing?.workKey;
     _title.addListener(_onTitleChanged);
   }
 
@@ -100,6 +102,7 @@ class _AddBookPageState extends ConsumerState<AddBookPage> {
       _publishedYear = suggestion.publishedYear;
       _coverPhotoUrl = suggestion.coverUrl;
       _isbn = suggestion.isbn;
+      _workKey = suggestion.workKey;
       _suggestions = [];
       _fetchingSynopsis = true;
     });
@@ -144,6 +147,7 @@ class _AddBookPageState extends ConsumerState<AddBookPage> {
       description: _description.text,
       coverPhotoUrl: _coverPhotoUrl,
       isbn: _isbn,
+      workKey: _workKey,
       status: existing?.status ?? BookStatus.available,
     );
     try {
@@ -160,9 +164,17 @@ class _AddBookPageState extends ConsumerState<AddBookPage> {
     }
   }
 
+  bool _isDuplicateOnShelf(List<Book> shelf) {
+    if (_workKey == null) return false;
+    final ownId = widget.existing?.id ?? '';
+    return shelf.any((b) => b.workKey == _workKey && b.id != ownId);
+  }
+
   @override
   Widget build(BuildContext context) {
     final isEditing = widget.existing != null;
+    final shelf = ref.watch(myShelfProvider).valueOrNull ?? const <Book>[];
+    final isDuplicate = _isDuplicateOnShelf(shelf);
     return Scaffold(
       appBar: AppBar(title: Text(isEditing ? 'Edit book' : 'Add a book')),
       body: SafeArea(
@@ -234,6 +246,36 @@ class _AddBookPageState extends ConsumerState<AddBookPage> {
                     coverUrl: _coverPhotoUrl,
                     genres: _genres,
                     publishedYear: _publishedYear,
+                  ),
+                ],
+                if (isDuplicate) ...[
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF4E5),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: const Color(0xFFE0A93A)),
+                    ),
+                    child: const Row(
+                      children: [
+                        Icon(
+                          Icons.info_outline,
+                          color: Color(0xFF8A6116),
+                          size: 20,
+                        ),
+                        SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            'Book already in shelf',
+                            style: TextStyle(color: Color(0xFF8A6116)),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
                 const SizedBox(height: 16),
