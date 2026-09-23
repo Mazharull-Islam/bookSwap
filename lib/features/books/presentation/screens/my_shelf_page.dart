@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../app/theme.dart';
+import '../../../../shared/widgets/primary_button.dart';
 import '../../domain/models/book.dart';
 import '../providers/book_providers.dart';
 import '../widgets/book_detail_dialog.dart';
@@ -22,9 +23,9 @@ class MyShelfPage extends ConsumerWidget {
             onPressed: () => Navigator.of(context).pop(false),
             child: const Text('Cancel'),
           ),
-          FilledButton(
+          PrimaryButton(
+            label: 'Remove',
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Remove'),
           ),
         ],
       ),

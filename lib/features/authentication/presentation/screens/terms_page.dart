@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../../app/theme.dart';
+import '../../../../shared/widgets/primary_button.dart';
 import '../../domain/models/registration.dart';
-import '../widgets/auth_widgets.dart';
+import '../widgets/auth_page.dart';
 
 const communityTerms = <(String, String)>[
   (
@@ -108,9 +109,9 @@ class TermsPage extends StatelessWidget {
               ],
             ),
           ),
-        FilledButton(
+        PrimaryButton(
+          label: 'Back to BookSwap',
           onPressed: () => Navigator.pop(context),
-          child: const Text('Back to BookSwap'),
         ),
         const SizedBox(height: 12),
         const Text(

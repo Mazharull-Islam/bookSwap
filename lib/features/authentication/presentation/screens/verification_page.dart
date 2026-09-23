@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../shared/widgets/primary_button.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../providers/auth_providers.dart';
-import '../widgets/auth_widgets.dart';
+import '../widgets/auth_page.dart';
 
 class VerificationPage extends ConsumerStatefulWidget {
   const VerificationPage({super.key});
@@ -89,9 +90,10 @@ class _VerificationPageState extends ConsumerState<VerificationPage> {
               ),
             ),
           const SizedBox(height: 24),
-          FilledButton(
-            onPressed: state.isLoading ? null : _check,
-            child: const Text('I have verified my email'),
+          PrimaryButton(
+            label: 'I have verified my email',
+            onPressed: _check,
+            loading: state.isLoading,
           ),
           TextButton(
             onPressed: state.isLoading ? null : _resend,

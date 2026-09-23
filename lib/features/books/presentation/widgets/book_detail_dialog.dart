@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../../../app/theme.dart';
+import '../../../../shared/widgets/primary_button.dart';
+import '../../../../shared/widgets/secondary_button.dart';
 import '../../domain/models/book.dart';
+import 'book_cover_image.dart';
 import 'book_list_tile.dart';
+import 'genre_pill_list.dart';
 
 Future<void> showBookDetailDialog(
   BuildContext context, {
@@ -34,18 +38,12 @@ Future<void> showBookDetailDialog(
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(14),
-                        child: book.coverPhotoUrl != null
-                            ? Image.network(
-                                book.coverPhotoUrl!,
-                                width: 140,
-                                height: 200,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    _placeholderCover(),
-                              )
-                            : _placeholderCover(),
+                      BookCoverImage(
+                        url: book.coverPhotoUrl,
+                        width: 140,
+                        height: 200,
+                        borderRadius: 14,
+                        iconSize: 40,
                       ),
                       const SizedBox(height: 18),
                       Text(
@@ -66,36 +64,14 @@ Future<void> showBookDetailDialog(
                       ],
                       if (genres.isNotEmpty) ...[
                         const SizedBox(height: 12),
-                        Wrap(
+                        GenrePillList(
+                          genres: genres,
                           alignment: WrapAlignment.center,
-                          spacing: 6,
-                          runSpacing: 6,
-                          children: genres
-                              .map(
-                                (genre) => Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: forest,
-                                    borderRadius: BorderRadius.circular(999),
-                                  ),
-                                  child: Text(
-                                    genre,
-                                    style: const TextStyle(
-                                      fontSize: 11,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              )
-                              .toList(),
                         ),
                       ],
                       if (book.description.isNotEmpty) ...[
                         const SizedBox(height: 18),
-                        Align(
+                        const Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
                             'Synopsis',
@@ -119,19 +95,19 @@ Future<void> showBookDetailDialog(
               Row(
                 children: [
                   Expanded(
-                    child: OutlinedButton(
+                    child: SecondaryButton(
+                      label: 'Close',
                       onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('Close'),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: FilledButton(
+                    child: PrimaryButton(
+                      label: 'Edit',
                       onPressed: () {
                         Navigator.of(context).pop();
                         onEdit();
                       },
-                      child: const Text('Edit'),
                     ),
                   ),
                 ],
@@ -143,10 +119,3 @@ Future<void> showBookDetailDialog(
     ),
   );
 }
-
-Widget _placeholderCover() => Container(
-  width: 140,
-  height: 200,
-  color: const Color(0xFFE9EEDF),
-  child: const Icon(Icons.menu_book_outlined, color: forest, size: 40),
-);

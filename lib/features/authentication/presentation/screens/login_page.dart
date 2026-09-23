@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../app/theme.dart';
+import '../../../../shared/widgets/app_text_field.dart';
+import '../../../../shared/widgets/primary_button.dart';
+import '../../../../shared/widgets/secondary_button.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../providers/auth_providers.dart';
-import '../widgets/auth_widgets.dart';
+import '../widgets/auth_page.dart';
+import '../widgets/password_input.dart';
 
 class LoginPage extends ConsumerWidget {
   const LoginPage({super.key});
@@ -25,13 +29,11 @@ class _LoginFormState extends ConsumerState<_LoginForm> {
   final _form = GlobalKey<FormState>();
   final _email = TextEditingController();
   final _password = TextEditingController();
-  final _hidden = ValueNotifier(true);
 
   @override
   void dispose() {
     _email.dispose();
     _password.dispose();
-    _hidden.dispose();
     super.dispose();
   }
 
@@ -97,8 +99,8 @@ class _LoginFormState extends ConsumerState<_LoginForm> {
               style: TextStyle(color: Color(0xFF617065), fontSize: 16),
             ),
             const SizedBox(height: 30),
-            TextFormField(
-              key: const Key('email'),
+            AppTextField(
+              fieldKey: const Key('email'),
               controller: _email,
               enabled: !loading,
               validator: validateEmail,
@@ -106,40 +108,18 @@ class _LoginFormState extends ConsumerState<_LoginForm> {
               textInputAction: TextInputAction.next,
               autofillHints: const [AutofillHints.username],
               autocorrect: false,
-              decoration: const InputDecoration(
-                labelText: 'Email address',
-                hintText: 'you@example.com',
-                prefixIcon: Icon(Icons.mail_outline_rounded),
-              ),
+              label: 'Email address',
+              hint: 'you@example.com',
+              prefixIcon: Icons.mail_outline_rounded,
             ),
             const SizedBox(height: 18),
-            ValueListenableBuilder<bool>(
-              valueListenable: _hidden,
-              builder: (context, hidden, child) => TextFormField(
-                key: const Key('password'),
-                controller: _password,
-                enabled: !loading,
-                validator: validatePassword,
-                obscureText: hidden,
-                autocorrect: false,
-                enableSuggestions: false,
-                autofillHints: const [AutofillHints.password],
-                textInputAction: TextInputAction.done,
-                onFieldSubmitted: (_) => _submit(),
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  prefixIcon: const Icon(Icons.lock_outline_rounded),
-                  suffixIcon: IconButton(
-                    tooltip: hidden ? 'Show password' : 'Hide password',
-                    onPressed: loading ? null : () => _hidden.value = !hidden,
-                    icon: Icon(
-                      hidden
-                          ? Icons.visibility_outlined
-                          : Icons.visibility_off_outlined,
-                    ),
-                  ),
-                ),
-              ),
+            PasswordInput(
+              fieldKey: const Key('password'),
+              controller: _password,
+              label: 'Password',
+              validator: validatePassword,
+              enabled: !loading,
+              onSubmitted: _submit,
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4),
@@ -211,26 +191,19 @@ class _LoginFormState extends ConsumerState<_LoginForm> {
               ),
               const SizedBox(height: 16),
             ],
-            FilledButton(
-              key: const Key('signIn'),
-              onPressed: loading ? null : _submit,
-              child: loading
-                  ? const SizedBox(
-                      height: 22,
-                      width: 22,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        semanticsLabel: 'Signing in',
-                      ),
-                    )
-                  : const Text('Sign in  →'),
+            PrimaryButton(
+              buttonKey: const Key('signIn'),
+              label: 'Sign in  →',
+              onPressed: _submit,
+              loading: loading,
+              loadingSemanticLabel: 'Signing in',
             ),
             const SizedBox(height: 26),
-            OutlinedButton.icon(
-              key: const Key('googleSignIn'),
+            SecondaryButton(
+              buttonKey: const Key('googleSignIn'),
+              label: 'Sign in with Google',
+              icon: Icons.account_circle_outlined,
               onPressed: loading ? null : _google,
-              icon: const Icon(Icons.account_circle_outlined),
-              label: const Text('Sign in with Google'),
             ),
             const SizedBox(height: 12),
             const Text(

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../app/theme.dart';
-import '../widgets/auth_widgets.dart';
+import '../../../../shared/widgets/primary_button.dart';
+import '../widgets/book_art.dart';
+import '../widgets/book_swap_brand.dart';
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
@@ -47,10 +49,10 @@ class WelcomePage extends StatelessWidget {
                         style: TextStyle(fontSize: 17, height: 1.6),
                       ),
                       const SizedBox(height: 32),
-                      FilledButton(
-                        key: const Key('getStarted'),
+                      PrimaryButton(
+                        buttonKey: const Key('getStarted'),
+                        label: 'Get started  →',
                         onPressed: () => context.push('/login'),
-                        child: const Text('Get started  →'),
                       ),
                       const SizedBox(height: 20),
                       const Row(

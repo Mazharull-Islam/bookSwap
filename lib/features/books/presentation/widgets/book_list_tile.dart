@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../app/theme.dart';
 import '../../domain/models/book.dart';
+import 'book_cover_image.dart';
 
 String bookStatusLabel(BookStatus status) => switch (status) {
   BookStatus.available => 'Available',
@@ -37,18 +38,7 @@ class BookListTile extends StatelessWidget {
     child: ListTile(
       onTap: onTap,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      leading: ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: book.coverPhotoUrl != null
-            ? Image.network(
-                book.coverPhotoUrl!,
-                width: 48,
-                height: 64,
-                fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => _placeholderCover(),
-              )
-            : _placeholderCover(),
-      ),
+      leading: BookCoverImage(url: book.coverPhotoUrl, width: 48, height: 64),
       title: Text(book.title, maxLines: 1, overflow: TextOverflow.ellipsis),
       subtitle: Text(
         '${book.author} · ${book.genre}',
@@ -75,12 +65,5 @@ class BookListTile extends StatelessWidget {
         ],
       ),
     ),
-  );
-
-  Widget _placeholderCover() => Container(
-    width: 48,
-    height: 64,
-    color: const Color(0xFFE9EEDF),
-    child: const Icon(Icons.menu_book_outlined, color: forest, size: 22),
   );
 }

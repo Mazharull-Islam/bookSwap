@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../../app/theme.dart';
 import '../../domain/models/book.dart';
+import 'book_cover_image.dart';
 import 'book_list_tile.dart';
 
 class BookGridTile extends StatelessWidget {
@@ -26,14 +26,11 @@ class BookGridTile extends StatelessWidget {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                book.coverPhotoUrl != null
-                    ? Image.network(
-                        book.coverPhotoUrl!,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            _placeholderCover(),
-                      )
-                    : _placeholderCover(),
+                BookCoverImage(
+                  url: book.coverPhotoUrl,
+                  borderRadius: 0,
+                  iconSize: 32,
+                ),
                 Positioned(
                   top: 6,
                   right: 6,
@@ -91,10 +88,5 @@ class BookGridTile extends StatelessWidget {
         ],
       ),
     ),
-  );
-
-  Widget _placeholderCover() => Container(
-    color: const Color(0xFFE9EEDF),
-    child: const Icon(Icons.menu_book_outlined, color: forest, size: 32),
   );
 }

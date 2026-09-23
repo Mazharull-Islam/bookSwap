@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../app/theme.dart';
+import '../../../../shared/widgets/app_text_field.dart';
+import '../../../../shared/widgets/primary_button.dart';
+import '../../../../shared/widgets/secondary_button.dart';
 import '../../domain/models/registration.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../providers/auth_providers.dart';
-import '../widgets/auth_widgets.dart';
+import '../widgets/auth_page.dart';
+import '../widgets/password_input.dart';
 
 class RegisterPage extends ConsumerStatefulWidget {
   const RegisterPage({super.key});
@@ -103,8 +107,8 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     String? hint,
     int lines = 1,
     Iterable<String>? autofill,
-  }) => TextFormField(
-    key: Key(name),
+  }) => AppTextField(
+    fieldKey: Key(name),
     controller: _controllers[name],
     enabled:
         !ref.watch(authControllerProvider).isLoading &&
@@ -115,11 +119,8 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     textInputAction: TextInputAction.next,
     maxLines: lines,
     autofillHints: autofill,
-    decoration: InputDecoration(
-      labelText: label,
-      hintText: hint,
-      errorMaxLines: 3,
-    ),
+    label: label,
+    hint: hint,
   );
 
   Widget _pair(Widget first, Widget second) => LayoutBuilder(
@@ -207,11 +208,11 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                 ),
                 if (user == null) ...[
                   const SizedBox(height: 16),
-                  OutlinedButton.icon(
-                    key: const Key('googleSignUp'),
+                  SecondaryButton(
+                    buttonKey: const Key('googleSignUp'),
+                    label: 'Sign up with Google',
+                    icon: Icons.account_circle_outlined,
                     onPressed: loading ? null : _google,
-                    icon: const Icon(Icons.account_circle_outlined),
-                    label: const Text('Sign up with Google'),
                   ),
                 ],
                 _heading(
@@ -439,19 +440,12 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                     ),
                   ),
                 const SizedBox(height: 20),
-                FilledButton(
-                  key: const Key('createAccount'),
-                  onPressed: loading ? null : _submit,
-                  child: loading
-                      ? const SizedBox(
-                          width: 22,
-                          height: 22,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            semanticsLabel: 'Creating account',
-                          ),
-                        )
-                      : const Text('Create account  →'),
+                PrimaryButton(
+                  buttonKey: const Key('createAccount'),
+                  label: 'Create account  →',
+                  onPressed: _submit,
+                  loading: loading,
+                  loadingSemanticLabel: 'Creating account',
                 ),
                 const SizedBox(height: 12),
                 TextButton(

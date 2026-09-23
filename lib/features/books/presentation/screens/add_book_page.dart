@@ -3,11 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/providers/current_user_provider.dart';
-import '../../../../app/theme.dart';
 import '../../../../core/services/open_library_service.dart';
+import '../../../../shared/widgets/app_text_field.dart';
+import '../../../../shared/widgets/primary_button.dart';
 import '../../domain/models/book.dart';
 import '../../domain/repositories/book_repository.dart';
 import '../providers/book_providers.dart';
+import '../widgets/book_suggestion_tile.dart';
 import '../widgets/selected_book_card.dart';
 
 class AddBookPage extends ConsumerStatefulWidget {
@@ -81,6 +83,7 @@ class _AddBookPageState extends ConsumerState<AddBookPage> {
         setState(() => _suggestions = results);
       }
     } on BookLookupFailure {
+      // Suggestions are a convenience; a lookup failure shouldn't block typing.
     } finally {
       if (mounted) setState(() => _searching = false);
     }
@@ -157,27 +160,6 @@ class _AddBookPageState extends ConsumerState<AddBookPage> {
     }
   }
 
-  Widget _suggestionCover(String? coverUrl) => ClipRRect(
-    borderRadius: BorderRadius.circular(6),
-    child: coverUrl != null
-        ? Image.network(
-            coverUrl,
-            width: 40,
-            height: 56,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) =>
-                _suggestionCoverPlaceholder(),
-          )
-        : _suggestionCoverPlaceholder(),
-  );
-
-  Widget _suggestionCoverPlaceholder() => Container(
-    width: 40,
-    height: 56,
-    color: const Color(0xFFE9EEDF),
-    child: const Icon(Icons.menu_book_outlined, color: forest, size: 18),
-  );
-
   @override
   Widget build(BuildContext context) {
     final isEditing = widget.existing != null;
@@ -196,25 +178,23 @@ class _AddBookPageState extends ConsumerState<AddBookPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      TextFormField(
+                      AppTextField(
                         controller: _title,
                         focusNode: _titleFocus,
                         enabled: !_saving,
-                        decoration: InputDecoration(
-                          labelText: 'Title',
-                          suffixIcon: _searching
-                              ? const Padding(
-                                  padding: EdgeInsets.all(12),
-                                  child: SizedBox(
-                                    height: 16,
-                                    width: 16,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
+                        label: 'Title',
+                        suffixIcon: _searching
+                            ? const Padding(
+                                padding: EdgeInsets.all(12),
+                                child: SizedBox(
+                                  height: 16,
+                                  width: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
                                   ),
-                                )
-                              : null,
-                        ),
+                                ),
+                              )
+                            : null,
                         validator: (v) => v == null || v.trim().isEmpty
                             ? 'Enter a title.'
                             : null,
@@ -234,20 +214,10 @@ class _AddBookPageState extends ConsumerState<AddBookPage> {
                             itemCount: _suggestions.length,
                             itemBuilder: (context, index) {
                               final suggestion = _suggestions[index];
-                              return ListTile(
-                                leading: _suggestionCover(suggestion.coverUrl),
-                                title: Text(
-                                  suggestion.title,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                subtitle: suggestion.author.isEmpty
-                                    ? null
-                                    : Text(
-                                        suggestion.author,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
+                              return BookSuggestionTile(
+                                title: suggestion.title,
+                                author: suggestion.author,
+                                coverUrl: suggestion.coverUrl,
                                 onTap: () => _selectSuggestion(suggestion),
                               );
                             },
@@ -278,16 +248,14 @@ class _AddBookPageState extends ConsumerState<AddBookPage> {
                       : (value) => setState(() => _condition = value!),
                 ),
                 const SizedBox(height: 16),
-                TextFormField(
+                AppTextField(
                   controller: _estimatedValue,
                   enabled: !_saving,
                   keyboardType: const TextInputType.numberWithOptions(
                     decimal: true,
                   ),
-                  decoration: const InputDecoration(
-                    labelText: 'Estimated value',
-                    prefixText: '৳ ',
-                  ),
+                  label: 'Estimated value',
+                  prefixText: '৳ ',
                   validator: (v) {
                     final parsed = double.tryParse(v ?? '');
                     if (parsed == null) return 'Enter a number.';
@@ -296,23 +264,21 @@ class _AddBookPageState extends ConsumerState<AddBookPage> {
                   },
                 ),
                 const SizedBox(height: 16),
-                TextFormField(
+                AppTextField(
                   controller: _description,
                   enabled: !_saving,
                   maxLines: 2,
-                  decoration: InputDecoration(
-                    labelText: 'Description (optional)',
-                    suffixIcon: _fetchingSynopsis
-                        ? const Padding(
-                            padding: EdgeInsets.all(12),
-                            child: SizedBox(
-                              height: 16,
-                              width: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            ),
-                          )
-                        : null,
-                  ),
+                  label: 'Description (optional)',
+                  suffixIcon: _fetchingSynopsis
+                      ? const Padding(
+                          padding: EdgeInsets.all(12),
+                          child: SizedBox(
+                            height: 16,
+                            width: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        )
+                      : null,
                 ),
                 if (!_hasSelection) ...[
                   const SizedBox(height: 16),
@@ -331,15 +297,10 @@ class _AddBookPageState extends ConsumerState<AddBookPage> {
                   ),
                 ],
                 const SizedBox(height: 24),
-                FilledButton(
-                  onPressed: (_saving || !_hasSelection) ? null : _submit,
-                  child: _saving
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : Text(isEditing ? 'Save changes' : 'Add to shelf'),
+                PrimaryButton(
+                  label: isEditing ? 'Save changes' : 'Add to shelf',
+                  onPressed: _hasSelection ? _submit : null,
+                  loading: _saving,
                 ),
               ],
             ),
