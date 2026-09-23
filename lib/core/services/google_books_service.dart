@@ -10,6 +10,7 @@ class BookMetadata {
     this.isbn,
     this.genres = const [],
     this.publishedYear,
+    this.synopsis,
   });
   final String title;
   final String author;
@@ -17,6 +18,7 @@ class BookMetadata {
   final String? isbn;
   final List<String> genres;
   final String? publishedYear;
+  final String? synopsis;
 }
 
 class BookLookupFailure implements Exception {
@@ -24,10 +26,6 @@ class BookLookupFailure implements Exception {
   final String message;
 }
 
-/// Book metadata via the Google Books API
-/// (https://developers.google.com/books/docs/v1/using). An API key is
-/// optional for light usage — set GOOGLE_BOOKS_API_KEY via --dart-define to
-/// raise Google's default per-day anonymous quota if it becomes a problem.
 class GoogleBooksService {
   GoogleBooksService(this._dio);
   final Dio _dio;
@@ -52,19 +50,20 @@ class GoogleBooksService {
     return BookMetadata(
       title: info['title'] as String? ?? '',
       author: (info['authors'] as List<dynamic>?)?.join(', ') ?? '',
-      coverUrl: (images?['thumbnail'] ?? images?['smallThumbnail'])
-          as String?,
+      coverUrl: (images?['thumbnail'] ?? images?['smallThumbnail']) as String?,
       isbn: isbn13 ?? isbn10,
       genres:
-          (info['categories'] as List<dynamic>?)?.cast<String>() ??
-          const [],
+          (info['categories'] as List<dynamic>?)?.cast<String>() ?? const [],
       publishedYear: publishedDate != null && publishedDate.length >= 4
           ? publishedDate.substring(0, 4)
           : null,
+      synopsis: info['description'] as String?,
     );
   }
 
-  /// Returns null if Google Books has no record for [isbn].
+  Future<String?> fetchSynopsis(BookMetadata suggestion) =>
+      Future.value(suggestion.synopsis);
+
   Future<BookMetadata?> lookupByIsbn(String isbn) async {
     final Response<Map<String, dynamic>> response;
     try {
@@ -80,9 +79,6 @@ class GoogleBooksService {
     return _fromVolume(items.first as Map<String, dynamic>);
   }
 
-  /// Free-text title search, used for live suggestions while typing (not an
-  /// exact lookup like [lookupByIsbn]). Returns an empty list on a blank
-  /// query or when Google Books has no matches.
   Future<List<BookMetadata>> searchByTitle(
     String query, {
     int limit = 8,
@@ -99,9 +95,7 @@ class GoogleBooksService {
         }),
       );
     } on DioException catch (e) {
-      throw BookLookupFailure(
-        'Could not search for "$trimmed": ${e.message}',
-      );
+      throw BookLookupFailure('Could not search for "$trimmed": ${e.message}');
     }
     final items = response.data?['items'] as List<dynamic>? ?? const [];
     return items

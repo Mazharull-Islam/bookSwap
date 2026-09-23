@@ -21,6 +21,8 @@ out/
 .project
 .settings/
 
+.claude
+
 # Mac
 .DS_Store
 
@@ -65,3 +67,4 @@ lib/generated_plugin_registrant.dart
 macos/
 linux/
 windows/
+

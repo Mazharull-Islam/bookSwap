@@ -23,3 +23,9 @@ final updateShelfBookProvider = Provider(
 final removeBookFromShelfProvider = Provider(
   (ref) => RemoveBookFromShelf(ref.watch(bookRepositoryProvider)),
 );
+
+enum ShelfViewMode { list, grid }
+
+final shelfViewModeProvider = StateProvider<ShelfViewMode>(
+  (ref) => ShelfViewMode.list,
+);

@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../app/theme.dart';
 
-/// Summary of the book chosen from title-search suggestions (or the book
-/// being edited), shown between the title field and the condition/description
-/// inputs so the user can confirm what they picked.
 class SelectedBookCard extends StatelessWidget {
   const SelectedBookCard({
     super.key,

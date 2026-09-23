@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/providers/current_user_provider.dart';
 import '../../../../app/theme.dart';
-import '../../../../core/services/google_books_service.dart';
+import '../../../../core/services/open_library_service.dart';
 import '../../domain/models/book.dart';
 import '../../domain/repositories/book_repository.dart';
 import '../providers/book_providers.dart';
@@ -33,9 +33,8 @@ class _AddBookPageState extends ConsumerState<AddBookPage> {
   Timer? _debounce;
   List<BookMetadata> _suggestions = [];
   bool _searching = false;
+  bool _fetchingSynopsis = false;
 
-  // Pulled from the selected suggestion (or the book being edited) rather
-  // than typed directly — there's no genre/author input anymore.
   String _author = '';
   String _genre = '';
   List<String> _genres = [];
@@ -76,21 +75,21 @@ class _AddBookPageState extends ConsumerState<AddBookPage> {
     setState(() => _searching = true);
     try {
       final results = await ref
-          .read(googleBooksServiceProvider)
+          .read(openLibraryServiceProvider)
           .searchByTitle(query);
-      // Ignore a stale response if the title changed while this was in flight.
       if (mounted && _title.text == query) {
         setState(() => _suggestions = results);
       }
     } on BookLookupFailure {
-      // Suggestions are a convenience; a lookup failure shouldn't block typing.
     } finally {
       if (mounted) setState(() => _searching = false);
     }
   }
 
-  void _selectSuggestion(BookMetadata suggestion) {
+  Future<void> _selectSuggestion(BookMetadata suggestion) async {
+    _title.removeListener(_onTitleChanged);
     _title.text = suggestion.title;
+    _title.addListener(_onTitleChanged);
     setState(() {
       _author = suggestion.author;
       _genres = suggestion.genres;
@@ -99,8 +98,17 @@ class _AddBookPageState extends ConsumerState<AddBookPage> {
       _coverPhotoUrl = suggestion.coverUrl;
       _isbn = suggestion.isbn;
       _suggestions = [];
+      _fetchingSynopsis = true;
     });
     _titleFocus.unfocus();
+    final synopsis = await ref
+        .read(openLibraryServiceProvider)
+        .fetchSynopsis(suggestion);
+    if (!mounted) return;
+    setState(() {
+      _description.text = synopsis ?? '';
+      _fetchingSynopsis = false;
+    });
   }
 
   @override
@@ -217,9 +225,7 @@ class _AddBookPageState extends ConsumerState<AddBookPage> {
                           constraints: const BoxConstraints(maxHeight: 260),
                           decoration: BoxDecoration(
                             color: Theme.of(context).colorScheme.surface,
-                            border: Border.all(
-                              color: const Color(0xFFD6DED5),
-                            ),
+                            border: Border.all(color: const Color(0xFFD6DED5)),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: ListView.builder(
@@ -229,9 +235,7 @@ class _AddBookPageState extends ConsumerState<AddBookPage> {
                             itemBuilder: (context, index) {
                               final suggestion = _suggestions[index];
                               return ListTile(
-                                leading: _suggestionCover(
-                                  suggestion.coverUrl,
-                                ),
+                                leading: _suggestionCover(suggestion.coverUrl),
                                 title: Text(
                                   suggestion.title,
                                   maxLines: 1,
@@ -282,7 +286,7 @@ class _AddBookPageState extends ConsumerState<AddBookPage> {
                   ),
                   decoration: const InputDecoration(
                     labelText: 'Estimated value',
-                    prefixText: '\$ ',
+                    prefixText: '৳ ',
                   ),
                   validator: (v) {
                     final parsed = double.tryParse(v ?? '');
@@ -295,9 +299,19 @@ class _AddBookPageState extends ConsumerState<AddBookPage> {
                 TextFormField(
                   controller: _description,
                   enabled: !_saving,
-                  maxLines: 3,
-                  decoration: const InputDecoration(
+                  maxLines: 2,
+                  decoration: InputDecoration(
                     labelText: 'Description (optional)',
+                    suffixIcon: _fetchingSynopsis
+                        ? const Padding(
+                            padding: EdgeInsets.all(12),
+                            child: SizedBox(
+                              height: 16,
+                              width: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                          )
+                        : null,
                   ),
                 ),
                 if (!_hasSelection) ...[

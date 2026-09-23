@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/theme.dart';
 import '../../domain/models/book.dart';
 import '../providers/book_providers.dart';
+import '../widgets/book_detail_dialog.dart';
+import '../widgets/book_grid_tile.dart';
 import '../widgets/book_list_tile.dart';
 
 class MyShelfPage extends ConsumerWidget {
@@ -32,11 +34,31 @@ class MyShelfPage extends ConsumerWidget {
     }
   }
 
+  void _openDetail(BuildContext context, Book book) {
+    showBookDetailDialog(
+      context,
+      book: book,
+      onEdit: () => context.push('/shelf/add', extra: book),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final shelf = ref.watch(myShelfProvider);
+    final viewMode = ref.watch(shelfViewModeProvider);
+    final isGrid = viewMode == ShelfViewMode.grid;
     return Scaffold(
-      appBar: AppBar(title: const Text('My Shelf')),
+      appBar: AppBar(
+        title: const Text('My Shelf'),
+        actions: [
+          IconButton(
+            tooltip: isGrid ? 'Switch to list view' : 'Switch to grid view',
+            icon: Icon(isGrid ? Icons.view_list_outlined : Icons.grid_view_outlined),
+            onPressed: () => ref.read(shelfViewModeProvider.notifier).state =
+                isGrid ? ShelfViewMode.list : ShelfViewMode.grid,
+          ),
+        ],
+      ),
       body: shelf.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => Center(
@@ -50,7 +72,27 @@ class MyShelfPage extends ConsumerWidget {
           ),
         ),
         data: (books) => books.isEmpty
-            ? _EmptyShelf()
+            ? const _EmptyShelf()
+            : isGrid
+            ? GridView.builder(
+                padding: const EdgeInsets.all(12),
+                gridDelegate:
+                    const SliverGridDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent: 180,
+                      childAspectRatio: 0.62,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                    ),
+                itemCount: books.length,
+                itemBuilder: (context, index) {
+                  final book = books[index];
+                  return BookGridTile(
+                    book: book,
+                    onTap: () => _openDetail(context, book),
+                    onDelete: () => _delete(ref, context, book),
+                  );
+                },
+              )
             : ListView.builder(
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 itemCount: books.length,
@@ -58,7 +100,7 @@ class MyShelfPage extends ConsumerWidget {
                   final book = books[index];
                   return BookListTile(
                     book: book,
-                    onTap: () => context.push('/shelf/add', extra: book),
+                    onTap: () => _openDetail(context, book),
                     onDelete: () => _delete(ref, context, book),
                   );
                 },
@@ -74,6 +116,8 @@ class MyShelfPage extends ConsumerWidget {
 }
 
 class _EmptyShelf extends StatelessWidget {
+  const _EmptyShelf();
+
   @override
   Widget build(BuildContext context) => Center(
     child: Padding(

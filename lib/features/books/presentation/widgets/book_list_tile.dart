@@ -16,6 +16,10 @@ Color bookStatusColor(BookStatus status) => switch (status) {
   BookStatus.returned => const Color(0xFF7A7A7A),
 };
 
+List<String> bookGenreList(String genre) => genre.trim().isEmpty
+    ? const []
+    : genre.split(',').map((g) => g.trim()).where((g) => g.isNotEmpty).toList();
+
 class BookListTile extends StatelessWidget {
   const BookListTile({
     super.key,
