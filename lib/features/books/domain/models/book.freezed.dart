@@ -15,12 +15,10 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Book {
 
- String get id; String get ownerId; String get title; String get author; String get genre; String get condition; double get estimatedValue; String get description; String? get coverPhotoUrl; String? get isbn;/// Open Library work key (e.g. "/works/OL82563W"), if this book came
-/// from a title-search selection. The canonical identity for matching
-/// the "same book" across users/editions — title/author strings alone
-/// are unreliable since a single work has many differently-titled or
-/// differently-punctuated editions.
- String? get workKey; BookStatus get status;
+ String get id; String get ownerId; String get title; String get author; String get genre; String get condition; double get estimatedValue; String get description; String? get coverPhotoUrl; String? get isbn; String? get workKey; BookStatus get status;/// Epoch milliseconds of the last local write. Set by the repository,
+/// not the UI — used for last-write-wins conflict resolution when
+/// syncing with Firestore (SRS §3.6).
+ int get updatedAtMs;
 /// Create a copy of Book
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -33,16 +31,16 @@ $BookCopyWith<Book> get copyWith => _$BookCopyWithImpl<Book>(this as Book, _$ide
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Book&&(identical(other.id, id) || other.id == id)&&(identical(other.ownerId, ownerId) || other.ownerId == ownerId)&&(identical(other.title, title) || other.title == title)&&(identical(other.author, author) || other.author == author)&&(identical(other.genre, genre) || other.genre == genre)&&(identical(other.condition, condition) || other.condition == condition)&&(identical(other.estimatedValue, estimatedValue) || other.estimatedValue == estimatedValue)&&(identical(other.description, description) || other.description == description)&&(identical(other.coverPhotoUrl, coverPhotoUrl) || other.coverPhotoUrl == coverPhotoUrl)&&(identical(other.isbn, isbn) || other.isbn == isbn)&&(identical(other.workKey, workKey) || other.workKey == workKey)&&(identical(other.status, status) || other.status == status));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Book&&(identical(other.id, id) || other.id == id)&&(identical(other.ownerId, ownerId) || other.ownerId == ownerId)&&(identical(other.title, title) || other.title == title)&&(identical(other.author, author) || other.author == author)&&(identical(other.genre, genre) || other.genre == genre)&&(identical(other.condition, condition) || other.condition == condition)&&(identical(other.estimatedValue, estimatedValue) || other.estimatedValue == estimatedValue)&&(identical(other.description, description) || other.description == description)&&(identical(other.coverPhotoUrl, coverPhotoUrl) || other.coverPhotoUrl == coverPhotoUrl)&&(identical(other.isbn, isbn) || other.isbn == isbn)&&(identical(other.workKey, workKey) || other.workKey == workKey)&&(identical(other.status, status) || other.status == status)&&(identical(other.updatedAtMs, updatedAtMs) || other.updatedAtMs == updatedAtMs));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,ownerId,title,author,genre,condition,estimatedValue,description,coverPhotoUrl,isbn,workKey,status);
+int get hashCode => Object.hash(runtimeType,id,ownerId,title,author,genre,condition,estimatedValue,description,coverPhotoUrl,isbn,workKey,status,updatedAtMs);
 
 @override
 String toString() {
-  return 'Book(id: $id, ownerId: $ownerId, title: $title, author: $author, genre: $genre, condition: $condition, estimatedValue: $estimatedValue, description: $description, coverPhotoUrl: $coverPhotoUrl, isbn: $isbn, workKey: $workKey, status: $status)';
+  return 'Book(id: $id, ownerId: $ownerId, title: $title, author: $author, genre: $genre, condition: $condition, estimatedValue: $estimatedValue, description: $description, coverPhotoUrl: $coverPhotoUrl, isbn: $isbn, workKey: $workKey, status: $status, updatedAtMs: $updatedAtMs)';
 }
 
 
@@ -53,7 +51,7 @@ abstract mixin class $BookCopyWith<$Res>  {
   factory $BookCopyWith(Book value, $Res Function(Book) _then) = _$BookCopyWithImpl;
 @useResult
 $Res call({
- String id, String ownerId, String title, String author, String genre, String condition, double estimatedValue, String description, String? coverPhotoUrl, String? isbn, String? workKey, BookStatus status
+ String id, String ownerId, String title, String author, String genre, String condition, double estimatedValue, String description, String? coverPhotoUrl, String? isbn, String? workKey, BookStatus status, int updatedAtMs
 });
 
 
@@ -70,7 +68,7 @@ class _$BookCopyWithImpl<$Res>
 
 /// Create a copy of Book
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? ownerId = null,Object? title = null,Object? author = null,Object? genre = null,Object? condition = null,Object? estimatedValue = null,Object? description = null,Object? coverPhotoUrl = freezed,Object? isbn = freezed,Object? workKey = freezed,Object? status = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? ownerId = null,Object? title = null,Object? author = null,Object? genre = null,Object? condition = null,Object? estimatedValue = null,Object? description = null,Object? coverPhotoUrl = freezed,Object? isbn = freezed,Object? workKey = freezed,Object? status = null,Object? updatedAtMs = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,ownerId: null == ownerId ? _self.ownerId : ownerId // ignore: cast_nullable_to_non_nullable
@@ -84,7 +82,8 @@ as String,coverPhotoUrl: freezed == coverPhotoUrl ? _self.coverPhotoUrl : coverP
 as String?,isbn: freezed == isbn ? _self.isbn : isbn // ignore: cast_nullable_to_non_nullable
 as String?,workKey: freezed == workKey ? _self.workKey : workKey // ignore: cast_nullable_to_non_nullable
 as String?,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
-as BookStatus,
+as BookStatus,updatedAtMs: null == updatedAtMs ? _self.updatedAtMs : updatedAtMs // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 
@@ -169,10 +168,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String ownerId,  String title,  String author,  String genre,  String condition,  double estimatedValue,  String description,  String? coverPhotoUrl,  String? isbn,  String? workKey,  BookStatus status)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String ownerId,  String title,  String author,  String genre,  String condition,  double estimatedValue,  String description,  String? coverPhotoUrl,  String? isbn,  String? workKey,  BookStatus status,  int updatedAtMs)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Book() when $default != null:
-return $default(_that.id,_that.ownerId,_that.title,_that.author,_that.genre,_that.condition,_that.estimatedValue,_that.description,_that.coverPhotoUrl,_that.isbn,_that.workKey,_that.status);case _:
+return $default(_that.id,_that.ownerId,_that.title,_that.author,_that.genre,_that.condition,_that.estimatedValue,_that.description,_that.coverPhotoUrl,_that.isbn,_that.workKey,_that.status,_that.updatedAtMs);case _:
   return orElse();
 
 }
@@ -190,10 +189,10 @@ return $default(_that.id,_that.ownerId,_that.title,_that.author,_that.genre,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String ownerId,  String title,  String author,  String genre,  String condition,  double estimatedValue,  String description,  String? coverPhotoUrl,  String? isbn,  String? workKey,  BookStatus status)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String ownerId,  String title,  String author,  String genre,  String condition,  double estimatedValue,  String description,  String? coverPhotoUrl,  String? isbn,  String? workKey,  BookStatus status,  int updatedAtMs)  $default,) {final _that = this;
 switch (_that) {
 case _Book():
-return $default(_that.id,_that.ownerId,_that.title,_that.author,_that.genre,_that.condition,_that.estimatedValue,_that.description,_that.coverPhotoUrl,_that.isbn,_that.workKey,_that.status);case _:
+return $default(_that.id,_that.ownerId,_that.title,_that.author,_that.genre,_that.condition,_that.estimatedValue,_that.description,_that.coverPhotoUrl,_that.isbn,_that.workKey,_that.status,_that.updatedAtMs);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -210,10 +209,10 @@ return $default(_that.id,_that.ownerId,_that.title,_that.author,_that.genre,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String ownerId,  String title,  String author,  String genre,  String condition,  double estimatedValue,  String description,  String? coverPhotoUrl,  String? isbn,  String? workKey,  BookStatus status)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String ownerId,  String title,  String author,  String genre,  String condition,  double estimatedValue,  String description,  String? coverPhotoUrl,  String? isbn,  String? workKey,  BookStatus status,  int updatedAtMs)?  $default,) {final _that = this;
 switch (_that) {
 case _Book() when $default != null:
-return $default(_that.id,_that.ownerId,_that.title,_that.author,_that.genre,_that.condition,_that.estimatedValue,_that.description,_that.coverPhotoUrl,_that.isbn,_that.workKey,_that.status);case _:
+return $default(_that.id,_that.ownerId,_that.title,_that.author,_that.genre,_that.condition,_that.estimatedValue,_that.description,_that.coverPhotoUrl,_that.isbn,_that.workKey,_that.status,_that.updatedAtMs);case _:
   return null;
 
 }
@@ -225,7 +224,7 @@ return $default(_that.id,_that.ownerId,_that.title,_that.author,_that.genre,_tha
 @JsonSerializable()
 
 class _Book extends Book {
-  const _Book({required this.id, required this.ownerId, required this.title, required this.author, required this.genre, required this.condition, required this.estimatedValue, this.description = '', this.coverPhotoUrl, this.isbn, this.workKey, this.status = BookStatus.available}): super._();
+  const _Book({required this.id, required this.ownerId, required this.title, required this.author, required this.genre, required this.condition, required this.estimatedValue, this.description = '', this.coverPhotoUrl, this.isbn, this.workKey, this.status = BookStatus.available, this.updatedAtMs = 0}): super._();
   factory _Book.fromJson(Map<String, dynamic> json) => _$BookFromJson(json);
 
 @override final  String id;
@@ -238,13 +237,12 @@ class _Book extends Book {
 @override@JsonKey() final  String description;
 @override final  String? coverPhotoUrl;
 @override final  String? isbn;
-/// Open Library work key (e.g. "/works/OL82563W"), if this book came
-/// from a title-search selection. The canonical identity for matching
-/// the "same book" across users/editions — title/author strings alone
-/// are unreliable since a single work has many differently-titled or
-/// differently-punctuated editions.
 @override final  String? workKey;
 @override@JsonKey() final  BookStatus status;
+/// Epoch milliseconds of the last local write. Set by the repository,
+/// not the UI — used for last-write-wins conflict resolution when
+/// syncing with Firestore (SRS §3.6).
+@override@JsonKey() final  int updatedAtMs;
 
 /// Create a copy of Book
 /// with the given fields replaced by the non-null parameter values.
@@ -259,16 +257,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Book&&(identical(other.id, id) || other.id == id)&&(identical(other.ownerId, ownerId) || other.ownerId == ownerId)&&(identical(other.title, title) || other.title == title)&&(identical(other.author, author) || other.author == author)&&(identical(other.genre, genre) || other.genre == genre)&&(identical(other.condition, condition) || other.condition == condition)&&(identical(other.estimatedValue, estimatedValue) || other.estimatedValue == estimatedValue)&&(identical(other.description, description) || other.description == description)&&(identical(other.coverPhotoUrl, coverPhotoUrl) || other.coverPhotoUrl == coverPhotoUrl)&&(identical(other.isbn, isbn) || other.isbn == isbn)&&(identical(other.workKey, workKey) || other.workKey == workKey)&&(identical(other.status, status) || other.status == status));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Book&&(identical(other.id, id) || other.id == id)&&(identical(other.ownerId, ownerId) || other.ownerId == ownerId)&&(identical(other.title, title) || other.title == title)&&(identical(other.author, author) || other.author == author)&&(identical(other.genre, genre) || other.genre == genre)&&(identical(other.condition, condition) || other.condition == condition)&&(identical(other.estimatedValue, estimatedValue) || other.estimatedValue == estimatedValue)&&(identical(other.description, description) || other.description == description)&&(identical(other.coverPhotoUrl, coverPhotoUrl) || other.coverPhotoUrl == coverPhotoUrl)&&(identical(other.isbn, isbn) || other.isbn == isbn)&&(identical(other.workKey, workKey) || other.workKey == workKey)&&(identical(other.status, status) || other.status == status)&&(identical(other.updatedAtMs, updatedAtMs) || other.updatedAtMs == updatedAtMs));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,ownerId,title,author,genre,condition,estimatedValue,description,coverPhotoUrl,isbn,workKey,status);
+int get hashCode => Object.hash(runtimeType,id,ownerId,title,author,genre,condition,estimatedValue,description,coverPhotoUrl,isbn,workKey,status,updatedAtMs);
 
 @override
 String toString() {
-  return 'Book(id: $id, ownerId: $ownerId, title: $title, author: $author, genre: $genre, condition: $condition, estimatedValue: $estimatedValue, description: $description, coverPhotoUrl: $coverPhotoUrl, isbn: $isbn, workKey: $workKey, status: $status)';
+  return 'Book(id: $id, ownerId: $ownerId, title: $title, author: $author, genre: $genre, condition: $condition, estimatedValue: $estimatedValue, description: $description, coverPhotoUrl: $coverPhotoUrl, isbn: $isbn, workKey: $workKey, status: $status, updatedAtMs: $updatedAtMs)';
 }
 
 
@@ -279,7 +277,7 @@ abstract mixin class _$BookCopyWith<$Res> implements $BookCopyWith<$Res> {
   factory _$BookCopyWith(_Book value, $Res Function(_Book) _then) = __$BookCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String ownerId, String title, String author, String genre, String condition, double estimatedValue, String description, String? coverPhotoUrl, String? isbn, String? workKey, BookStatus status
+ String id, String ownerId, String title, String author, String genre, String condition, double estimatedValue, String description, String? coverPhotoUrl, String? isbn, String? workKey, BookStatus status, int updatedAtMs
 });
 
 
@@ -296,7 +294,7 @@ class __$BookCopyWithImpl<$Res>
 
 /// Create a copy of Book
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? ownerId = null,Object? title = null,Object? author = null,Object? genre = null,Object? condition = null,Object? estimatedValue = null,Object? description = null,Object? coverPhotoUrl = freezed,Object? isbn = freezed,Object? workKey = freezed,Object? status = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? ownerId = null,Object? title = null,Object? author = null,Object? genre = null,Object? condition = null,Object? estimatedValue = null,Object? description = null,Object? coverPhotoUrl = freezed,Object? isbn = freezed,Object? workKey = freezed,Object? status = null,Object? updatedAtMs = null,}) {
   return _then(_Book(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,ownerId: null == ownerId ? _self.ownerId : ownerId // ignore: cast_nullable_to_non_nullable
@@ -310,7 +308,8 @@ as String,coverPhotoUrl: freezed == coverPhotoUrl ? _self.coverPhotoUrl : coverP
 as String?,isbn: freezed == isbn ? _self.isbn : isbn // ignore: cast_nullable_to_non_nullable
 as String?,workKey: freezed == workKey ? _self.workKey : workKey // ignore: cast_nullable_to_non_nullable
 as String?,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
-as BookStatus,
+as BookStatus,updatedAtMs: null == updatedAtMs ? _self.updatedAtMs : updatedAtMs // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 

@@ -21,6 +21,7 @@ _Book _$BookFromJson(Map<String, dynamic> json) => _Book(
   status:
       $enumDecodeNullable(_$BookStatusEnumMap, json['status']) ??
       BookStatus.available,
+  updatedAtMs: (json['updatedAtMs'] as num?)?.toInt() ?? 0,
 );
 
 Map<String, dynamic> _$BookToJson(_Book instance) => <String, dynamic>{
@@ -36,6 +37,7 @@ Map<String, dynamic> _$BookToJson(_Book instance) => <String, dynamic>{
   'isbn': instance.isbn,
   'workKey': instance.workKey,
   'status': _$BookStatusEnumMap[instance.status]!,
+  'updatedAtMs': instance.updatedAtMs,
 };
 
 const _$BookStatusEnumMap = {

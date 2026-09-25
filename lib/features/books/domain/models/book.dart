@@ -42,6 +42,10 @@ abstract class Book with _$Book {
     String? isbn,
     String? workKey,
     @Default(BookStatus.available) BookStatus status,
+    /// Epoch milliseconds of the last local write. Set by the repository,
+    /// not the UI — used for last-write-wins conflict resolution when
+    /// syncing with Firestore (SRS §3.6).
+    @Default(0) int updatedAtMs,
   }) = _Book;
 
   factory Book.fromJson(Map<String, dynamic> json) => _$BookFromJson(json);
