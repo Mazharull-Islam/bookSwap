@@ -200,6 +200,11 @@ class FirebaseAuthRepository implements AuthRepository {
       );
     }
     final profile = _store.collection('profiles').doc(user.uid);
+    // A minimal, member-readable doc so other users can see who owns a
+    // book without ever reaching the full profile (phone/address/email) —
+    // that one stays owner-only. Contact details are only ever revealed
+    // through the borrow-request flow, not discovery.
+    final publicProfile = _store.collection('public_profiles').doc(user.uid);
     // A retry can finish a partially-created account, but never replaces a profile.
     await _network(
       _store.runTransaction((transaction) async {
@@ -209,6 +214,9 @@ class FirebaseAuthRepository implements AuthRepository {
             ...ReaderProfile(registration).toMap(),
             'email': user!.email!.toLowerCase(),
             'acceptedTermsAt': FieldValue.serverTimestamp(),
+          });
+          transaction.set(publicProfile, {
+            'firstName': registration.firstName.trim(),
           });
         }
       }),
