@@ -1,21 +1,63 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../app/providers/current_user_provider.dart';
 import '../../../../app/theme.dart';
+import '../../../../shared/widgets/owner_label.dart';
+import '../../../../shared/widgets/primary_button.dart';
+import '../../../books/domain/models/book.dart';
 import '../../../books/presentation/widgets/book_cover_image.dart';
 import '../../../books/presentation/widgets/book_list_tile.dart';
 import '../../../books/presentation/widgets/genre_pill_list.dart';
+import '../../../borrow_requests/domain/repositories/request_repository.dart';
+import '../../../borrow_requests/presentation/providers/request_providers.dart';
 import '../../domain/book_group.dart';
-import 'owner_label.dart';
 
-/// A non-full-screen "quick look" at every listing of a book (one per
-/// owner/edition). Shows who owns each copy (first name only, via the
-/// member-readable public profile) — but never contact details, which per
-/// the SRS only get revealed once a borrow request is accepted.
 Future<void> showBookGroupDetailDialog(BuildContext context, BookGroup group) {
-  final book = group.representative;
-  final genres = bookGenreList(book.genre);
   return showDialog(
     context: context,
-    builder: (context) => Dialog(
+    builder: (context) => _BookGroupDetailDialog(group: group),
+  );
+}
+
+class _BookGroupDetailDialog extends ConsumerStatefulWidget {
+  const _BookGroupDetailDialog({required this.group});
+  final BookGroup group;
+
+  @override
+  ConsumerState<_BookGroupDetailDialog> createState() =>
+      _BookGroupDetailDialogState();
+}
+
+class _BookGroupDetailDialogState
+    extends ConsumerState<_BookGroupDetailDialog> {
+  final _sending = <String>{};
+  final _sent = <String>{};
+
+  Future<void> _request(Book listing) async {
+    setState(() => _sending.add(listing.id));
+    try {
+      await ref.read(sendBorrowRequestProvider)(
+        book: listing,
+        borrowerId: ref.read(currentUserProvider).id,
+      );
+      if (mounted) setState(() => _sent.add(listing.id));
+    } on RequestValidationFailure catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.message)),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _sending.remove(listing.id));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final group = widget.group;
+    final book = group.representative;
+    final genres = bookGenreList(book.genre);
+    return Dialog(
       insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: ConstrainedBox(
@@ -83,58 +125,7 @@ Future<void> showBookGroupDetailDialog(BuildContext context, BookGroup group) {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      ...group.listings.map(
-                        (listing) => Container(
-                          width: double.infinity,
-                          margin: const EdgeInsets.only(bottom: 8),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 10,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFE9EEDF),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: OwnerLabel(
-                                      ownerId: listing.ownerId,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ),
-                                  Chip(
-                                    label: Text(
-                                      bookStatusLabel(listing.status),
-                                      style: const TextStyle(
-                                        fontSize: 11,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    backgroundColor: bookStatusColor(
-                                      listing.status,
-                                    ),
-                                    padding: EdgeInsets.zero,
-                                    visualDensity: VisualDensity.compact,
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Condition: ${listing.condition}',
-                                style: const TextStyle(
-                                  color: Color(0xFF617065),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                      ...group.listings.map(_listingCard),
                     ],
                   ),
                 ),
@@ -143,6 +134,66 @@ Future<void> showBookGroupDetailDialog(BuildContext context, BookGroup group) {
           ),
         ),
       ),
-    ),
-  );
+    );
+  }
+
+  Widget _listingCard(Book listing) {
+    final canRequest = listing.status == BookStatus.available;
+    final sending = _sending.contains(listing.id);
+    final sent = _sent.contains(listing.id);
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: const Color(0xFFE9EEDF),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: OwnerLabel(
+                  ownerId: listing.ownerId,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
+              Chip(
+                label: Text(
+                  bookStatusLabel(listing.status),
+                  style: const TextStyle(fontSize: 11, color: Colors.white),
+                ),
+                backgroundColor: bookStatusColor(listing.status),
+                padding: EdgeInsets.zero,
+                visualDensity: VisualDensity.compact,
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Condition: ${listing.condition}',
+            style: const TextStyle(color: Color(0xFF617065)),
+          ),
+          if (canRequest) ...[
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: sent
+                  ? const OutlinedButton(
+                      onPressed: null,
+                      child: Text('Requested ✓'),
+                    )
+                  : PrimaryButton(
+                      label: 'Request to borrow',
+                      onPressed: () => _request(listing),
+                      loading: sending,
+                    ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
 }

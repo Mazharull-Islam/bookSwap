@@ -69,6 +69,57 @@ service cloud.firestore {
       allow create, update: if member() && validBook(request.resource.data, bookId);
       allow delete: if member() && resource.data.ownerId == request.auth.uid;
     }
+    function validRequest(data, requestId) {
+      return data.keys().hasAll(['id', 'bookId', 'bookTitle', 'bookCoverUrl', 'borrowerId', 'lenderId', 'status', 'requestedAt', 'respondedAt', 'expectedReturnDateMs', 'borrowerContact', 'lenderContact'])
+        && data.keys().hasOnly(['id', 'bookId', 'bookTitle', 'bookCoverUrl', 'borrowerId', 'lenderId', 'status', 'requestedAt', 'respondedAt', 'expectedReturnDateMs', 'borrowerContact', 'lenderContact'])
+        && data.id == requestId
+        && text(data.bookId, 1, 200)
+        && text(data.bookTitle, 1, 300)
+        && (data.bookCoverUrl == null || data.bookCoverUrl is string)
+        && text(data.borrowerId, 1, 200)
+        && text(data.lenderId, 1, 200)
+        && data.borrowerId != data.lenderId
+        && data.status in ['pending', 'accepted', 'declined']
+        && data.requestedAt is number
+        && (data.respondedAt == null || data.respondedAt is number)
+        && (data.expectedReturnDateMs == null || data.expectedReturnDateMs is number)
+        && (data.borrowerContact == null || text(data.borrowerContact, 1, 32))
+        && (data.lenderContact == null || text(data.lenderContact, 1, 32));
+    }
+    // Contact fields (borrowerContact/lenderContact) are deliberately absent
+    // until each party explicitly reveals theirs — never both at creation.
+    // See BorrowRequest/FirestoreRequestRepository for the write choreography
+    // this enforces: only the lender may accept/decline, only the borrower
+    // may publish their own contact, and only after acceptance.
+    match /requests/{requestId} {
+      allow read: if member()
+        && (resource.data.borrowerId == request.auth.uid
+            || resource.data.lenderId == request.auth.uid);
+      allow create: if member()
+        && validRequest(request.resource.data, requestId)
+        && request.resource.data.borrowerId == request.auth.uid
+        && request.resource.data.status == 'pending'
+        && request.resource.data.respondedAt == null
+        && request.resource.data.expectedReturnDateMs == null
+        && request.resource.data.borrowerContact == null
+        && request.resource.data.lenderContact == null;
+      allow update: if member() && validRequest(request.resource.data, requestId) && (
+        (resource.data.lenderId == request.auth.uid
+          && resource.data.status == 'pending'
+          && request.resource.data.borrowerId == resource.data.borrowerId
+          && request.resource.data.lenderId == resource.data.lenderId
+          && request.resource.data.bookId == resource.data.bookId
+          && request.resource.data.status in ['accepted', 'declined']
+          && request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(['status', 'respondedAt', 'expectedReturnDateMs', 'lenderContact']))
+        ||
+        (resource.data.borrowerId == request.auth.uid
+          && resource.data.status == 'accepted'
+          && request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(['borrowerContact']))
+      );
+      allow delete: if false;
+    }
     match /{document=**} {
       allow read, write: if false;
     }

@@ -12,6 +12,9 @@ import '../features/authentication/presentation/screens/welcome_page.dart';
 import '../features/books/domain/models/book.dart';
 import '../features/books/presentation/screens/add_book_page.dart';
 import '../features/books/presentation/screens/my_shelf_page.dart';
+import '../features/borrow_requests/domain/models/borrow_request.dart';
+import '../features/borrow_requests/presentation/providers/request_providers.dart';
+import '../features/borrow_requests/presentation/screens/requests_page.dart';
 import '../features/discovery/presentation/screens/discovery_page.dart';
 import 'providers/book_sync_controller.dart';
 
@@ -32,7 +35,6 @@ _AuthStage _stageOf(AsyncValue<AuthUser?> state) {
   return _AuthStage.authenticated;
 }
 
-/// Where a location must be for a given auth stage — null means "stay put".
 String? _redirectFor(_AuthStage stage, String location) {
   if (location == '/terms') return null;
   switch (stage) {
@@ -47,7 +49,8 @@ String? _redirectFor(_AuthStage stage, String location) {
     case _AuthStage.authenticated:
       return location.startsWith('/shelf') ||
               location == '/profile' ||
-              location == '/discover'
+              location == '/discover' ||
+              location == '/requests'
           ? null
           : '/shelf';
   }
@@ -98,6 +101,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const DiscoveryPage(),
           ),
           GoRoute(
+            path: '/requests',
+            builder: (context, state) => const RequestsPage(),
+          ),
+          GoRoute(
             path: '/profile',
             builder: (context, state) => const ProfilePage(),
           ),
@@ -123,28 +130,41 @@ class AppShell extends ConsumerWidget {
   const AppShell({super.key, required this.child});
   final Widget child;
 
-  static const _tabs = ['/shelf', '/discover', '/profile'];
+  static const _tabs = ['/shelf', '/discover', '/requests', '/profile'];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(bookSyncControllerProvider);
     final location = GoRouterState.of(context).matchedLocation;
     final index = _tabs.indexOf(location);
+    final pendingCount = ref
+        .watch(incomingRequestsProvider)
+        .valueOrNull
+        ?.where((r) => r.status == RequestStatus.pending)
+        .length;
     return Scaffold(
       body: child,
       bottomNavigationBar: NavigationBar(
         selectedIndex: index < 0 ? 0 : index,
         onDestinationSelected: (i) => context.go(_tabs[i]),
-        destinations: const [
-          NavigationDestination(
+        destinations: [
+          const NavigationDestination(
             icon: Icon(Icons.menu_book_outlined),
             label: 'My Shelf',
           ),
-          NavigationDestination(
+          const NavigationDestination(
             icon: Icon(Icons.search),
             label: 'Discover',
           ),
           NavigationDestination(
+            icon: Badge.count(
+              count: pendingCount ?? 0,
+              isLabelVisible: (pendingCount ?? 0) > 0,
+              child: const Icon(Icons.swap_horiz),
+            ),
+            label: 'Requests',
+          ),
+          const NavigationDestination(
             icon: Icon(Icons.person_outline),
             label: 'Profile',
           ),
