@@ -17,6 +17,7 @@ class AppTextField extends StatelessWidget {
     this.prefixIcon,
     this.prefixText,
     this.suffixIcon,
+    this.onChanged,
     this.onFieldSubmitted,
     this.focusNode,
   });
@@ -35,6 +36,7 @@ class AppTextField extends StatelessWidget {
   final IconData? prefixIcon;
   final String? prefixText;
   final Widget? suffixIcon;
+  final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onFieldSubmitted;
   final FocusNode? focusNode;
 
@@ -50,6 +52,7 @@ class AppTextField extends StatelessWidget {
     maxLines: maxLines,
     autofillHints: autofillHints,
     autocorrect: autocorrect,
+    onChanged: onChanged,
     onFieldSubmitted: onFieldSubmitted,
     decoration: InputDecoration(
       labelText: label,
