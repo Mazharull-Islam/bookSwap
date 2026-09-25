@@ -33,11 +33,41 @@ service cloud.firestore {
       allow create: if owns(uid) && validProfile(request.resource.data);
       allow list, update, delete: if false;
     }
+    function validPublicProfile(data) {
+      return data.keys().hasOnly(['firstName'])
+        && text(data.firstName, 1, 100);
+    }
+    // Deliberately separate from /profiles: this is the only piece of another
+    // member's identity anyone can read before a borrow request is accepted —
+    // no contact info (mobile/email/address) ever lives here.
+    match /public_profiles/{uid} {
+      allow get: if member();
+      allow create: if owns(uid) && validPublicProfile(request.resource.data);
+      allow list, update, delete: if false;
+    }
+    function validBook(data, bookId) {
+      return data.keys().hasAll(['id', 'ownerId', 'title', 'author', 'genre', 'condition', 'estimatedValue', 'description', 'coverPhotoUrl', 'isbn', 'workKey', 'status', 'updatedAtMs'])
+        && data.keys().hasOnly(['id', 'ownerId', 'title', 'author', 'genre', 'condition', 'estimatedValue', 'description', 'coverPhotoUrl', 'isbn', 'workKey', 'status', 'updatedAtMs'])
+        && data.id == bookId
+        && data.ownerId == request.auth.uid
+        && text(data.title, 1, 300) && data.title.matches('.*[^ ].*')
+        && text(data.author, 0, 300)
+        && text(data.genre, 0, 300)
+        && text(data.condition, 1, 50)
+        && data.estimatedValue is number && data.estimatedValue >= 0
+        && text(data.description, 0, 2000)
+        && (data.coverPhotoUrl == null || data.coverPhotoUrl is string)
+        && (data.isbn == null || data.isbn is string)
+        && (data.workKey == null || data.workKey is string)
+        && data.status in ['available', 'requested', 'lent', 'returned']
+        && data.updatedAtMs is number;
+    }
     // Membership is derived from a validated profile AND a verified Firebase token.
     // Use member() for future member-only collections as well.
     match /books/{bookId} {
       allow read: if member();
-      allow write: if false;
+      allow create, update: if member() && validBook(request.resource.data, bookId);
+      allow delete: if member() && resource.data.ownerId == request.auth.uid;
     }
     match /{document=**} {
       allow read, write: if false;

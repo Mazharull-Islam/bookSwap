@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../app/providers/current_user_provider.dart';
 import '../../../../app/theme.dart';
+import '../../../../core/services/book_sync_service.dart';
 import '../../../../shared/widgets/primary_button.dart';
 import '../../domain/models/book.dart';
 import '../providers/book_providers.dart';
@@ -43,6 +45,9 @@ class MyShelfPage extends ConsumerWidget {
     );
   }
 
+  Future<void> _refresh(WidgetRef ref) =>
+      ref.read(bookSyncServiceProvider).sync(ref.read(currentUserProvider).id);
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final shelf = ref.watch(myShelfProvider);
@@ -60,52 +65,59 @@ class MyShelfPage extends ConsumerWidget {
           ),
         ],
       ),
-      body: shelf.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, _) => Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Text(
-              'Could not load your shelf. Please try again.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
+      body: RefreshIndicator(
+        onRefresh: () => _refresh(ref),
+        child: shelf.when(
+          loading: () => const _ScrollableCenter(
+            child: CircularProgressIndicator(),
+          ),
+          error: (error, _) => _ScrollableCenter(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Text(
+                'Could not load your shelf. Please try again.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
             ),
           ),
+          data: (books) => books.isEmpty
+              ? const _ScrollableCenter(child: _EmptyShelf())
+              : isGrid
+              ? GridView.builder(
+                  padding: const EdgeInsets.all(12),
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  gridDelegate:
+                      const SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: 180,
+                        childAspectRatio: 0.62,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 12,
+                      ),
+                  itemCount: books.length,
+                  itemBuilder: (context, index) {
+                    final book = books[index];
+                    return BookGridTile(
+                      book: book,
+                      onTap: () => _openDetail(context, book),
+                      onDelete: () => _delete(ref, context, book),
+                    );
+                  },
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  itemCount: books.length,
+                  itemBuilder: (context, index) {
+                    final book = books[index];
+                    return BookListTile(
+                      book: book,
+                      onTap: () => _openDetail(context, book),
+                      onDelete: () => _delete(ref, context, book),
+                    );
+                  },
+                ),
         ),
-        data: (books) => books.isEmpty
-            ? const _EmptyShelf()
-            : isGrid
-            ? GridView.builder(
-                padding: const EdgeInsets.all(12),
-                gridDelegate:
-                    const SliverGridDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: 180,
-                      childAspectRatio: 0.62,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                    ),
-                itemCount: books.length,
-                itemBuilder: (context, index) {
-                  final book = books[index];
-                  return BookGridTile(
-                    book: book,
-                    onTap: () => _openDetail(context, book),
-                    onDelete: () => _delete(ref, context, book),
-                  );
-                },
-              )
-            : ListView.builder(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                itemCount: books.length,
-                itemBuilder: (context, index) {
-                  final book = books[index];
-                  return BookListTile(
-                    book: book,
-                    onTap: () => _openDetail(context, book),
-                    onDelete: () => _delete(ref, context, book),
-                  );
-                },
-              ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.push('/shelf/add'),
@@ -114,6 +126,27 @@ class MyShelfPage extends ConsumerWidget {
       ),
     );
   }
+}
+
+/// Wraps non-list states (loading/error/empty) in a scrollable so
+/// [RefreshIndicator] can still be pulled even when there's nothing to
+/// naturally scroll.
+class _ScrollableCenter extends StatelessWidget {
+  const _ScrollableCenter({required this.child});
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) => ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      children: [
+        SizedBox(
+          height: constraints.maxHeight,
+          child: Center(child: child),
+        ),
+      ],
+    ),
+  );
 }
 
 class _EmptyShelf extends StatelessWidget {

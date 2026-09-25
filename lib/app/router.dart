@@ -12,6 +12,8 @@ import '../features/authentication/presentation/screens/welcome_page.dart';
 import '../features/books/domain/models/book.dart';
 import '../features/books/presentation/screens/add_book_page.dart';
 import '../features/books/presentation/screens/my_shelf_page.dart';
+import '../features/discovery/presentation/screens/discovery_page.dart';
+import 'providers/book_sync_controller.dart';
 
 enum _AuthStage {
   loading,
@@ -43,7 +45,9 @@ String? _redirectFor(_AuthStage stage, String location) {
     case _AuthStage.needsVerification:
       return location == '/verify' ? null : '/verify';
     case _AuthStage.authenticated:
-      return location.startsWith('/shelf') || location == '/profile'
+      return location.startsWith('/shelf') ||
+              location == '/profile' ||
+              location == '/discover'
           ? null
           : '/shelf';
   }
@@ -90,6 +94,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const MyShelfPage(),
           ),
           GoRoute(
+            path: '/discover',
+            builder: (context, state) => const DiscoveryPage(),
+          ),
+          GoRoute(
             path: '/profile',
             builder: (context, state) => const ProfilePage(),
           ),
@@ -111,14 +119,15 @@ class _RootPage extends ConsumerWidget {
   }
 }
 
-class AppShell extends StatelessWidget {
+class AppShell extends ConsumerWidget {
   const AppShell({super.key, required this.child});
   final Widget child;
 
-  static const _tabs = ['/shelf', '/profile'];
+  static const _tabs = ['/shelf', '/discover', '/profile'];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(bookSyncControllerProvider);
     final location = GoRouterState.of(context).matchedLocation;
     final index = _tabs.indexOf(location);
     return Scaffold(
@@ -130,6 +139,10 @@ class AppShell extends StatelessWidget {
           NavigationDestination(
             icon: Icon(Icons.menu_book_outlined),
             label: 'My Shelf',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.search),
+            label: 'Discover',
           ),
           NavigationDestination(
             icon: Icon(Icons.person_outline),

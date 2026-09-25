@@ -1,19 +1,29 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:bookswap_login/app/app.dart';
+import 'package:bookswap_login/core/database/hive_service.dart';
+import 'package:bookswap_login/core/services/book_sync_service.dart';
 import 'package:bookswap_login/features/authentication/domain/models/auth_user.dart';
 import 'package:bookswap_login/features/authentication/presentation/providers/auth_providers.dart';
 import 'support/demo_auth_repository.dart';
+
+class _NoopBookSyncService implements BookSyncService {
+  @override
+  Future<void> sync(String uid) async {}
+}
 
 Widget testApp([DemoAuthRepository? repository]) => ProviderScope(
   overrides: [
     authRepositoryProvider.overrideWithValue(
       repository ?? DemoAuthRepository(),
     ),
+    bookSyncServiceProvider.overrideWithValue(_NoopBookSyncService()),
   ],
   child: const BookSwapApp(),
 );
@@ -35,6 +45,19 @@ class PendingGoogleRepository extends DemoAuthRepository {
 }
 
 void main() {
+  late Directory hiveDir;
+
+  setUpAll(() async {
+    hiveDir = await Directory.systemTemp.createTemp('bookswap_hive_test_');
+    Hive.init(hiveDir.path);
+    await Hive.openBox<Map>(HiveService.booksBoxName);
+  });
+
+  tearDownAll(() async {
+    await Hive.close();
+    if (hiveDir.existsSync()) hiveDir.deleteSync(recursive: true);
+  });
+
   testWidgets(
     'Returning to login with a restored Google session resumes registration',
     (tester) async {
