@@ -70,8 +70,8 @@ service cloud.firestore {
       allow delete: if member() && resource.data.ownerId == request.auth.uid;
     }
     function validRequest(data, requestId) {
-      return data.keys().hasAll(['id', 'bookId', 'bookTitle', 'bookCoverUrl', 'borrowerId', 'lenderId', 'status', 'requestedAt', 'respondedAt', 'expectedReturnDateMs', 'borrowerContact', 'lenderContact'])
-        && data.keys().hasOnly(['id', 'bookId', 'bookTitle', 'bookCoverUrl', 'borrowerId', 'lenderId', 'status', 'requestedAt', 'respondedAt', 'expectedReturnDateMs', 'borrowerContact', 'lenderContact'])
+      return data.keys().hasAll(['id', 'bookId', 'bookTitle', 'bookCoverUrl', 'borrowerId', 'lenderId', 'status', 'requestedAt', 'respondedAt', 'expectedReturnDateMs', 'borrowerContact', 'lenderContact', 'returnedAt'])
+        && data.keys().hasOnly(['id', 'bookId', 'bookTitle', 'bookCoverUrl', 'borrowerId', 'lenderId', 'status', 'requestedAt', 'respondedAt', 'expectedReturnDateMs', 'borrowerContact', 'lenderContact', 'returnedAt'])
         && data.id == requestId
         && text(data.bookId, 1, 200)
         && text(data.bookTitle, 1, 300)
@@ -84,7 +84,8 @@ service cloud.firestore {
         && (data.respondedAt == null || data.respondedAt is number)
         && (data.expectedReturnDateMs == null || data.expectedReturnDateMs is number)
         && (data.borrowerContact == null || text(data.borrowerContact, 1, 32))
-        && (data.lenderContact == null || text(data.lenderContact, 1, 32));
+        && (data.lenderContact == null || text(data.lenderContact, 1, 32))
+        && (data.returnedAt == null || data.returnedAt is number);
     }
     // Contact fields (borrowerContact/lenderContact) are deliberately absent
     // until each party explicitly reveals theirs — never both at creation.
@@ -102,7 +103,8 @@ service cloud.firestore {
         && request.resource.data.respondedAt == null
         && request.resource.data.expectedReturnDateMs == null
         && request.resource.data.borrowerContact == null
-        && request.resource.data.lenderContact == null;
+        && request.resource.data.lenderContact == null
+        && request.resource.data.returnedAt == null;
       allow update: if member() && validRequest(request.resource.data, requestId) && (
         (resource.data.lenderId == request.auth.uid
           && resource.data.status == 'pending'
@@ -117,8 +119,45 @@ service cloud.firestore {
           && resource.data.status == 'accepted'
           && request.resource.data.diff(resource.data).affectedKeys()
                .hasOnly(['borrowerContact']))
+        ||
+        // Loan Lifecycle (SRS §3.5): lender-only, marks an active loan as
+        // returned. Trimmed from the spec's "either party" — only the
+        // lender's client can write the corresponding book status change
+        // (books/{bookId} rules require ownerId == auth.uid), so having the
+        // borrower separately flag a return here would just be inert state
+        // with no matching book-status effect.
+        (resource.data.lenderId == request.auth.uid
+          && resource.data.status == 'accepted'
+          && resource.data.returnedAt == null
+          && request.resource.data.status == 'accepted'
+          && request.resource.data.returnedAt is number
+          && request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(['returnedAt']))
       );
       allow delete: if false;
+    }
+    function validWantedBook(data, wantedId) {
+      return data.keys().hasAll(['id', 'userId', 'title', 'author', 'coverUrl', 'workKey', 'matchKey', 'addedAtMs'])
+        && data.keys().hasOnly(['id', 'userId', 'title', 'author', 'coverUrl', 'workKey', 'matchKey', 'addedAtMs'])
+        && data.id == wantedId
+        && data.userId == request.auth.uid
+        && text(data.title, 1, 300)
+        && text(data.author, 0, 300)
+        && (data.coverUrl == null || data.coverUrl is string)
+        && (data.workKey == null || data.workKey is string)
+        && text(data.matchKey, 1, 300)
+        && data.addedAtMs is number;
+    }
+    // Member-readable like /books: every wishlist entry is visible to every
+    // member, deliberately, because mutual-swap detection (SRS §3.5) runs
+    // entirely on-device from these two collections — there's no backend
+    // function to do the matching centrally. A wanted title carries none of
+    // the contact/location sensitivity that gates /requests.
+    match /wanted_books/{wantedId} {
+      allow read: if member();
+      allow create: if member() && validWantedBook(request.resource.data, wantedId);
+      allow update: if false;
+      allow delete: if member() && resource.data.userId == request.auth.uid;
     }
     match /{document=**} {
       allow read, write: if false;

@@ -16,6 +16,8 @@ import '../features/borrow_requests/domain/models/borrow_request.dart';
 import '../features/borrow_requests/presentation/providers/request_providers.dart';
 import '../features/borrow_requests/presentation/screens/requests_page.dart';
 import '../features/discovery/presentation/screens/discovery_page.dart';
+import '../features/wanted_books/presentation/providers/wanted_book_providers.dart';
+import '../features/wanted_books/presentation/screens/wanted_books_page.dart';
 import 'providers/book_sync_controller.dart';
 
 enum _AuthStage {
@@ -50,6 +52,7 @@ String? _redirectFor(_AuthStage stage, String location) {
       return location.startsWith('/shelf') ||
               location == '/profile' ||
               location == '/discover' ||
+              location == '/wishlist' ||
               location == '/requests'
           ? null
           : '/shelf';
@@ -101,6 +104,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const DiscoveryPage(),
           ),
           GoRoute(
+            path: '/wishlist',
+            builder: (context, state) => const WantedBooksPage(),
+          ),
+          GoRoute(
             path: '/requests',
             builder: (context, state) => const RequestsPage(),
           ),
@@ -130,7 +137,13 @@ class AppShell extends ConsumerWidget {
   const AppShell({super.key, required this.child});
   final Widget child;
 
-  static const _tabs = ['/shelf', '/discover', '/requests', '/profile'];
+  static const _tabs = [
+    '/shelf',
+    '/discover',
+    '/wishlist',
+    '/requests',
+    '/profile',
+  ];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -142,6 +155,7 @@ class AppShell extends ConsumerWidget {
         .valueOrNull
         ?.where((r) => r.status == RequestStatus.pending)
         .length;
+    final matchCount = ref.watch(mutualMatchesProvider).length;
     return Scaffold(
       body: child,
       bottomNavigationBar: NavigationBar(
@@ -155,6 +169,14 @@ class AppShell extends ConsumerWidget {
           const NavigationDestination(
             icon: Icon(Icons.search),
             label: 'Discover',
+          ),
+          NavigationDestination(
+            icon: Badge.count(
+              count: matchCount,
+              isLabelVisible: matchCount > 0,
+              child: const Icon(Icons.favorite_border),
+            ),
+            label: 'Wishlist',
           ),
           NavigationDestination(
             icon: Badge.count(
