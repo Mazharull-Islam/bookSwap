@@ -27,4 +27,7 @@ abstract interface class RequestRepository {
   Future<void> decline(String requestId);
 
   Future<void> shareBorrowerContact(String requestId, String contact);
+
+  /// Lender-only: marks an active loan as returned/exchanged.
+  Future<void> markReturned(String requestId);
 }

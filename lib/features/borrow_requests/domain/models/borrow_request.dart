@@ -20,6 +20,9 @@ abstract class BorrowRequest with _$BorrowRequest {
     int? expectedReturnDateMs,
     String? borrowerContact,
     String? lenderContact,
+    /// Set once the lender marks the loan as returned/exchanged. Null means
+    /// the loan (if accepted) is still active. Drives loan history (SRS §3.5).
+    int? returnedAt,
   }) = _BorrowRequest;
 
   factory BorrowRequest.fromJson(Map<String, dynamic> json) =>

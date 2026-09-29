@@ -15,11 +15,9 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$BorrowRequest {
 
- String get id; String get bookId; String get bookTitle; String? get bookCoverUrl; String get borrowerId; String get lenderId; RequestStatus get status; int get requestedAt; int? get respondedAt; int? get expectedReturnDateMs;// Denormalized onto the request itself (not read from /profiles) so
-// Firestore rules can gate exactly when each becomes visible — neither
-// is present until the lender accepts; the borrower's is only added
-// once they explicitly choose to share it. See firestore.rules.
- String? get borrowerContact; String? get lenderContact;
+ String get id; String get bookId; String get bookTitle; String? get bookCoverUrl; String get borrowerId; String get lenderId; RequestStatus get status; int get requestedAt; int? get respondedAt; int? get expectedReturnDateMs; String? get borrowerContact; String? get lenderContact;/// Set once the lender marks the loan as returned/exchanged. Null means
+/// the loan (if accepted) is still active. Drives loan history (SRS §3.5).
+ int? get returnedAt;
 /// Create a copy of BorrowRequest
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -32,16 +30,16 @@ $BorrowRequestCopyWith<BorrowRequest> get copyWith => _$BorrowRequestCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is BorrowRequest&&(identical(other.id, id) || other.id == id)&&(identical(other.bookId, bookId) || other.bookId == bookId)&&(identical(other.bookTitle, bookTitle) || other.bookTitle == bookTitle)&&(identical(other.bookCoverUrl, bookCoverUrl) || other.bookCoverUrl == bookCoverUrl)&&(identical(other.borrowerId, borrowerId) || other.borrowerId == borrowerId)&&(identical(other.lenderId, lenderId) || other.lenderId == lenderId)&&(identical(other.status, status) || other.status == status)&&(identical(other.requestedAt, requestedAt) || other.requestedAt == requestedAt)&&(identical(other.respondedAt, respondedAt) || other.respondedAt == respondedAt)&&(identical(other.expectedReturnDateMs, expectedReturnDateMs) || other.expectedReturnDateMs == expectedReturnDateMs)&&(identical(other.borrowerContact, borrowerContact) || other.borrowerContact == borrowerContact)&&(identical(other.lenderContact, lenderContact) || other.lenderContact == lenderContact));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is BorrowRequest&&(identical(other.id, id) || other.id == id)&&(identical(other.bookId, bookId) || other.bookId == bookId)&&(identical(other.bookTitle, bookTitle) || other.bookTitle == bookTitle)&&(identical(other.bookCoverUrl, bookCoverUrl) || other.bookCoverUrl == bookCoverUrl)&&(identical(other.borrowerId, borrowerId) || other.borrowerId == borrowerId)&&(identical(other.lenderId, lenderId) || other.lenderId == lenderId)&&(identical(other.status, status) || other.status == status)&&(identical(other.requestedAt, requestedAt) || other.requestedAt == requestedAt)&&(identical(other.respondedAt, respondedAt) || other.respondedAt == respondedAt)&&(identical(other.expectedReturnDateMs, expectedReturnDateMs) || other.expectedReturnDateMs == expectedReturnDateMs)&&(identical(other.borrowerContact, borrowerContact) || other.borrowerContact == borrowerContact)&&(identical(other.lenderContact, lenderContact) || other.lenderContact == lenderContact)&&(identical(other.returnedAt, returnedAt) || other.returnedAt == returnedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,bookId,bookTitle,bookCoverUrl,borrowerId,lenderId,status,requestedAt,respondedAt,expectedReturnDateMs,borrowerContact,lenderContact);
+int get hashCode => Object.hash(runtimeType,id,bookId,bookTitle,bookCoverUrl,borrowerId,lenderId,status,requestedAt,respondedAt,expectedReturnDateMs,borrowerContact,lenderContact,returnedAt);
 
 @override
 String toString() {
-  return 'BorrowRequest(id: $id, bookId: $bookId, bookTitle: $bookTitle, bookCoverUrl: $bookCoverUrl, borrowerId: $borrowerId, lenderId: $lenderId, status: $status, requestedAt: $requestedAt, respondedAt: $respondedAt, expectedReturnDateMs: $expectedReturnDateMs, borrowerContact: $borrowerContact, lenderContact: $lenderContact)';
+  return 'BorrowRequest(id: $id, bookId: $bookId, bookTitle: $bookTitle, bookCoverUrl: $bookCoverUrl, borrowerId: $borrowerId, lenderId: $lenderId, status: $status, requestedAt: $requestedAt, respondedAt: $respondedAt, expectedReturnDateMs: $expectedReturnDateMs, borrowerContact: $borrowerContact, lenderContact: $lenderContact, returnedAt: $returnedAt)';
 }
 
 
@@ -52,7 +50,7 @@ abstract mixin class $BorrowRequestCopyWith<$Res>  {
   factory $BorrowRequestCopyWith(BorrowRequest value, $Res Function(BorrowRequest) _then) = _$BorrowRequestCopyWithImpl;
 @useResult
 $Res call({
- String id, String bookId, String bookTitle, String? bookCoverUrl, String borrowerId, String lenderId, RequestStatus status, int requestedAt, int? respondedAt, int? expectedReturnDateMs, String? borrowerContact, String? lenderContact
+ String id, String bookId, String bookTitle, String? bookCoverUrl, String borrowerId, String lenderId, RequestStatus status, int requestedAt, int? respondedAt, int? expectedReturnDateMs, String? borrowerContact, String? lenderContact, int? returnedAt
 });
 
 
@@ -69,7 +67,7 @@ class _$BorrowRequestCopyWithImpl<$Res>
 
 /// Create a copy of BorrowRequest
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? bookId = null,Object? bookTitle = null,Object? bookCoverUrl = freezed,Object? borrowerId = null,Object? lenderId = null,Object? status = null,Object? requestedAt = null,Object? respondedAt = freezed,Object? expectedReturnDateMs = freezed,Object? borrowerContact = freezed,Object? lenderContact = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? bookId = null,Object? bookTitle = null,Object? bookCoverUrl = freezed,Object? borrowerId = null,Object? lenderId = null,Object? status = null,Object? requestedAt = null,Object? respondedAt = freezed,Object? expectedReturnDateMs = freezed,Object? borrowerContact = freezed,Object? lenderContact = freezed,Object? returnedAt = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,bookId: null == bookId ? _self.bookId : bookId // ignore: cast_nullable_to_non_nullable
@@ -83,7 +81,8 @@ as int,respondedAt: freezed == respondedAt ? _self.respondedAt : respondedAt // 
 as int?,expectedReturnDateMs: freezed == expectedReturnDateMs ? _self.expectedReturnDateMs : expectedReturnDateMs // ignore: cast_nullable_to_non_nullable
 as int?,borrowerContact: freezed == borrowerContact ? _self.borrowerContact : borrowerContact // ignore: cast_nullable_to_non_nullable
 as String?,lenderContact: freezed == lenderContact ? _self.lenderContact : lenderContact // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,returnedAt: freezed == returnedAt ? _self.returnedAt : returnedAt // ignore: cast_nullable_to_non_nullable
+as int?,
   ));
 }
 
@@ -168,10 +167,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String bookId,  String bookTitle,  String? bookCoverUrl,  String borrowerId,  String lenderId,  RequestStatus status,  int requestedAt,  int? respondedAt,  int? expectedReturnDateMs,  String? borrowerContact,  String? lenderContact)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String bookId,  String bookTitle,  String? bookCoverUrl,  String borrowerId,  String lenderId,  RequestStatus status,  int requestedAt,  int? respondedAt,  int? expectedReturnDateMs,  String? borrowerContact,  String? lenderContact,  int? returnedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _BorrowRequest() when $default != null:
-return $default(_that.id,_that.bookId,_that.bookTitle,_that.bookCoverUrl,_that.borrowerId,_that.lenderId,_that.status,_that.requestedAt,_that.respondedAt,_that.expectedReturnDateMs,_that.borrowerContact,_that.lenderContact);case _:
+return $default(_that.id,_that.bookId,_that.bookTitle,_that.bookCoverUrl,_that.borrowerId,_that.lenderId,_that.status,_that.requestedAt,_that.respondedAt,_that.expectedReturnDateMs,_that.borrowerContact,_that.lenderContact,_that.returnedAt);case _:
   return orElse();
 
 }
@@ -189,10 +188,10 @@ return $default(_that.id,_that.bookId,_that.bookTitle,_that.bookCoverUrl,_that.b
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String bookId,  String bookTitle,  String? bookCoverUrl,  String borrowerId,  String lenderId,  RequestStatus status,  int requestedAt,  int? respondedAt,  int? expectedReturnDateMs,  String? borrowerContact,  String? lenderContact)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String bookId,  String bookTitle,  String? bookCoverUrl,  String borrowerId,  String lenderId,  RequestStatus status,  int requestedAt,  int? respondedAt,  int? expectedReturnDateMs,  String? borrowerContact,  String? lenderContact,  int? returnedAt)  $default,) {final _that = this;
 switch (_that) {
 case _BorrowRequest():
-return $default(_that.id,_that.bookId,_that.bookTitle,_that.bookCoverUrl,_that.borrowerId,_that.lenderId,_that.status,_that.requestedAt,_that.respondedAt,_that.expectedReturnDateMs,_that.borrowerContact,_that.lenderContact);case _:
+return $default(_that.id,_that.bookId,_that.bookTitle,_that.bookCoverUrl,_that.borrowerId,_that.lenderId,_that.status,_that.requestedAt,_that.respondedAt,_that.expectedReturnDateMs,_that.borrowerContact,_that.lenderContact,_that.returnedAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -209,10 +208,10 @@ return $default(_that.id,_that.bookId,_that.bookTitle,_that.bookCoverUrl,_that.b
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String bookId,  String bookTitle,  String? bookCoverUrl,  String borrowerId,  String lenderId,  RequestStatus status,  int requestedAt,  int? respondedAt,  int? expectedReturnDateMs,  String? borrowerContact,  String? lenderContact)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String bookId,  String bookTitle,  String? bookCoverUrl,  String borrowerId,  String lenderId,  RequestStatus status,  int requestedAt,  int? respondedAt,  int? expectedReturnDateMs,  String? borrowerContact,  String? lenderContact,  int? returnedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _BorrowRequest() when $default != null:
-return $default(_that.id,_that.bookId,_that.bookTitle,_that.bookCoverUrl,_that.borrowerId,_that.lenderId,_that.status,_that.requestedAt,_that.respondedAt,_that.expectedReturnDateMs,_that.borrowerContact,_that.lenderContact);case _:
+return $default(_that.id,_that.bookId,_that.bookTitle,_that.bookCoverUrl,_that.borrowerId,_that.lenderId,_that.status,_that.requestedAt,_that.respondedAt,_that.expectedReturnDateMs,_that.borrowerContact,_that.lenderContact,_that.returnedAt);case _:
   return null;
 
 }
@@ -224,7 +223,7 @@ return $default(_that.id,_that.bookId,_that.bookTitle,_that.bookCoverUrl,_that.b
 @JsonSerializable()
 
 class _BorrowRequest implements BorrowRequest {
-  const _BorrowRequest({required this.id, required this.bookId, required this.bookTitle, this.bookCoverUrl, required this.borrowerId, required this.lenderId, this.status = RequestStatus.pending, required this.requestedAt, this.respondedAt, this.expectedReturnDateMs, this.borrowerContact, this.lenderContact});
+  const _BorrowRequest({required this.id, required this.bookId, required this.bookTitle, this.bookCoverUrl, required this.borrowerId, required this.lenderId, this.status = RequestStatus.pending, required this.requestedAt, this.respondedAt, this.expectedReturnDateMs, this.borrowerContact, this.lenderContact, this.returnedAt});
   factory _BorrowRequest.fromJson(Map<String, dynamic> json) => _$BorrowRequestFromJson(json);
 
 @override final  String id;
@@ -237,12 +236,11 @@ class _BorrowRequest implements BorrowRequest {
 @override final  int requestedAt;
 @override final  int? respondedAt;
 @override final  int? expectedReturnDateMs;
-// Denormalized onto the request itself (not read from /profiles) so
-// Firestore rules can gate exactly when each becomes visible — neither
-// is present until the lender accepts; the borrower's is only added
-// once they explicitly choose to share it. See firestore.rules.
 @override final  String? borrowerContact;
 @override final  String? lenderContact;
+/// Set once the lender marks the loan as returned/exchanged. Null means
+/// the loan (if accepted) is still active. Drives loan history (SRS §3.5).
+@override final  int? returnedAt;
 
 /// Create a copy of BorrowRequest
 /// with the given fields replaced by the non-null parameter values.
@@ -257,16 +255,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BorrowRequest&&(identical(other.id, id) || other.id == id)&&(identical(other.bookId, bookId) || other.bookId == bookId)&&(identical(other.bookTitle, bookTitle) || other.bookTitle == bookTitle)&&(identical(other.bookCoverUrl, bookCoverUrl) || other.bookCoverUrl == bookCoverUrl)&&(identical(other.borrowerId, borrowerId) || other.borrowerId == borrowerId)&&(identical(other.lenderId, lenderId) || other.lenderId == lenderId)&&(identical(other.status, status) || other.status == status)&&(identical(other.requestedAt, requestedAt) || other.requestedAt == requestedAt)&&(identical(other.respondedAt, respondedAt) || other.respondedAt == respondedAt)&&(identical(other.expectedReturnDateMs, expectedReturnDateMs) || other.expectedReturnDateMs == expectedReturnDateMs)&&(identical(other.borrowerContact, borrowerContact) || other.borrowerContact == borrowerContact)&&(identical(other.lenderContact, lenderContact) || other.lenderContact == lenderContact));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _BorrowRequest&&(identical(other.id, id) || other.id == id)&&(identical(other.bookId, bookId) || other.bookId == bookId)&&(identical(other.bookTitle, bookTitle) || other.bookTitle == bookTitle)&&(identical(other.bookCoverUrl, bookCoverUrl) || other.bookCoverUrl == bookCoverUrl)&&(identical(other.borrowerId, borrowerId) || other.borrowerId == borrowerId)&&(identical(other.lenderId, lenderId) || other.lenderId == lenderId)&&(identical(other.status, status) || other.status == status)&&(identical(other.requestedAt, requestedAt) || other.requestedAt == requestedAt)&&(identical(other.respondedAt, respondedAt) || other.respondedAt == respondedAt)&&(identical(other.expectedReturnDateMs, expectedReturnDateMs) || other.expectedReturnDateMs == expectedReturnDateMs)&&(identical(other.borrowerContact, borrowerContact) || other.borrowerContact == borrowerContact)&&(identical(other.lenderContact, lenderContact) || other.lenderContact == lenderContact)&&(identical(other.returnedAt, returnedAt) || other.returnedAt == returnedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,bookId,bookTitle,bookCoverUrl,borrowerId,lenderId,status,requestedAt,respondedAt,expectedReturnDateMs,borrowerContact,lenderContact);
+int get hashCode => Object.hash(runtimeType,id,bookId,bookTitle,bookCoverUrl,borrowerId,lenderId,status,requestedAt,respondedAt,expectedReturnDateMs,borrowerContact,lenderContact,returnedAt);
 
 @override
 String toString() {
-  return 'BorrowRequest(id: $id, bookId: $bookId, bookTitle: $bookTitle, bookCoverUrl: $bookCoverUrl, borrowerId: $borrowerId, lenderId: $lenderId, status: $status, requestedAt: $requestedAt, respondedAt: $respondedAt, expectedReturnDateMs: $expectedReturnDateMs, borrowerContact: $borrowerContact, lenderContact: $lenderContact)';
+  return 'BorrowRequest(id: $id, bookId: $bookId, bookTitle: $bookTitle, bookCoverUrl: $bookCoverUrl, borrowerId: $borrowerId, lenderId: $lenderId, status: $status, requestedAt: $requestedAt, respondedAt: $respondedAt, expectedReturnDateMs: $expectedReturnDateMs, borrowerContact: $borrowerContact, lenderContact: $lenderContact, returnedAt: $returnedAt)';
 }
 
 
@@ -277,7 +275,7 @@ abstract mixin class _$BorrowRequestCopyWith<$Res> implements $BorrowRequestCopy
   factory _$BorrowRequestCopyWith(_BorrowRequest value, $Res Function(_BorrowRequest) _then) = __$BorrowRequestCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String bookId, String bookTitle, String? bookCoverUrl, String borrowerId, String lenderId, RequestStatus status, int requestedAt, int? respondedAt, int? expectedReturnDateMs, String? borrowerContact, String? lenderContact
+ String id, String bookId, String bookTitle, String? bookCoverUrl, String borrowerId, String lenderId, RequestStatus status, int requestedAt, int? respondedAt, int? expectedReturnDateMs, String? borrowerContact, String? lenderContact, int? returnedAt
 });
 
 
@@ -294,7 +292,7 @@ class __$BorrowRequestCopyWithImpl<$Res>
 
 /// Create a copy of BorrowRequest
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? bookId = null,Object? bookTitle = null,Object? bookCoverUrl = freezed,Object? borrowerId = null,Object? lenderId = null,Object? status = null,Object? requestedAt = null,Object? respondedAt = freezed,Object? expectedReturnDateMs = freezed,Object? borrowerContact = freezed,Object? lenderContact = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? bookId = null,Object? bookTitle = null,Object? bookCoverUrl = freezed,Object? borrowerId = null,Object? lenderId = null,Object? status = null,Object? requestedAt = null,Object? respondedAt = freezed,Object? expectedReturnDateMs = freezed,Object? borrowerContact = freezed,Object? lenderContact = freezed,Object? returnedAt = freezed,}) {
   return _then(_BorrowRequest(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,bookId: null == bookId ? _self.bookId : bookId // ignore: cast_nullable_to_non_nullable
@@ -308,7 +306,8 @@ as int,respondedAt: freezed == respondedAt ? _self.respondedAt : respondedAt // 
 as int?,expectedReturnDateMs: freezed == expectedReturnDateMs ? _self.expectedReturnDateMs : expectedReturnDateMs // ignore: cast_nullable_to_non_nullable
 as int?,borrowerContact: freezed == borrowerContact ? _self.borrowerContact : borrowerContact // ignore: cast_nullable_to_non_nullable
 as String?,lenderContact: freezed == lenderContact ? _self.lenderContact : lenderContact // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,returnedAt: freezed == returnedAt ? _self.returnedAt : returnedAt // ignore: cast_nullable_to_non_nullable
+as int?,
   ));
 }
 

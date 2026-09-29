@@ -36,6 +36,9 @@ class FirestoreRequestRepository implements RequestRepository {
     if (book.ownerId == borrowerId) {
       throw const RequestValidationFailure("You can't request your own book.");
     }
+    if (book.status != BookStatus.available) {
+      throw const RequestValidationFailure('This book is no longer available.');
+    }
     final existingPending = await _requests
         .where('bookId', isEqualTo: book.id)
         .where('borrowerId', isEqualTo: borrowerId)
@@ -81,4 +84,9 @@ class FirestoreRequestRepository implements RequestRepository {
   @override
   Future<void> shareBorrowerContact(String requestId, String contact) =>
       _requests.doc(requestId).update({'borrowerContact': contact});
+
+  @override
+  Future<void> markReturned(String requestId) => _requests.doc(requestId).update({
+    'returnedAt': DateTime.now().millisecondsSinceEpoch,
+  });
 }

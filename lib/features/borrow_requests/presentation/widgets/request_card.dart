@@ -3,15 +3,17 @@ import '../../../../shared/widgets/owner_label.dart';
 import '../../../books/presentation/widgets/book_cover_image.dart';
 import '../../domain/models/borrow_request.dart';
 
-String requestStatusLabel(RequestStatus status) => switch (status) {
+String requestStatusLabel(BorrowRequest request) => switch (request.status) {
   RequestStatus.pending => 'Pending',
-  RequestStatus.accepted => 'Accepted',
+  RequestStatus.accepted =>
+    request.returnedAt == null ? 'Accepted' : 'Returned',
   RequestStatus.declined => 'Declined',
 };
 
-Color requestStatusColor(RequestStatus status) => switch (status) {
+Color requestStatusColor(BorrowRequest request) => switch (request.status) {
   RequestStatus.pending => const Color(0xFFB16C46),
-  RequestStatus.accepted => const Color(0xFF254E3B),
+  RequestStatus.accepted =>
+    request.returnedAt == null ? const Color(0xFF254E3B) : const Color(0xFF7A7A7A),
   RequestStatus.declined => const Color(0xFF7A7A7A),
 };
 
@@ -62,10 +64,10 @@ class RequestCard extends StatelessWidget {
               ),
               Chip(
                 label: Text(
-                  requestStatusLabel(request.status),
+                  requestStatusLabel(request),
                   style: const TextStyle(fontSize: 11, color: Colors.white),
                 ),
-                backgroundColor: requestStatusColor(request.status),
+                backgroundColor: requestStatusColor(request),
                 padding: EdgeInsets.zero,
                 visualDensity: VisualDensity.compact,
               ),

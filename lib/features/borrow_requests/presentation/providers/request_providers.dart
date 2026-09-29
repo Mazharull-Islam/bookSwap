@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/providers/current_user_provider.dart';
+import '../../../books/presentation/providers/book_providers.dart';
 import '../../application/use_cases/request_use_cases.dart';
 import '../../data/repositories/firestore_request_repository.dart';
 import '../../domain/models/borrow_request.dart';
@@ -24,11 +25,20 @@ final sendBorrowRequestProvider = Provider(
   (ref) => SendBorrowRequest(ref.watch(requestRepositoryProvider)),
 );
 final acceptBorrowRequestProvider = Provider(
-  (ref) => AcceptBorrowRequest(ref.watch(requestRepositoryProvider)),
+  (ref) => AcceptBorrowRequest(
+    ref.watch(requestRepositoryProvider),
+    ref.watch(bookRepositoryProvider),
+  ),
 );
 final declineBorrowRequestProvider = Provider(
   (ref) => DeclineBorrowRequest(ref.watch(requestRepositoryProvider)),
 );
 final shareBorrowerContactProvider = Provider(
   (ref) => ShareBorrowerContact(ref.watch(requestRepositoryProvider)),
+);
+final markLoanReturnedProvider = Provider(
+  (ref) => MarkLoanReturned(
+    ref.watch(requestRepositoryProvider),
+    ref.watch(bookRepositoryProvider),
+  ),
 );
