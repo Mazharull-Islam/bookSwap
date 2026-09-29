@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/theme.dart';
+import '../../../../app/widgets/nav_menu_button.dart';
+import '../../../../app/widgets/profile_nav_button.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../../../books/presentation/providers/book_providers.dart';
 import '../providers/discovery_providers.dart';
@@ -42,6 +44,10 @@ class _DiscoveryPageState extends ConsumerState<DiscoveryPage> {
                 ref.read(discoveryViewModeProvider.notifier).state =
                     isGrid ? ShelfViewMode.list : ShelfViewMode.grid,
           ),
+          const SizedBox(width: 8),
+          const ProfileNavButton(),
+          const NavMenuButton(),
+          const SizedBox(width: 4),
         ],
       ),
       body: Padding(

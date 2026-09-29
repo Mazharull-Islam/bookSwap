@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/providers/current_user_provider.dart';
 import '../../../../app/theme.dart';
+import '../../../../app/widgets/nav_menu_button.dart';
+import '../../../../app/widgets/profile_nav_button.dart';
 import '../../../../core/services/open_library_service.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../../../books/domain/models/book.dart';
@@ -143,7 +145,14 @@ class _WantedBooksPageState extends ConsumerState<WantedBooksPage> {
     final wanted = ref.watch(myWantedBooksProvider);
     final matches = ref.watch(mutualMatchesProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Wishlist')),
+      appBar: AppBar(
+        title: const Text('Wishlist'),
+        actions: const [
+          ProfileNavButton(),
+          NavMenuButton(),
+          SizedBox(width: 4),
+        ],
+      ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(16),
