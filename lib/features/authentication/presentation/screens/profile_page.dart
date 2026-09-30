@@ -51,7 +51,12 @@ class ProfilePage extends ConsumerWidget {
                     'You’re an official BookSwap member.\nYour next chapter starts here.',
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 28),
+                  const SizedBox(height: 16),
+                  OutlinedButton(
+                    onPressed: () => context.push('/blocked'),
+                    child: const Text('Manage blocked users'),
+                  ),
+                  const SizedBox(height: 20),
                   PrimaryButton(
                     label: 'Sign out',
                     onPressed: () async {

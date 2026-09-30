@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../app/providers/current_user_provider.dart';
 import '../../../../app/theme.dart';
 import '../../../../app/widgets/nav_menu_button.dart';
 import '../../../../app/widgets/profile_nav_button.dart';
+import '../../../../core/services/public_profile_service.dart';
 import '../../../../shared/widgets/pill_tab_bar.dart';
 import '../../../../shared/widgets/primary_button.dart';
 import '../../../authentication/presentation/providers/auth_providers.dart';
+import '../../../blocking/presentation/providers/block_providers.dart';
 import '../../domain/models/borrow_request.dart';
 import '../providers/request_providers.dart';
 import '../widgets/request_card.dart';
@@ -118,6 +121,52 @@ class _IncomingTab extends ConsumerWidget {
     required bool approve,
   }) => ref.read(resolveLoanExtensionProvider)(request.id, approve: approve);
 
+  Future<void> _block(
+    BuildContext context,
+    WidgetRef ref,
+    BorrowRequest request,
+  ) async {
+    final name =
+        ref.read(displayNameProvider(request.borrowerId)).valueOrNull ??
+        'this user';
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Block $name?'),
+        content: Text(
+          "$name won't be able to send you new borrow requests. "
+          'You can unblock them later from your profile.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          PrimaryButton(
+            label: 'Block',
+            onPressed: () => Navigator.of(context).pop(true),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    await ref.read(blockUserProvider)(
+      blockerId: ref.read(currentUserProvider).id,
+      blockedId: request.borrowerId,
+      blockedName: name,
+    );
+    // A block covers future requests, not this one — clean up the existing
+    // pending one at the same time so it doesn't linger.
+    if (request.status == RequestStatus.pending) {
+      await _decline(ref, request);
+    }
+    if (context.mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Blocked $name.')));
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final requests = ref.watch(incomingRequestsProvider);
@@ -143,6 +192,7 @@ class _IncomingTab extends ConsumerWidget {
             return RequestCard(
               request: request,
               otherPartyId: request.borrowerId,
+              onBlock: () => _block(context, ref, request),
               footer: switch (request.status) {
                 RequestStatus.pending => Row(
                   children: [

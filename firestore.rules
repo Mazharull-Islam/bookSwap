@@ -114,7 +114,12 @@ service cloud.firestore {
         && request.resource.data.borrowerContact == null
         && request.resource.data.lenderContact == null
         && request.resource.data.returnedAt == null
-        && request.resource.data.proposedReturnDateMs == null;
+        && request.resource.data.proposedReturnDateMs == null
+        // SRS §3.4: prevent a blocked user from sending new requests to the
+        // user who blocked them. exists() works without a read grant on
+        // /blocks, which is what makes this enforceable without exposing
+        // the borrower's own read access to the lender's block list.
+        && !exists(/databases/$(database)/documents/blocks/$(request.resource.data.lenderId + '_' + request.resource.data.borrowerId));
       allow update: if member() && validRequest(request.resource.data, requestId) && (
         (resource.data.lenderId == request.auth.uid
           && resource.data.status == 'pending'
@@ -200,6 +205,28 @@ service cloud.firestore {
       allow create: if member() && validWantedBook(request.resource.data, wantedId);
       allow update: if false;
       allow delete: if member() && resource.data.userId == request.auth.uid;
+    }
+    function validBlock(data, blockId) {
+      return data.keys().hasAll(['id', 'blockerId', 'blockedId', 'blockedName', 'createdAtMs'])
+        && data.keys().hasOnly(['id', 'blockerId', 'blockedId', 'blockedName', 'createdAtMs'])
+        && data.id == blockId
+        && data.id == data.blockerId + '_' + data.blockedId
+        && data.blockerId == request.auth.uid
+        && text(data.blockedId, 1, 200)
+        && data.blockerId != data.blockedId
+        && text(data.blockedName, 1, 200)
+        && data.createdAtMs is number;
+    }
+    // Deliberately NOT member-readable like /books or /wanted_books — who
+    // you've blocked is private to you. The doc id is the composite
+    // '{blockerId}_{blockedId}' precisely so /requests' create rule can do a
+    // targeted exists() check (below) without needing read access here:
+    // exists() evaluates independently of read rules.
+    match /blocks/{blockId} {
+      allow read: if member() && resource.data.blockerId == request.auth.uid;
+      allow create: if member() && validBlock(request.resource.data, blockId);
+      allow update: if false;
+      allow delete: if member() && resource.data.blockerId == request.auth.uid;
     }
     match /{document=**} {
       allow read, write: if false;

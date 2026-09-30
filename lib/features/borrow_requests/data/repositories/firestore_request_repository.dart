@@ -59,7 +59,21 @@ class FirestoreRequestRepository implements RequestRepository {
       lenderId: book.ownerId,
       requestedAt: DateTime.now().millisecondsSinceEpoch,
     );
-    await doc.set(request.toJson());
+    try {
+      await doc.set(request.toJson());
+    } on FirebaseException catch (e) {
+      // The lender may have blocked this borrower (SRS §3.4) — the rules
+      // enforce that at write time via a private /blocks lookup the client
+      // can't read directly, so a rejected write is the first signal of it.
+      // Deliberately vague: this shouldn't confirm to the sender that they
+      // were specifically blocked.
+      if (e.code == 'permission-denied') {
+        throw const RequestValidationFailure(
+          "This user isn't accepting requests right now.",
+        );
+      }
+      rethrow;
+    }
     return request;
   }
 

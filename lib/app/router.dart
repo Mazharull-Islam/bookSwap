@@ -9,6 +9,7 @@ import '../features/authentication/presentation/screens/register_page.dart';
 import '../features/authentication/presentation/screens/terms_page.dart';
 import '../features/authentication/presentation/screens/verification_page.dart';
 import '../features/authentication/presentation/screens/welcome_page.dart';
+import '../features/blocking/presentation/screens/blocked_users_page.dart';
 import '../features/books/domain/models/book.dart';
 import '../features/books/presentation/screens/add_book_page.dart';
 import '../features/books/presentation/screens/my_shelf_page.dart';
@@ -52,7 +53,8 @@ String? _redirectFor(_AuthStage stage, String location) {
               location == '/discover' ||
               location == '/wishlist' ||
               location == '/reading' ||
-              location == '/requests'
+              location == '/requests' ||
+              location == '/blocked'
           ? null
           : '/shelf';
   }
@@ -90,6 +92,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/shelf/add',
         builder: (context, state) =>
             AddBookPage(existing: state.extra as Book?),
+      ),
+      GoRoute(
+        path: '/blocked',
+        builder: (context, state) => const BlockedUsersPage(),
       ),
       ShellRoute(
         builder: (context, state, child) => AppShell(child: child),

@@ -38,11 +38,16 @@ class RequestCard extends StatelessWidget {
     required this.request,
     required this.otherPartyId,
     this.footer,
+    this.onBlock,
   });
 
   final BorrowRequest request;
   final String otherPartyId;
   final Widget? footer;
+
+  /// Shown as a small icon next to the status chip when non-null (SRS
+  /// §3.1/§3.4) — omitted entirely on tabs that don't offer blocking.
+  final VoidCallback? onBlock;
 
   @override
   Widget build(BuildContext context) => Card(
@@ -86,6 +91,13 @@ class RequestCard extends StatelessWidget {
                 padding: EdgeInsets.zero,
                 visualDensity: VisualDensity.compact,
               ),
+              if (onBlock != null)
+                IconButton(
+                  tooltip: 'Block',
+                  icon: const Icon(Icons.block_outlined, size: 20),
+                  visualDensity: VisualDensity.compact,
+                  onPressed: onBlock,
+                ),
             ],
           ),
           if (footer != null) ...[const SizedBox(height: 10), footer!],
