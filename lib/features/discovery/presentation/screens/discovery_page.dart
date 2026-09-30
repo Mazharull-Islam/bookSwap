@@ -4,6 +4,7 @@ import '../../../../app/theme.dart';
 import '../../../../app/widgets/nav_menu_button.dart';
 import '../../../../app/widgets/profile_nav_button.dart';
 import '../../../../shared/widgets/app_text_field.dart';
+import '../../../book_of_month/presentation/widgets/book_of_month_banner.dart';
 import '../../../books/presentation/providers/book_providers.dart';
 import '../providers/discovery_providers.dart';
 import '../widgets/book_group_detail_dialog.dart';
@@ -41,8 +42,9 @@ class _DiscoveryPageState extends ConsumerState<DiscoveryPage> {
               isGrid ? Icons.view_list_outlined : Icons.grid_view_outlined,
             ),
             onPressed: () =>
-                ref.read(discoveryViewModeProvider.notifier).state =
-                    isGrid ? ShelfViewMode.list : ShelfViewMode.grid,
+                ref.read(discoveryViewModeProvider.notifier).state = isGrid
+                ? ShelfViewMode.list
+                : ShelfViewMode.grid,
           ),
           const SizedBox(width: 8),
           const ProfileNavButton(),
@@ -55,6 +57,7 @@ class _DiscoveryPageState extends ConsumerState<DiscoveryPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            const BookOfMonthBanner(),
             AppTextField(
               controller: _query,
               label: 'Search for a book',

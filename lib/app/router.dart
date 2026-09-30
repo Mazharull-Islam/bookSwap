@@ -10,6 +10,7 @@ import '../features/authentication/presentation/screens/terms_page.dart';
 import '../features/authentication/presentation/screens/verification_page.dart';
 import '../features/authentication/presentation/screens/welcome_page.dart';
 import '../features/blocking/presentation/screens/blocked_users_page.dart';
+import '../features/book_of_month/presentation/screens/book_of_month_page.dart';
 import '../features/books/domain/models/book.dart';
 import '../features/books/presentation/screens/add_book_page.dart';
 import '../features/books/presentation/screens/my_shelf_page.dart';
@@ -56,7 +57,8 @@ String? _redirectFor(_AuthStage stage, String location) {
               location == '/reading' ||
               location == '/requests' ||
               location == '/blocked' ||
-              location == '/forum'
+              location == '/forum' ||
+              location == '/book-of-month'
           ? null
           : '/shelf';
   }
@@ -127,6 +129,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const ForumPage(),
           ),
           GoRoute(
+            path: '/book-of-month',
+            builder: (context, state) => const BookOfMonthPage(),
+          ),
+          GoRoute(
             path: '/profile',
             builder: (context, state) => const ProfilePage(),
           ),
@@ -148,12 +154,6 @@ class _RootPage extends ConsumerWidget {
   }
 }
 
-/// No chrome of its own any more — each shell page carries its own AppBar
-/// (leading ProfileNavButton, trailing NavMenuButton) since a bottom
-/// NavigationBar stopped comfortably fitting six destinations. This widget
-/// now only exists to host the sync controller side effect, which needs to
-/// start once the user reaches the authenticated area and keep running
-/// across every shell page without restarting per navigation.
 class AppShell extends ConsumerWidget {
   const AppShell({super.key, required this.child});
   final Widget child;

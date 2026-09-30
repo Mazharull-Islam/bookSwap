@@ -6,10 +6,6 @@ import '../../features/borrow_requests/domain/models/borrow_request.dart';
 import '../../features/borrow_requests/presentation/providers/request_providers.dart';
 import '../../features/wanted_books/presentation/providers/wanted_book_providers.dart';
 
-/// Rightmost app-bar control on every shell page. Replaces a bottom
-/// NavigationBar (six destinations was too many to fit comfortably) with a
-/// single expanding menu, badged with the same pending-request / match
-/// counts the old per-tab badges showed.
 class NavMenuButton extends ConsumerWidget {
   const NavMenuButton({super.key});
 
@@ -20,6 +16,7 @@ class NavMenuButton extends ConsumerWidget {
     ('/requests', 'Requests', Icons.swap_horiz),
     ('/reading', 'My Reading', Icons.auto_stories_outlined),
     ('/forum', 'Forum', Icons.forum_outlined),
+    ('/book-of-month', 'Book of the Month', Icons.emoji_events_outlined),
   ];
 
   @override

@@ -321,6 +321,79 @@ service cloud.firestore {
         allow delete: if false;
       }
     }
+    // Book of the Month (SRS §3.10). A "period" is just a calendar month
+    // ("2026-09") — nothing server-side starts or closes one; the current
+    // month is always open, anything else is implicitly frozen the moment
+    // it's no longer current. See lib/features/book_of_month/domain/period.dart.
+    // matchKey (often an Open Library workKey like "/works/OL12345W") can
+    // contain '/', so unlike /blocks or /book_of_month_votes this doc's id
+    // is auto-generated, not a composite of its fields — a '/' inside a
+    // Firestore document id breaks path parsing. Dedup is a client-side
+    // query, not an id equality check.
+    function validBomNomination(data, nomId) {
+      return data.keys().hasAll(['id', 'periodId', 'matchKey', 'title', 'author', 'coverUrl', 'workKey', 'genre', 'nominatedBy', 'nominatedByName', 'nominatedAtMs'])
+        && data.keys().hasOnly(['id', 'periodId', 'matchKey', 'title', 'author', 'coverUrl', 'workKey', 'genre', 'nominatedBy', 'nominatedByName', 'nominatedAtMs'])
+        && data.id == nomId
+        && text(data.periodId, 7, 7)
+        && text(data.matchKey, 1, 300)
+        && text(data.title, 1, 300)
+        && text(data.author, 0, 300)
+        && (data.coverUrl == null || data.coverUrl is string)
+        && (data.workKey == null || data.workKey is string)
+        && (data.genre == null || text(data.genre, 1, 300))
+        && data.nominatedBy == request.auth.uid
+        && text(data.nominatedByName, 1, 200)
+        && data.nominatedAtMs is number;
+    }
+    // Immutable once created — a duplicate nomination of the same book in
+    // the same period is a client-side no-op (checked before writing), not
+    // a server-enforced merge, so there's nothing to ever update here.
+    match /book_of_month_nominations/{nomId} {
+      allow read: if member();
+      allow create: if member() && validBomNomination(request.resource.data, nomId);
+      allow update, delete: if false;
+    }
+    function validBomVote(data, voteId) {
+      return data.keys().hasAll(['id', 'periodId', 'userId', 'matchKey', 'votedAtMs'])
+        && data.keys().hasOnly(['id', 'periodId', 'userId', 'matchKey', 'votedAtMs'])
+        && data.id == voteId
+        && data.id == data.periodId + '_' + data.userId
+        && text(data.periodId, 7, 7)
+        && data.userId == request.auth.uid
+        && text(data.matchKey, 1, 300)
+        && data.votedAtMs is number;
+    }
+    // create AND update both just validate the same full-document shape —
+    // "changing your vote" is a plain overwrite of your own periodId_userId
+    // doc, not a diffed field update, so there's no separate merge logic
+    // needed the way likes/reports have.
+    match /book_of_month_votes/{voteId} {
+      allow read: if member();
+      allow create, update: if member() && validBomVote(request.resource.data, voteId);
+      allow delete: if false;
+    }
+    function validBomPeriod(data, periodId) {
+      return data.keys().hasAll(['id', 'discussionPostId'])
+        && data.keys().hasOnly(['id', 'discussionPostId'])
+        && data.id == periodId
+        && (data.discussionPostId == null || text(data.discussionPostId, 1, 200));
+    }
+    // A lightweight index of "periods that have ever had a nomination" (no
+    // distinct-value queries in Firestore) plus the period's one Forum
+    // thread, set at most once (null -> a value) so a late racing caller
+    // can't clobber whichever thread got created first.
+    match /book_of_month_periods/{periodId} {
+      allow read: if member();
+      allow create: if member()
+        && validBomPeriod(request.resource.data, periodId)
+        && request.resource.data.discussionPostId == null;
+      allow update: if member()
+        && validBomPeriod(request.resource.data, periodId)
+        && resource.data.discussionPostId == null
+        && request.resource.data.discussionPostId is string
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['discussionPostId']);
+      allow delete: if false;
+    }
     match /{document=**} {
       allow read, write: if false;
     }
