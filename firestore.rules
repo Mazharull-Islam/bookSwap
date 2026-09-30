@@ -228,6 +228,99 @@ service cloud.firestore {
       allow update: if false;
       allow delete: if member() && resource.data.blockerId == request.auth.uid;
     }
+    // Validates shape/types only — NOT authorId, since likes/reports/reply
+    // counts are legitimately written by members other than the author.
+    // Ownership of the create is checked separately, only in `allow create`.
+    function validForumPost(data, postId) {
+      return data.keys().hasAll(['id', 'authorId', 'authorName', 'title', 'body', 'genre', 'createdAtMs', 'likedBy', 'reportedBy', 'replyCount'])
+        && data.keys().hasOnly(['id', 'authorId', 'authorName', 'title', 'body', 'genre', 'createdAtMs', 'likedBy', 'reportedBy', 'replyCount'])
+        && data.id == postId
+        && text(data.authorId, 1, 200)
+        && text(data.authorName, 1, 200)
+        && text(data.title, 1, 300)
+        && text(data.body, 1, 4000)
+        && (data.genre == null || text(data.genre, 1, 300))
+        && data.createdAtMs is number
+        && data.likedBy is list
+        && data.reportedBy is list
+        && data.replyCount is int && data.replyCount >= 0;
+    }
+    // A pure array-add-of-self diff: exactly [uid] was added to `before`,
+    // nothing else changed. Used for both likedBy and reportedBy adds.
+    function addedSelf(before, after) {
+      return !(request.auth.uid in before)
+        && request.auth.uid in after
+        && after.size() == before.size() + 1
+        && after.hasAll(before);
+    }
+    // The inverse — exactly [uid] was removed, nothing else changed. Used
+    // for unliking (there's no "un-report").
+    function removedSelf(before, after) {
+      return request.auth.uid in before
+        && !(request.auth.uid in after)
+        && after.size() == before.size() - 1
+        && before.hasAll(after);
+    }
+    match /forum_posts/{postId} {
+      allow read: if member();
+      allow create: if member()
+        && validForumPost(request.resource.data, postId)
+        && request.resource.data.authorId == request.auth.uid
+        && request.resource.data.likedBy.size() == 0
+        && request.resource.data.reportedBy.size() == 0
+        && request.resource.data.replyCount == 0;
+      allow update: if member() && validForumPost(request.resource.data, postId) && (
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likedBy'])
+          && (addedSelf(resource.data.likedBy, request.resource.data.likedBy)
+              || removedSelf(resource.data.likedBy, request.resource.data.likedBy)))
+        ||
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reportedBy'])
+          && addedSelf(resource.data.reportedBy, request.resource.data.reportedBy))
+        ||
+        // Bumped alongside a reply create (see /replies below) — any member
+        // may do this, not just the post's author.
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['replyCount'])
+          && request.resource.data.replyCount == resource.data.replyCount + 1)
+      );
+      allow delete: if false;
+      // postId is a parameter, not inherited from the enclosing match block —
+      // a rules function only ever sees what's explicitly passed to it, the
+      // same lesson learned earlier with validBook/bookId. Leaving it out
+      // here made data.postId == postId compare against an undefined
+      // variable, so it always evaluated false and denied every reply.
+      function validForumReply(data, postId, replyId) {
+        return data.keys().hasAll(['id', 'postId', 'authorId', 'authorName', 'body', 'createdAtMs', 'likedBy', 'reportedBy'])
+          && data.keys().hasOnly(['id', 'postId', 'authorId', 'authorName', 'body', 'createdAtMs', 'likedBy', 'reportedBy'])
+          && data.id == replyId
+          && data.postId == postId
+          && text(data.authorId, 1, 200)
+          && text(data.authorName, 1, 200)
+          && text(data.body, 1, 2000)
+          && data.createdAtMs is number
+          && data.likedBy is list
+          && data.reportedBy is list;
+      }
+      match /replies/{replyId} {
+        allow read: if member();
+        allow create: if member()
+          && validForumReply(request.resource.data, postId, replyId)
+          && request.resource.data.authorId == request.auth.uid
+          && request.resource.data.likedBy.size() == 0
+          && request.resource.data.reportedBy.size() == 0
+          // SRS §3.7: reuses the existing block mechanism to stop someone
+          // the post's author has blocked from replying to it.
+          && !exists(/databases/$(database)/documents/blocks/$(get(/databases/$(database)/documents/forum_posts/$(postId)).data.authorId + '_' + request.auth.uid));
+        allow update: if member() && validForumReply(request.resource.data, postId, replyId) && (
+          (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likedBy'])
+            && (addedSelf(resource.data.likedBy, request.resource.data.likedBy)
+                || removedSelf(resource.data.likedBy, request.resource.data.likedBy)))
+          ||
+          (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reportedBy'])
+            && addedSelf(resource.data.reportedBy, request.resource.data.reportedBy))
+        );
+        allow delete: if false;
+      }
+    }
     match /{document=**} {
       allow read, write: if false;
     }

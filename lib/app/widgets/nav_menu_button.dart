@@ -19,15 +19,18 @@ class NavMenuButton extends ConsumerWidget {
     ('/wishlist', 'Wishlist', Icons.favorite_border),
     ('/requests', 'Requests', Icons.swap_horiz),
     ('/reading', 'My Reading', Icons.auto_stories_outlined),
+    ('/forum', 'Forum', Icons.forum_outlined),
   ];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final pendingCount = ref
-        .watch(incomingRequestsProvider)
-        .valueOrNull
-        ?.where((r) => r.status == RequestStatus.pending)
-        .length ?? 0;
+    final pendingCount =
+        ref
+            .watch(incomingRequestsProvider)
+            .valueOrNull
+            ?.where((r) => r.status == RequestStatus.pending)
+            .length ??
+        0;
     final matchCount = ref.watch(mutualMatchesProvider).length;
     final badgeCounts = {'/requests': pendingCount, '/wishlist': matchCount};
     final totalBadge = pendingCount + matchCount;
