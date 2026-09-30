@@ -52,6 +52,7 @@ void main() {
     Hive.init(hiveDir.path);
     await Hive.openBox<Map>(HiveService.booksBoxName);
     await Hive.openBox<Map>(HiveService.readingBoxName);
+    await Hive.openBox<Map>(HiveService.readingGoalsBoxName);
   });
 
   tearDownAll(() async {

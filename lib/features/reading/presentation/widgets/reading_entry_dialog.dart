@@ -4,6 +4,9 @@ import '../../../../shared/widgets/app_text_field.dart';
 import '../../../../shared/widgets/primary_button.dart';
 import '../../../../shared/widgets/star_rating.dart';
 import '../../../books/presentation/widgets/book_cover_image.dart';
+import '../../../books/presentation/widgets/book_list_tile.dart'
+    show bookGenreList;
+import '../../../books/presentation/widgets/genre_pill_list.dart';
 import '../../domain/models/reading_entry.dart';
 import '../providers/reading_providers.dart';
 import 'reading_status.dart';
@@ -92,11 +95,32 @@ class _ReadingEntryDialogState extends ConsumerState<_ReadingEntryDialog> {
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(color: Color(0xFF617065)),
                           ),
+                        if (widget.entry.publishedYear != null)
+                          Text(
+                            'Published ${widget.entry.publishedYear}',
+                            style: const TextStyle(
+                              color: Color(0xFF617065),
+                              fontSize: 12,
+                            ),
+                          ),
                       ],
                     ),
                   ),
                 ],
               ),
+              if (bookGenreList(widget.entry.genre).isNotEmpty) ...[
+                const SizedBox(height: 12),
+                GenrePillList(genres: bookGenreList(widget.entry.genre)),
+              ],
+              if (widget.entry.description.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Text(
+                  widget.entry.description,
+                  maxLines: 6,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(color: Color(0xFF617065)),
+                ),
+              ],
               const SizedBox(height: 20),
               Wrap(
                 spacing: 8,

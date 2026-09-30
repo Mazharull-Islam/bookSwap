@@ -15,7 +15,12 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ReadingEntry {
 
- String get id; String get userId; String get title; String get author; String? get coverUrl; String? get workKey; ReadingStatus get status;/// 1-5. Only meaningful once [status] is [ReadingStatus.read] — the UI
+ String get id; String get userId; String get title; String get author;/// Comma-joined, same convention as [Book.genre] — feeds the "genres
+/// explored" stat. Populated from search metadata at add time.
+ String get genre; String? get publishedYear;/// Synopsis, fetched from Open Library the same way `AddBookPage` does.
+/// Best-effort: added asynchronously after the entry itself, so it may
+/// briefly be empty right after adding.
+ String get description; String? get coverUrl; String? get workKey; ReadingStatus get status;/// 1-5. Only meaningful once [status] is [ReadingStatus.read] — the UI
 /// clears it if the status is changed away from Read.
  int? get rating; String get review; int get updatedAtMs;
 /// Create a copy of ReadingEntry
@@ -30,16 +35,16 @@ $ReadingEntryCopyWith<ReadingEntry> get copyWith => _$ReadingEntryCopyWithImpl<R
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ReadingEntry&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.title, title) || other.title == title)&&(identical(other.author, author) || other.author == author)&&(identical(other.coverUrl, coverUrl) || other.coverUrl == coverUrl)&&(identical(other.workKey, workKey) || other.workKey == workKey)&&(identical(other.status, status) || other.status == status)&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.review, review) || other.review == review)&&(identical(other.updatedAtMs, updatedAtMs) || other.updatedAtMs == updatedAtMs));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ReadingEntry&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.title, title) || other.title == title)&&(identical(other.author, author) || other.author == author)&&(identical(other.genre, genre) || other.genre == genre)&&(identical(other.publishedYear, publishedYear) || other.publishedYear == publishedYear)&&(identical(other.description, description) || other.description == description)&&(identical(other.coverUrl, coverUrl) || other.coverUrl == coverUrl)&&(identical(other.workKey, workKey) || other.workKey == workKey)&&(identical(other.status, status) || other.status == status)&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.review, review) || other.review == review)&&(identical(other.updatedAtMs, updatedAtMs) || other.updatedAtMs == updatedAtMs));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,userId,title,author,coverUrl,workKey,status,rating,review,updatedAtMs);
+int get hashCode => Object.hash(runtimeType,id,userId,title,author,genre,publishedYear,description,coverUrl,workKey,status,rating,review,updatedAtMs);
 
 @override
 String toString() {
-  return 'ReadingEntry(id: $id, userId: $userId, title: $title, author: $author, coverUrl: $coverUrl, workKey: $workKey, status: $status, rating: $rating, review: $review, updatedAtMs: $updatedAtMs)';
+  return 'ReadingEntry(id: $id, userId: $userId, title: $title, author: $author, genre: $genre, publishedYear: $publishedYear, description: $description, coverUrl: $coverUrl, workKey: $workKey, status: $status, rating: $rating, review: $review, updatedAtMs: $updatedAtMs)';
 }
 
 
@@ -50,7 +55,7 @@ abstract mixin class $ReadingEntryCopyWith<$Res>  {
   factory $ReadingEntryCopyWith(ReadingEntry value, $Res Function(ReadingEntry) _then) = _$ReadingEntryCopyWithImpl;
 @useResult
 $Res call({
- String id, String userId, String title, String author, String? coverUrl, String? workKey, ReadingStatus status, int? rating, String review, int updatedAtMs
+ String id, String userId, String title, String author, String genre, String? publishedYear, String description, String? coverUrl, String? workKey, ReadingStatus status, int? rating, String review, int updatedAtMs
 });
 
 
@@ -67,12 +72,15 @@ class _$ReadingEntryCopyWithImpl<$Res>
 
 /// Create a copy of ReadingEntry
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? userId = null,Object? title = null,Object? author = null,Object? coverUrl = freezed,Object? workKey = freezed,Object? status = null,Object? rating = freezed,Object? review = null,Object? updatedAtMs = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? userId = null,Object? title = null,Object? author = null,Object? genre = null,Object? publishedYear = freezed,Object? description = null,Object? coverUrl = freezed,Object? workKey = freezed,Object? status = null,Object? rating = freezed,Object? review = null,Object? updatedAtMs = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,author: null == author ? _self.author : author // ignore: cast_nullable_to_non_nullable
+as String,genre: null == genre ? _self.genre : genre // ignore: cast_nullable_to_non_nullable
+as String,publishedYear: freezed == publishedYear ? _self.publishedYear : publishedYear // ignore: cast_nullable_to_non_nullable
+as String?,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String,coverUrl: freezed == coverUrl ? _self.coverUrl : coverUrl // ignore: cast_nullable_to_non_nullable
 as String?,workKey: freezed == workKey ? _self.workKey : workKey // ignore: cast_nullable_to_non_nullable
 as String?,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
@@ -164,10 +172,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String userId,  String title,  String author,  String? coverUrl,  String? workKey,  ReadingStatus status,  int? rating,  String review,  int updatedAtMs)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String userId,  String title,  String author,  String genre,  String? publishedYear,  String description,  String? coverUrl,  String? workKey,  ReadingStatus status,  int? rating,  String review,  int updatedAtMs)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ReadingEntry() when $default != null:
-return $default(_that.id,_that.userId,_that.title,_that.author,_that.coverUrl,_that.workKey,_that.status,_that.rating,_that.review,_that.updatedAtMs);case _:
+return $default(_that.id,_that.userId,_that.title,_that.author,_that.genre,_that.publishedYear,_that.description,_that.coverUrl,_that.workKey,_that.status,_that.rating,_that.review,_that.updatedAtMs);case _:
   return orElse();
 
 }
@@ -185,10 +193,10 @@ return $default(_that.id,_that.userId,_that.title,_that.author,_that.coverUrl,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String userId,  String title,  String author,  String? coverUrl,  String? workKey,  ReadingStatus status,  int? rating,  String review,  int updatedAtMs)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String userId,  String title,  String author,  String genre,  String? publishedYear,  String description,  String? coverUrl,  String? workKey,  ReadingStatus status,  int? rating,  String review,  int updatedAtMs)  $default,) {final _that = this;
 switch (_that) {
 case _ReadingEntry():
-return $default(_that.id,_that.userId,_that.title,_that.author,_that.coverUrl,_that.workKey,_that.status,_that.rating,_that.review,_that.updatedAtMs);case _:
+return $default(_that.id,_that.userId,_that.title,_that.author,_that.genre,_that.publishedYear,_that.description,_that.coverUrl,_that.workKey,_that.status,_that.rating,_that.review,_that.updatedAtMs);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -205,10 +213,10 @@ return $default(_that.id,_that.userId,_that.title,_that.author,_that.coverUrl,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String userId,  String title,  String author,  String? coverUrl,  String? workKey,  ReadingStatus status,  int? rating,  String review,  int updatedAtMs)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String userId,  String title,  String author,  String genre,  String? publishedYear,  String description,  String? coverUrl,  String? workKey,  ReadingStatus status,  int? rating,  String review,  int updatedAtMs)?  $default,) {final _that = this;
 switch (_that) {
 case _ReadingEntry() when $default != null:
-return $default(_that.id,_that.userId,_that.title,_that.author,_that.coverUrl,_that.workKey,_that.status,_that.rating,_that.review,_that.updatedAtMs);case _:
+return $default(_that.id,_that.userId,_that.title,_that.author,_that.genre,_that.publishedYear,_that.description,_that.coverUrl,_that.workKey,_that.status,_that.rating,_that.review,_that.updatedAtMs);case _:
   return null;
 
 }
@@ -220,13 +228,21 @@ return $default(_that.id,_that.userId,_that.title,_that.author,_that.coverUrl,_t
 @JsonSerializable()
 
 class _ReadingEntry implements ReadingEntry {
-  const _ReadingEntry({required this.id, required this.userId, required this.title, this.author = '', this.coverUrl, this.workKey, this.status = ReadingStatus.planToRead, this.rating, this.review = '', required this.updatedAtMs});
+  const _ReadingEntry({required this.id, required this.userId, required this.title, this.author = '', this.genre = '', this.publishedYear, this.description = '', this.coverUrl, this.workKey, this.status = ReadingStatus.planToRead, this.rating, this.review = '', required this.updatedAtMs});
   factory _ReadingEntry.fromJson(Map<String, dynamic> json) => _$ReadingEntryFromJson(json);
 
 @override final  String id;
 @override final  String userId;
 @override final  String title;
 @override@JsonKey() final  String author;
+/// Comma-joined, same convention as [Book.genre] — feeds the "genres
+/// explored" stat. Populated from search metadata at add time.
+@override@JsonKey() final  String genre;
+@override final  String? publishedYear;
+/// Synopsis, fetched from Open Library the same way `AddBookPage` does.
+/// Best-effort: added asynchronously after the entry itself, so it may
+/// briefly be empty right after adding.
+@override@JsonKey() final  String description;
 @override final  String? coverUrl;
 @override final  String? workKey;
 @override@JsonKey() final  ReadingStatus status;
@@ -249,16 +265,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ReadingEntry&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.title, title) || other.title == title)&&(identical(other.author, author) || other.author == author)&&(identical(other.coverUrl, coverUrl) || other.coverUrl == coverUrl)&&(identical(other.workKey, workKey) || other.workKey == workKey)&&(identical(other.status, status) || other.status == status)&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.review, review) || other.review == review)&&(identical(other.updatedAtMs, updatedAtMs) || other.updatedAtMs == updatedAtMs));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ReadingEntry&&(identical(other.id, id) || other.id == id)&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.title, title) || other.title == title)&&(identical(other.author, author) || other.author == author)&&(identical(other.genre, genre) || other.genre == genre)&&(identical(other.publishedYear, publishedYear) || other.publishedYear == publishedYear)&&(identical(other.description, description) || other.description == description)&&(identical(other.coverUrl, coverUrl) || other.coverUrl == coverUrl)&&(identical(other.workKey, workKey) || other.workKey == workKey)&&(identical(other.status, status) || other.status == status)&&(identical(other.rating, rating) || other.rating == rating)&&(identical(other.review, review) || other.review == review)&&(identical(other.updatedAtMs, updatedAtMs) || other.updatedAtMs == updatedAtMs));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,userId,title,author,coverUrl,workKey,status,rating,review,updatedAtMs);
+int get hashCode => Object.hash(runtimeType,id,userId,title,author,genre,publishedYear,description,coverUrl,workKey,status,rating,review,updatedAtMs);
 
 @override
 String toString() {
-  return 'ReadingEntry(id: $id, userId: $userId, title: $title, author: $author, coverUrl: $coverUrl, workKey: $workKey, status: $status, rating: $rating, review: $review, updatedAtMs: $updatedAtMs)';
+  return 'ReadingEntry(id: $id, userId: $userId, title: $title, author: $author, genre: $genre, publishedYear: $publishedYear, description: $description, coverUrl: $coverUrl, workKey: $workKey, status: $status, rating: $rating, review: $review, updatedAtMs: $updatedAtMs)';
 }
 
 
@@ -269,7 +285,7 @@ abstract mixin class _$ReadingEntryCopyWith<$Res> implements $ReadingEntryCopyWi
   factory _$ReadingEntryCopyWith(_ReadingEntry value, $Res Function(_ReadingEntry) _then) = __$ReadingEntryCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String userId, String title, String author, String? coverUrl, String? workKey, ReadingStatus status, int? rating, String review, int updatedAtMs
+ String id, String userId, String title, String author, String genre, String? publishedYear, String description, String? coverUrl, String? workKey, ReadingStatus status, int? rating, String review, int updatedAtMs
 });
 
 
@@ -286,12 +302,15 @@ class __$ReadingEntryCopyWithImpl<$Res>
 
 /// Create a copy of ReadingEntry
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? userId = null,Object? title = null,Object? author = null,Object? coverUrl = freezed,Object? workKey = freezed,Object? status = null,Object? rating = freezed,Object? review = null,Object? updatedAtMs = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? userId = null,Object? title = null,Object? author = null,Object? genre = null,Object? publishedYear = freezed,Object? description = null,Object? coverUrl = freezed,Object? workKey = freezed,Object? status = null,Object? rating = freezed,Object? review = null,Object? updatedAtMs = null,}) {
   return _then(_ReadingEntry(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,author: null == author ? _self.author : author // ignore: cast_nullable_to_non_nullable
+as String,genre: null == genre ? _self.genre : genre // ignore: cast_nullable_to_non_nullable
+as String,publishedYear: freezed == publishedYear ? _self.publishedYear : publishedYear // ignore: cast_nullable_to_non_nullable
+as String?,description: null == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String,coverUrl: freezed == coverUrl ? _self.coverUrl : coverUrl // ignore: cast_nullable_to_non_nullable
 as String?,workKey: freezed == workKey ? _self.workKey : workKey // ignore: cast_nullable_to_non_nullable
 as String?,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable

@@ -14,10 +14,8 @@ class HiveReadingRepository implements ReadingRepository {
   ReadingEntry _decode(dynamic raw) =>
       ReadingEntry.fromJson(Map<String, dynamic>.from(raw as Map));
 
-  List<ReadingEntry> _mineFor(String userId) => _box.values
-      .map(_decode)
-      .where((e) => e.userId == userId)
-      .toList();
+  List<ReadingEntry> _mineFor(String userId) =>
+      _box.values.map(_decode).where((e) => e.userId == userId).toList();
 
   @override
   Stream<List<ReadingEntry>> watchMine(String userId) async* {
@@ -33,7 +31,8 @@ class HiveReadingRepository implements ReadingRepository {
       author: entry.author,
     );
     final duplicate = _mineFor(entry.userId).any(
-      (e) => readingMatchKey(
+      (e) =>
+          readingMatchKey(
             workKey: e.workKey,
             title: e.title,
             author: e.author,

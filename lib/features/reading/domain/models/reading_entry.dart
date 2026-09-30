@@ -12,9 +12,20 @@ abstract class ReadingEntry with _$ReadingEntry {
     required String userId,
     required String title,
     @Default('') String author,
+
+    /// Comma-joined, same convention as [Book.genre] — feeds the "genres
+    /// explored" stat. Populated from search metadata at add time.
+    @Default('') String genre,
+    String? publishedYear,
+
+    /// Synopsis, fetched from Open Library the same way `AddBookPage` does.
+    /// Best-effort: added asynchronously after the entry itself, so it may
+    /// briefly be empty right after adding.
+    @Default('') String description,
     String? coverUrl,
     String? workKey,
     @Default(ReadingStatus.planToRead) ReadingStatus status,
+
     /// 1-5. Only meaningful once [status] is [ReadingStatus.read] — the UI
     /// clears it if the status is changed away from Read.
     int? rating,

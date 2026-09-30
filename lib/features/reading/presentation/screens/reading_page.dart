@@ -10,6 +10,8 @@ import '../../../../core/services/open_library_service.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../../../../shared/widgets/pill_tab_bar.dart';
 import '../../../books/domain/models/book.dart';
+import '../../../books/presentation/widgets/book_list_tile.dart'
+    show bookGenreList;
 import '../../../books/presentation/widgets/book_suggestion_tile.dart';
 import '../../../discovery/domain/book_group.dart';
 import '../../../discovery/presentation/providers/discovery_providers.dart';
@@ -18,6 +20,7 @@ import '../../domain/repositories/reading_repository.dart';
 import '../providers/reading_providers.dart';
 import '../widgets/reading_entry_dialog.dart';
 import '../widgets/reading_entry_tile.dart';
+import '../widgets/reading_stats_tab.dart';
 
 class ReadingPage extends ConsumerStatefulWidget {
   const ReadingPage({super.key});
@@ -64,6 +67,7 @@ class _ReadingPageState extends ConsumerState<ReadingPage> {
             author: g.representative.author,
             coverUrl: g.representative.coverPhotoUrl,
             workKey: g.representative.workKey,
+            genres: bookGenreList(g.representative.genre),
           ),
         );
     var remote = const <BookMetadata>[];
@@ -94,13 +98,16 @@ class _ReadingPageState extends ConsumerState<ReadingPage> {
     _query.clear();
     _focus.unfocus();
     setState(() => _suggestions = []);
+    final ReadingEntry added;
     try {
-      await ref.read(addReadingEntryProvider)(
+      added = await ref.read(addReadingEntryProvider)(
         ReadingEntry(
           id: '',
           userId: ref.read(currentUserProvider).id,
           title: suggestion.title,
           author: suggestion.author,
+          genre: suggestion.genres.join(', '),
+          publishedYear: suggestion.publishedYear,
           coverUrl: suggestion.coverUrl,
           workKey: suggestion.workKey,
           updatedAtMs: 0,
@@ -112,12 +119,23 @@ class _ReadingPageState extends ConsumerState<ReadingPage> {
           context,
         ).showSnackBar(SnackBar(content: Text(e.message)));
       }
+      return;
+    }
+    // Best-effort, same as AddBookPage: fetch the synopsis after the entry
+    // already exists rather than blocking the add on it.
+    final synopsis = await ref
+        .read(openLibraryServiceProvider)
+        .fetchSynopsis(suggestion);
+    if (synopsis != null && synopsis.isNotEmpty) {
+      await ref.read(updateReadingEntryProvider)(
+        added.copyWith(description: synopsis),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) => DefaultTabController(
-    length: 3,
+    length: 4,
     child: Builder(
       builder: (context) => Scaffold(
         appBar: AppBar(
@@ -130,7 +148,7 @@ class _ReadingPageState extends ConsumerState<ReadingPage> {
         ),
         floatingActionButton: PillTabBar(
           controller: DefaultTabController.of(context),
-          labels: const ['To read', 'Reading', 'Read'],
+          labels: const ['To read', 'Reading', 'Read', 'Stats'],
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         body: Column(
@@ -196,6 +214,7 @@ class _ReadingPageState extends ConsumerState<ReadingPage> {
                   _ReadingList(status: ReadingStatus.planToRead),
                   _ReadingList(status: ReadingStatus.reading),
                   _ReadingList(status: ReadingStatus.read),
+                  const ReadingStatsTab(),
                 ],
               ),
             ),

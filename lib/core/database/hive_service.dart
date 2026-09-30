@@ -5,11 +5,13 @@ import 'package:hive_flutter/hive_flutter.dart';
 abstract final class HiveService {
   static const booksBoxName = 'books';
   static const readingBoxName = 'reading_entries';
+  static const readingGoalsBoxName = 'reading_goals';
 
   static Future<void> init() async {
     await Hive.initFlutter();
     await Hive.openBox<Map>(booksBoxName);
     await Hive.openBox<Map>(readingBoxName);
+    await Hive.openBox<Map>(readingGoalsBoxName);
   }
 
   static Box<Map> get booksBox => Hive.box<Map>(booksBoxName);
@@ -18,4 +20,7 @@ abstract final class HiveService {
   /// cross-user coordination needed, so unlike requests/wanted_books this
   /// stays local-first with no Firestore sync counterpart yet.
   static Box<Map> get readingBox => Hive.box<Map>(readingBoxName);
+
+  /// Keyed by userId — one goal per user (SRS §3.9).
+  static Box<Map> get readingGoalsBox => Hive.box<Map>(readingGoalsBoxName);
 }
