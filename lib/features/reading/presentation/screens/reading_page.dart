@@ -189,19 +189,22 @@ class _ReadingPageState extends ConsumerState<ReadingPage> {
                           border: Border.all(color: const Color(0xFFD6DED5)),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          padding: EdgeInsets.zero,
-                          itemCount: _suggestions.length,
-                          itemBuilder: (context, index) {
-                            final suggestion = _suggestions[index];
-                            return BookSuggestionTile(
-                              title: suggestion.title,
-                              author: suggestion.author,
-                              coverUrl: suggestion.coverUrl,
-                              onTap: () => _addEntry(suggestion),
-                            );
-                          },
+                        child: Material(
+                          type: MaterialType.transparency,
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            padding: EdgeInsets.zero,
+                            itemCount: _suggestions.length,
+                            itemBuilder: (context, index) {
+                              final suggestion = _suggestions[index];
+                              return BookSuggestionTile(
+                                title: suggestion.title,
+                                author: suggestion.author,
+                                coverUrl: suggestion.coverUrl,
+                                onTap: () => _addEntry(suggestion),
+                              );
+                            },
+                          ),
                         ),
                       ),
                   ],

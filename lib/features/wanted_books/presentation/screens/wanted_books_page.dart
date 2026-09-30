@@ -51,10 +51,7 @@ class _WantedBooksPageState extends ConsumerState<WantedBooksPage> {
       setState(() => _suggestions = []);
       return;
     }
-    _debounce = Timer(
-      const Duration(milliseconds: 350),
-      () => _search(value),
-    );
+    _debounce = Timer(const Duration(milliseconds: 350), () => _search(value));
   }
 
   Future<void> _search(String query) async {
@@ -63,16 +60,19 @@ class _WantedBooksPageState extends ConsumerState<WantedBooksPage> {
     // trip needed for a book someone on the app already listed), then fall
     // back to Open Library for anything else.
     final local = ref.read(allBooksProvider).valueOrNull ?? const <Book>[];
-    final localMatches = groupBooksByWork(
-      local.where((b) => b.title.toLowerCase().contains(query.toLowerCase())),
-    ).map(
-      (g) => BookMetadata(
-        title: g.representative.title,
-        author: g.representative.author,
-        coverUrl: g.representative.coverPhotoUrl,
-        workKey: g.representative.workKey,
-      ),
-    );
+    final localMatches =
+        groupBooksByWork(
+          local.where(
+            (b) => b.title.toLowerCase().contains(query.toLowerCase()),
+          ),
+        ).map(
+          (g) => BookMetadata(
+            title: g.representative.title,
+            author: g.representative.author,
+            coverUrl: g.representative.coverPhotoUrl,
+            workKey: g.representative.workKey,
+          ),
+        );
     var remote = const <BookMetadata>[];
     try {
       remote = await ref.read(openLibraryServiceProvider).searchByTitle(query);
@@ -118,7 +118,8 @@ class _WantedBooksPageState extends ConsumerState<WantedBooksPage> {
     }
   }
 
-  String _matchId(MutualMatch match) => '${match.otherUserId}|${match.theirBook.id}';
+  String _matchId(MutualMatch match) =>
+      '${match.otherUserId}|${match.theirBook.id}';
 
   Future<void> _requestMatch(MutualMatch match) async {
     final id = _matchId(match);
@@ -189,19 +190,22 @@ class _WantedBooksPageState extends ConsumerState<WantedBooksPage> {
                         border: Border.all(color: const Color(0xFFD6DED5)),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        padding: EdgeInsets.zero,
-                        itemCount: _suggestions.length,
-                        itemBuilder: (context, index) {
-                          final suggestion = _suggestions[index];
-                          return BookSuggestionTile(
-                            title: suggestion.title,
-                            author: suggestion.author,
-                            coverUrl: suggestion.coverUrl,
-                            onTap: () => _addWanted(suggestion),
-                          );
-                        },
+                      child: Material(
+                        type: MaterialType.transparency,
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          padding: EdgeInsets.zero,
+                          itemCount: _suggestions.length,
+                          itemBuilder: (context, index) {
+                            final suggestion = _suggestions[index];
+                            return BookSuggestionTile(
+                              title: suggestion.title,
+                              author: suggestion.author,
+                              coverUrl: suggestion.coverUrl,
+                              onTap: () => _addWanted(suggestion),
+                            );
+                          },
+                        ),
                       ),
                     ),
                 ],
