@@ -36,7 +36,7 @@ Future<void> tapVisible(WidgetTester tester, Finder finder) async {
 }
 
 Future<void> goToProfile(WidgetTester tester) =>
-    tapVisible(tester, find.text('Profile'));
+    tapVisible(tester, find.byTooltip('Profile'));
 
 class PendingGoogleRepository extends DemoAuthRepository {
   final result = Completer<AuthUser?>();
@@ -51,6 +51,7 @@ void main() {
     hiveDir = await Directory.systemTemp.createTemp('bookswap_hive_test_');
     Hive.init(hiveDir.path);
     await Hive.openBox<Map>(HiveService.booksBoxName);
+    await Hive.openBox<Map>(HiveService.readingBoxName);
   });
 
   tearDownAll(() async {

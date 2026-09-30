@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/theme.dart';
+import '../../../../app/widgets/nav_menu_button.dart';
+import '../../../../app/widgets/profile_nav_button.dart';
+import '../../../../shared/widgets/pill_tab_bar.dart';
 import '../../../../shared/widgets/primary_button.dart';
 import '../../../authentication/presentation/providers/auth_providers.dart';
 import '../../domain/models/borrow_request.dart';
 import '../providers/request_providers.dart';
 import '../widgets/request_card.dart';
 
-String _formatDate(int ms) =>
-    DateTime.fromMillisecondsSinceEpoch(ms).toLocal().toString().split(' ').first;
+String _formatDate(int ms) => DateTime.fromMillisecondsSinceEpoch(
+  ms,
+).toLocal().toString().split(' ').first;
 
 class RequestsPage extends StatelessWidget {
   const RequestsPage({super.key});
@@ -16,15 +20,24 @@ class RequestsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => DefaultTabController(
     length: 3,
-    child: Scaffold(
-      appBar: AppBar(
-        title: const Text('Requests'),
-        bottom: const TabBar(
-          tabs: [Tab(text: 'Incoming'), Tab(text: 'Outgoing'), Tab(text: 'History')],
+    child: Builder(
+      builder: (context) => Scaffold(
+        appBar: AppBar(
+          title: const Text('Requests'),
+          actions: const [
+            ProfileNavButton(),
+            NavMenuButton(),
+            SizedBox(width: 4),
+          ],
         ),
-      ),
-      body: const TabBarView(
-        children: [_IncomingTab(), _OutgoingTab(), _HistoryTab()],
+        body: const TabBarView(
+          children: [_IncomingTab(), _OutgoingTab(), _HistoryTab()],
+        ),
+        floatingActionButton: PillTabBar(
+          controller: DefaultTabController.of(context),
+          labels: const ['Incoming', 'Outgoing', 'History'],
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       ),
     ),
   );
@@ -38,11 +51,17 @@ class _IncomingTab extends ConsumerWidget {
     WidgetRef ref,
     BorrowRequest request,
   ) async {
-    final myMobile = ref.read(authControllerProvider).valueOrNull?.profile?.mobile;
+    final myMobile = ref
+        .read(authControllerProvider)
+        .valueOrNull
+        ?.profile
+        ?.mobile;
     if (myMobile == null || myMobile.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Add a mobile number to your profile before accepting.'),
+          content: Text(
+            'Add a mobile number to your profile before accepting.',
+          ),
         ),
       );
       return;
@@ -86,9 +105,9 @@ class _IncomingTab extends ConsumerWidget {
       );
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Could not mark as returned: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not mark as returned: $e')),
+        );
       }
     }
   }
@@ -111,7 +130,7 @@ class _IncomingTab extends ConsumerWidget {
           );
         }
         return ListView.builder(
-          padding: const EdgeInsets.symmetric(vertical: 12),
+          padding: const EdgeInsets.fromLTRB(0, 12, 0, 88),
           itemCount: requests.length,
           itemBuilder: (context, index) {
             final request = requests[index];
@@ -174,7 +193,11 @@ class _OutgoingTab extends ConsumerWidget {
   const _OutgoingTab();
 
   Future<void> _shareContact(WidgetRef ref, BorrowRequest request) async {
-    final myMobile = ref.read(authControllerProvider).valueOrNull?.profile?.mobile;
+    final myMobile = ref
+        .read(authControllerProvider)
+        .valueOrNull
+        ?.profile
+        ?.mobile;
     if (myMobile == null || myMobile.isEmpty) return;
     await ref.read(shareBorrowerContactProvider)(request.id, myMobile);
   }
@@ -197,7 +220,7 @@ class _OutgoingTab extends ConsumerWidget {
           );
         }
         return ListView.builder(
-          padding: const EdgeInsets.symmetric(vertical: 12),
+          padding: const EdgeInsets.fromLTRB(0, 12, 0, 88),
           itemCount: requests.length,
           itemBuilder: (context, index) {
             final request = requests[index];
@@ -248,8 +271,10 @@ class _HistoryTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final incoming = ref.watch(incomingRequestsProvider).valueOrNull ?? const [];
-    final outgoing = ref.watch(outgoingRequestsProvider).valueOrNull ?? const [];
+    final incoming =
+        ref.watch(incomingRequestsProvider).valueOrNull ?? const [];
+    final outgoing =
+        ref.watch(outgoingRequestsProvider).valueOrNull ?? const [];
     final lent = incoming
         .where((r) => r.returnedAt != null)
         .map((r) => (request: r, lent: true));
@@ -265,13 +290,15 @@ class _HistoryTab extends ConsumerWidget {
       );
     }
     return ListView.builder(
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      padding: const EdgeInsets.fromLTRB(0, 12, 0, 88),
       itemCount: loans.length,
       itemBuilder: (context, index) {
         final loan = loans[index];
         return RequestCard(
           request: loan.request,
-          otherPartyId: loan.lent ? loan.request.borrowerId : loan.request.lenderId,
+          otherPartyId: loan.lent
+              ? loan.request.borrowerId
+              : loan.request.lenderId,
           footer: Text(
             '${loan.lent ? 'Lent' : 'Borrowed'} · Returned ${_formatDate(loan.request.returnedAt!)}',
             style: const TextStyle(color: Color(0xFF617065)),
