@@ -3,17 +3,32 @@ import '../../../../shared/widgets/owner_label.dart';
 import '../../../books/presentation/widgets/book_cover_image.dart';
 import '../../domain/models/borrow_request.dart';
 
+/// Active (accepted, not yet returned) and past its expected return date.
+bool isOverdue(BorrowRequest request) =>
+    request.status == RequestStatus.accepted &&
+    request.returnedAt == null &&
+    request.expectedReturnDateMs != null &&
+    request.expectedReturnDateMs! < DateTime.now().millisecondsSinceEpoch;
+
 String requestStatusLabel(BorrowRequest request) => switch (request.status) {
   RequestStatus.pending => 'Pending',
   RequestStatus.accepted =>
-    request.returnedAt == null ? 'Accepted' : 'Returned',
+    request.returnedAt != null
+        ? 'Returned'
+        : isOverdue(request)
+        ? 'Overdue'
+        : 'Accepted',
   RequestStatus.declined => 'Declined',
 };
 
 Color requestStatusColor(BorrowRequest request) => switch (request.status) {
   RequestStatus.pending => const Color(0xFFB16C46),
   RequestStatus.accepted =>
-    request.returnedAt == null ? const Color(0xFF254E3B) : const Color(0xFF7A7A7A),
+    request.returnedAt != null
+        ? const Color(0xFF7A7A7A)
+        : isOverdue(request)
+        ? const Color(0xFFB3261E)
+        : const Color(0xFF254E3B),
   RequestStatus.declined => const Color(0xFF7A7A7A),
 };
 

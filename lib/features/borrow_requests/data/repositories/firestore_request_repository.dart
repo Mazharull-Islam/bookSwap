@@ -86,7 +86,27 @@ class FirestoreRequestRepository implements RequestRepository {
       _requests.doc(requestId).update({'borrowerContact': contact});
 
   @override
-  Future<void> markReturned(String requestId) => _requests.doc(requestId).update({
-    'returnedAt': DateTime.now().millisecondsSinceEpoch,
+  Future<void> markReturned(String requestId) => _requests
+      .doc(requestId)
+      .update({'returnedAt': DateTime.now().millisecondsSinceEpoch});
+
+  @override
+  Future<void> requestExtension(
+    String requestId,
+    DateTime proposedReturnDate,
+  ) => _requests.doc(requestId).update({
+    'proposedReturnDateMs': proposedReturnDate.millisecondsSinceEpoch,
   });
+
+  @override
+  Future<void> resolveExtension(String requestId, {required bool approve}) =>
+      _firestore.runTransaction((transaction) async {
+        final ref = _requests.doc(requestId);
+        final snapshot = await transaction.get(ref);
+        final proposed = snapshot.data()?['proposedReturnDateMs'] as int?;
+        transaction.update(ref, {
+          'proposedReturnDateMs': null,
+          if (approve && proposed != null) 'expectedReturnDateMs': proposed,
+        });
+      });
 }

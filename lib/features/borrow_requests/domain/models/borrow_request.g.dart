@@ -23,6 +23,7 @@ _BorrowRequest _$BorrowRequestFromJson(Map<String, dynamic> json) =>
       borrowerContact: json['borrowerContact'] as String?,
       lenderContact: json['lenderContact'] as String?,
       returnedAt: (json['returnedAt'] as num?)?.toInt(),
+      proposedReturnDateMs: (json['proposedReturnDateMs'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$BorrowRequestToJson(_BorrowRequest instance) =>
@@ -40,6 +41,7 @@ Map<String, dynamic> _$BorrowRequestToJson(_BorrowRequest instance) =>
       'borrowerContact': instance.borrowerContact,
       'lenderContact': instance.lenderContact,
       'returnedAt': instance.returnedAt,
+      'proposedReturnDateMs': instance.proposedReturnDateMs,
     };
 
 const _$RequestStatusEnumMap = {

@@ -7,8 +7,10 @@ class SendBorrowRequest {
   const SendBorrowRequest(this.repository);
   final RequestRepository repository;
 
-  Future<BorrowRequest> call({required Book book, required String borrowerId}) =>
-      repository.sendRequest(book: book, borrowerId: borrowerId);
+  Future<BorrowRequest> call({
+    required Book book,
+    required String borrowerId,
+  }) => repository.sendRequest(book: book, borrowerId: borrowerId);
 }
 
 /// Accepting a request also starts the loan: the book moves to `lent` so it
@@ -70,4 +72,20 @@ class ShareBorrowerContact {
 
   Future<void> call(String requestId, String contact) =>
       repository.shareBorrowerContact(requestId, contact);
+}
+
+class RequestLoanExtension {
+  const RequestLoanExtension(this.repository);
+  final RequestRepository repository;
+
+  Future<void> call(String requestId, DateTime proposedReturnDate) =>
+      repository.requestExtension(requestId, proposedReturnDate);
+}
+
+class ResolveLoanExtension {
+  const ResolveLoanExtension(this.repository);
+  final RequestRepository repository;
+
+  Future<void> call(String requestId, {required bool approve}) =>
+      repository.resolveExtension(requestId, approve: approve);
 }

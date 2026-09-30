@@ -69,23 +69,32 @@ service cloud.firestore {
       allow create, update: if member() && validBook(request.resource.data, bookId);
       allow delete: if member() && resource.data.ownerId == request.auth.uid;
     }
+    // Only the fields a request can never sensibly be without are in hasAll;
+    // every field that started out optional (or was added to the schema
+    // after some documents already existed) is checked via .get(field, null)
+    // instead of dot access or hasAll. A partial .update() only patches the
+    // keys it names — on a document that predates a later field, the merged
+    // request.resource.data can still be missing that key entirely, and
+    // dot-accessing (or requiring via hasAll) a genuinely missing map key is
+    // a rules evaluation error, which denies the whole write.
     function validRequest(data, requestId) {
-      return data.keys().hasAll(['id', 'bookId', 'bookTitle', 'bookCoverUrl', 'borrowerId', 'lenderId', 'status', 'requestedAt', 'respondedAt', 'expectedReturnDateMs', 'borrowerContact', 'lenderContact', 'returnedAt'])
-        && data.keys().hasOnly(['id', 'bookId', 'bookTitle', 'bookCoverUrl', 'borrowerId', 'lenderId', 'status', 'requestedAt', 'respondedAt', 'expectedReturnDateMs', 'borrowerContact', 'lenderContact', 'returnedAt'])
+      return data.keys().hasAll(['id', 'bookId', 'bookTitle', 'borrowerId', 'lenderId', 'status', 'requestedAt'])
+        && data.keys().hasOnly(['id', 'bookId', 'bookTitle', 'bookCoverUrl', 'borrowerId', 'lenderId', 'status', 'requestedAt', 'respondedAt', 'expectedReturnDateMs', 'borrowerContact', 'lenderContact', 'returnedAt', 'proposedReturnDateMs'])
         && data.id == requestId
         && text(data.bookId, 1, 200)
         && text(data.bookTitle, 1, 300)
-        && (data.bookCoverUrl == null || data.bookCoverUrl is string)
+        && (data.get('bookCoverUrl', null) == null || data.get('bookCoverUrl', null) is string)
         && text(data.borrowerId, 1, 200)
         && text(data.lenderId, 1, 200)
         && data.borrowerId != data.lenderId
         && data.status in ['pending', 'accepted', 'declined']
         && data.requestedAt is number
-        && (data.respondedAt == null || data.respondedAt is number)
-        && (data.expectedReturnDateMs == null || data.expectedReturnDateMs is number)
-        && (data.borrowerContact == null || text(data.borrowerContact, 1, 32))
-        && (data.lenderContact == null || text(data.lenderContact, 1, 32))
-        && (data.returnedAt == null || data.returnedAt is number);
+        && (data.get('respondedAt', null) == null || data.get('respondedAt', null) is number)
+        && (data.get('expectedReturnDateMs', null) == null || data.get('expectedReturnDateMs', null) is number)
+        && (data.get('borrowerContact', null) == null || text(data.get('borrowerContact', null), 1, 32))
+        && (data.get('lenderContact', null) == null || text(data.get('lenderContact', null), 1, 32))
+        && (data.get('returnedAt', null) == null || data.get('returnedAt', null) is number)
+        && (data.get('proposedReturnDateMs', null) == null || data.get('proposedReturnDateMs', null) is number);
     }
     // Contact fields (borrowerContact/lenderContact) are deliberately absent
     // until each party explicitly reveals theirs — never both at creation.
@@ -104,7 +113,8 @@ service cloud.firestore {
         && request.resource.data.expectedReturnDateMs == null
         && request.resource.data.borrowerContact == null
         && request.resource.data.lenderContact == null
-        && request.resource.data.returnedAt == null;
+        && request.resource.data.returnedAt == null
+        && request.resource.data.proposedReturnDateMs == null;
       allow update: if member() && validRequest(request.resource.data, requestId) && (
         (resource.data.lenderId == request.auth.uid
           && resource.data.status == 'pending'
@@ -128,11 +138,43 @@ service cloud.firestore {
         // with no matching book-status effect.
         (resource.data.lenderId == request.auth.uid
           && resource.data.status == 'accepted'
-          && resource.data.returnedAt == null
+          && resource.data.get('returnedAt', null) == null
           && request.resource.data.status == 'accepted'
           && request.resource.data.returnedAt is number
           && request.resource.data.diff(resource.data).affectedKeys()
                .hasOnly(['returnedAt']))
+        ||
+        // Loan extensions (SRS §3.5): borrower proposes a new return date on
+        // an active loan (one pending proposal at a time)...
+        // resource.data.get(...) rather than dot access: a request document
+        // written before these fields existed in the schema has no such key
+        // at all, and dot-accessing a genuinely missing map key is a rules
+        // evaluation error (denies the whole request), not just falsy.
+        (resource.data.borrowerId == request.auth.uid
+          && resource.data.status == 'accepted'
+          && resource.data.get('returnedAt', null) == null
+          && resource.data.get('proposedReturnDateMs', null) == null
+          && request.resource.data.proposedReturnDateMs is number
+          && request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(['proposedReturnDateMs']))
+        ||
+        // ...and the lender either approves it (moving the proposal into
+        // expectedReturnDateMs) or declines it (clearing it, return date
+        // untouched) — both just clear proposedReturnDateMs, so the two
+        // outcomes are distinguished by whether expectedReturnDateMs moved.
+        (resource.data.lenderId == request.auth.uid
+          && resource.data.status == 'accepted'
+          && resource.data.get('proposedReturnDateMs', null) != null
+          && request.resource.data.proposedReturnDateMs == null
+          && (
+            (request.resource.data.expectedReturnDateMs == resource.data.expectedReturnDateMs
+              && request.resource.data.diff(resource.data).affectedKeys()
+                   .hasOnly(['proposedReturnDateMs']))
+            ||
+            (request.resource.data.expectedReturnDateMs == resource.data.proposedReturnDateMs
+              && request.resource.data.diff(resource.data).affectedKeys()
+                   .hasOnly(['proposedReturnDateMs', 'expectedReturnDateMs']))
+          ))
       );
       allow delete: if false;
     }

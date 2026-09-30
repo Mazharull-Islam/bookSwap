@@ -112,6 +112,12 @@ class _IncomingTab extends ConsumerWidget {
     }
   }
 
+  Future<void> _resolveExtension(
+    WidgetRef ref,
+    BorrowRequest request, {
+    required bool approve,
+  }) => ref.read(resolveLoanExtensionProvider)(request.id, approve: approve);
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final requests = ref.watch(incomingRequestsProvider);
@@ -166,9 +172,53 @@ class _IncomingTab extends ConsumerWidget {
                     ),
                     if (request.expectedReturnDateMs != null)
                       Text(
-                        'Return by: ${_formatDate(request.expectedReturnDateMs!)}',
-                        style: const TextStyle(color: Color(0xFF617065)),
+                        'Return by: ${_formatDate(request.expectedReturnDateMs!)}'
+                        '${isOverdue(request) ? ' (overdue)' : ''}',
+                        style: TextStyle(
+                          color: isOverdue(request)
+                              ? const Color(0xFFB3261E)
+                              : const Color(0xFF617065),
+                          fontWeight: isOverdue(request)
+                              ? FontWeight.w600
+                              : FontWeight.normal,
+                        ),
                       ),
+                    if (request.proposedReturnDateMs != null) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        'Extension requested: ${_formatDate(request.proposedReturnDateMs!)}',
+                        style: const TextStyle(
+                          color: Color(0xFFB16C46),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: () => _resolveExtension(
+                                ref,
+                                request,
+                                approve: false,
+                              ),
+                              child: const Text('Decline'),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: PrimaryButton(
+                              label: 'Approve',
+                              onPressed: () => _resolveExtension(
+                                ref,
+                                request,
+                                approve: true,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                     const SizedBox(height: 8),
                     SizedBox(
                       width: double.infinity,
@@ -200,6 +250,33 @@ class _OutgoingTab extends ConsumerWidget {
         ?.mobile;
     if (myMobile == null || myMobile.isEmpty) return;
     await ref.read(shareBorrowerContactProvider)(request.id, myMobile);
+  }
+
+  Future<void> _requestExtension(
+    BuildContext context,
+    WidgetRef ref,
+    BorrowRequest request,
+  ) async {
+    final current = request.expectedReturnDateMs != null
+        ? DateTime.fromMillisecondsSinceEpoch(request.expectedReturnDateMs!)
+        : DateTime.now();
+    final newDate = await showDatePicker(
+      context: context,
+      initialDate: current.add(const Duration(days: 7)),
+      firstDate: current.add(const Duration(days: 1)),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+      helpText: 'Proposed new return date',
+    );
+    if (newDate == null) return;
+    try {
+      await ref.read(requestLoanExtensionProvider)(request.id, newDate);
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not request an extension: $e')),
+        );
+      }
+    }
   }
 
   @override
@@ -241,8 +318,16 @@ class _OutgoingTab extends ConsumerWidget {
                     ),
                     if (request.expectedReturnDateMs != null)
                       Text(
-                        'Return by: ${_formatDate(request.expectedReturnDateMs!)}',
-                        style: const TextStyle(color: Color(0xFF617065)),
+                        'Return by: ${_formatDate(request.expectedReturnDateMs!)}'
+                        '${isOverdue(request) ? ' (overdue)' : ''}',
+                        style: TextStyle(
+                          color: isOverdue(request)
+                              ? const Color(0xFFB3261E)
+                              : const Color(0xFF617065),
+                          fontWeight: isOverdue(request)
+                              ? FontWeight.w600
+                              : FontWeight.normal,
+                        ),
                       ),
                     if (request.borrowerContact == null) ...[
                       const SizedBox(height: 8),
@@ -254,6 +339,25 @@ class _OutgoingTab extends ConsumerWidget {
                         ),
                       ),
                     ],
+                    const SizedBox(height: 8),
+                    if (request.proposedReturnDateMs != null)
+                      Text(
+                        'Extension requested: awaiting approval '
+                        '(until ${_formatDate(request.proposedReturnDateMs!)})',
+                        style: const TextStyle(
+                          color: Color(0xFFB16C46),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      )
+                    else
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton(
+                          onPressed: () =>
+                              _requestExtension(context, ref, request),
+                          child: const Text('Request extension'),
+                        ),
+                      ),
                   ],
                 ),
                 RequestStatus.declined => null,
