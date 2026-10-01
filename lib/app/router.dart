@@ -17,6 +17,7 @@ import '../features/books/presentation/screens/my_shelf_page.dart';
 import '../features/borrow_requests/presentation/screens/requests_page.dart';
 import '../features/discovery/presentation/screens/discovery_page.dart';
 import '../features/forum/presentation/screens/forum_page.dart';
+import '../features/leaderboard/presentation/screens/leaderboard_page.dart';
 import '../features/reading/presentation/screens/reading_page.dart';
 import '../features/wanted_books/presentation/screens/wanted_books_page.dart';
 import 'providers/book_sync_controller.dart';
@@ -58,7 +59,8 @@ String? _redirectFor(_AuthStage stage, String location) {
               location == '/requests' ||
               location == '/blocked' ||
               location == '/forum' ||
-              location == '/book-of-month'
+              location == '/book-of-month' ||
+              location == '/leaderboard'
           ? null
           : '/shelf';
   }
@@ -131,6 +133,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/book-of-month',
             builder: (context, state) => const BookOfMonthPage(),
+          ),
+          GoRoute(
+            path: '/leaderboard',
+            builder: (context, state) => const LeaderboardPage(),
           ),
           GoRoute(
             path: '/profile',

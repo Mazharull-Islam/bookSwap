@@ -394,6 +394,28 @@ service cloud.firestore {
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['discussionPostId']);
       allow delete: if false;
     }
+    // Reading Leaderboard (SRS §3.11). One doc per "I marked a book Read"
+    // event — deliberately minimal (no title, rating, or review) so the
+    // leaderboard can aggregate reader/author counts without exposing a
+    // user's actual reading list. Auto-generated doc id, unlike
+    // book_of_month_nominations there's no composite key derived from a
+    // workKey here, so no slash-in-id risk.
+    function validReadingActivity(data, docId) {
+      return data.keys().hasAll(['id', 'userId', 'userName', 'author', 'genre', 'periodId', 'markedReadAtMs'])
+        && data.keys().hasOnly(['id', 'userId', 'userName', 'author', 'genre', 'periodId', 'markedReadAtMs'])
+        && data.id == docId
+        && data.userId == request.auth.uid
+        && text(data.userName, 1, 200)
+        && text(data.author, 0, 300)
+        && (data.genre == null || text(data.genre, 1, 300))
+        && text(data.periodId, 7, 7)
+        && data.markedReadAtMs is number;
+    }
+    match /reading_activity/{docId} {
+      allow read: if member();
+      allow create: if member() && validReadingActivity(request.resource.data, docId);
+      allow update, delete: if false;
+    }
     match /{document=**} {
       allow read, write: if false;
     }

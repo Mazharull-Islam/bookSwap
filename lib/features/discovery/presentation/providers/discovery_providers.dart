@@ -19,7 +19,10 @@ final discoveryResultsProvider = Provider<List<BookGroup>?>((ref) {
   final books = ref.watch(allBooksProvider).valueOrNull ?? const <Book>[];
   final myId = ref.watch(currentUserProvider).id;
   final matches = books.where(
-    (book) => book.ownerId != myId && book.title.toLowerCase().contains(query),
+    (book) =>
+        book.ownerId != myId &&
+        (book.title.toLowerCase().contains(query) ||
+            book.author.toLowerCase().contains(query)),
   );
   return groupBooksByWork(matches);
 });

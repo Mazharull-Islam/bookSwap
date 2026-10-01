@@ -61,7 +61,7 @@ class _DiscoveryPageState extends ConsumerState<DiscoveryPage> {
             AppTextField(
               controller: _query,
               label: 'Search for a book',
-              hint: 'Try a title...',
+              hint: 'Try a title or author...',
               prefixIcon: Icons.search,
               suffixIcon: _query.text.isEmpty
                   ? null

@@ -17,6 +17,7 @@ class NavMenuButton extends ConsumerWidget {
     ('/reading', 'My Reading', Icons.auto_stories_outlined),
     ('/forum', 'Forum', Icons.forum_outlined),
     ('/book-of-month', 'Book of the Month', Icons.emoji_events_outlined),
+    ('/leaderboard', 'Leaderboard', Icons.leaderboard_outlined),
   ];
 
   @override
