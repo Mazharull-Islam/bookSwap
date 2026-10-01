@@ -19,6 +19,7 @@ import '../features/discovery/presentation/screens/discovery_page.dart';
 import '../features/forum/presentation/screens/forum_page.dart';
 import '../features/leaderboard/presentation/screens/leaderboard_page.dart';
 import '../features/reading/presentation/screens/reading_page.dart';
+import '../features/reputation/presentation/widgets/badge_notification_watcher.dart';
 import '../features/wanted_books/presentation/screens/wanted_books_page.dart';
 import 'providers/book_sync_controller.dart';
 
@@ -167,6 +168,6 @@ class AppShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(bookSyncControllerProvider);
-    return child;
+    return BadgeNotificationWatcher(child: child);
   }
 }
