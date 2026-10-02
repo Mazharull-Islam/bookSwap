@@ -38,7 +38,7 @@ class ReadingStatsTab extends ConsumerWidget {
     final genres = genresExplored(entries);
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 88),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
       children: [
         _GoalCard(goal: goal, entries: entries),
         const SizedBox(height: 20),

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/theme.dart';
-import '../../../../app/widgets/nav_menu_button.dart';
-import '../../../../app/widgets/profile_nav_button.dart';
 import '../providers/forum_providers.dart';
 import '../widgets/create_post_dialog.dart';
 import '../widgets/forum_post_tile.dart';
@@ -15,14 +13,7 @@ class ForumPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final posts = ref.watch(forumFeedProvider);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Forum'),
-        actions: const [
-          ProfileNavButton(),
-          NavMenuButton(),
-          SizedBox(width: 4),
-        ],
-      ),
+      appBar: AppBar(title: const Text('Forum')),
       body: posts.isEmpty
           ? Center(
               child: Padding(

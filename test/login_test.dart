@@ -58,8 +58,19 @@ Future<void> tapVisible(WidgetTester tester, Finder finder) async {
   await tester.pumpAndSettle();
 }
 
-Future<void> goToProfile(WidgetTester tester) =>
-    tapVisible(tester, find.byTooltip('Profile'));
+Future<void> goToProfile(WidgetTester tester) async {
+  await tapVisible(tester, find.text('More'));
+  await tapVisible(tester, find.text('Profile'));
+}
+
+Future<void> signInDemo(WidgetTester tester) async {
+  await tester.pumpWidget(testApp());
+  await tester.pumpAndSettle();
+  await tapVisible(tester, find.byKey(const Key('getStarted')));
+  await tester.enterText(find.byKey(const Key('email')), 'reader@bookswap.app');
+  await tester.enterText(find.byKey(const Key('password')), 'BookSwap123!');
+  await tapVisible(tester, find.byKey(const Key('signIn')));
+}
 
 class PendingGoogleRepository extends DemoAuthRepository {
   final result = Completer<AuthUser?>();
@@ -326,6 +337,53 @@ void main() {
     await tapVisible(tester, find.byKey(const Key('getStarted')));
     await tester.ensureVisible(find.byKey(const Key('signIn')));
     await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Phones get a bottom bar; More keeps its tab for sub-screens', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await signInDemo(tester);
+    expect(find.byType(NavigationBar), findsOneWidget);
+    expect(find.byType(NavigationRail), findsNothing);
+    expect(
+      tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
+      0,
+    );
+
+    await tapVisible(tester, find.text('Discover'));
+    expect(find.text('Search for a book'), findsOneWidget);
+    expect(
+      tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
+      1,
+    );
+
+    await tapVisible(tester, find.text('More'));
+    await tapVisible(tester, find.text('My Reading'));
+    expect(find.text('To read'), findsOneWidget);
+    expect(
+      tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
+      4,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Wide screens get a side rail instead of a bottom bar', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1200, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await signInDemo(tester);
+    expect(find.byType(NavigationRail), findsOneWidget);
+    expect(find.byType(NavigationBar), findsNothing);
+    await tapVisible(tester, find.text('Discover'));
+    expect(find.text('Search for a book'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }

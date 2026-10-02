@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/providers/current_user_provider.dart';
 import '../../../../app/theme.dart';
-import '../../../../app/widgets/nav_menu_button.dart';
-import '../../../../app/widgets/profile_nav_button.dart';
 import '../../../../core/services/public_profile_service.dart';
-import '../../../../shared/widgets/pill_tab_bar.dart';
 import '../../../../shared/widgets/primary_button.dart';
 import '../../../authentication/presentation/providers/auth_providers.dart';
 import '../../../blocking/presentation/providers/block_providers.dart';
@@ -23,24 +20,19 @@ class RequestsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => DefaultTabController(
     length: 3,
-    child: Builder(
-      builder: (context) => Scaffold(
-        appBar: AppBar(
-          title: const Text('Requests'),
-          actions: const [
-            ProfileNavButton(),
-            NavMenuButton(),
-            SizedBox(width: 4),
+    child: Scaffold(
+      appBar: AppBar(
+        title: const Text('Requests'),
+        bottom: const TabBar(
+          tabs: [
+            Tab(text: 'Incoming'),
+            Tab(text: 'Outgoing'),
+            Tab(text: 'History'),
           ],
         ),
-        body: const TabBarView(
-          children: [_IncomingTab(), _OutgoingTab(), _HistoryTab()],
-        ),
-        floatingActionButton: PillTabBar(
-          controller: DefaultTabController.of(context),
-          labels: const ['Incoming', 'Outgoing', 'History'],
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      ),
+      body: const TabBarView(
+        children: [_IncomingTab(), _OutgoingTab(), _HistoryTab()],
       ),
     ),
   );
@@ -185,7 +177,7 @@ class _IncomingTab extends ConsumerWidget {
           );
         }
         return ListView.builder(
-          padding: const EdgeInsets.fromLTRB(0, 12, 0, 88),
+          padding: const EdgeInsets.fromLTRB(0, 12, 0, 16),
           itemCount: requests.length,
           itemBuilder: (context, index) {
             final request = requests[index];
@@ -347,7 +339,7 @@ class _OutgoingTab extends ConsumerWidget {
           );
         }
         return ListView.builder(
-          padding: const EdgeInsets.fromLTRB(0, 12, 0, 88),
+          padding: const EdgeInsets.fromLTRB(0, 12, 0, 16),
           itemCount: requests.length,
           itemBuilder: (context, index) {
             final request = requests[index];
@@ -444,7 +436,7 @@ class _HistoryTab extends ConsumerWidget {
       );
     }
     return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(0, 12, 0, 88),
+      padding: const EdgeInsets.fromLTRB(0, 12, 0, 16),
       itemCount: loans.length,
       itemBuilder: (context, index) {
         final loan = loans[index];

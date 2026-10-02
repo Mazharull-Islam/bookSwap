@@ -4,12 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/providers/current_user_provider.dart';
 import '../../../../app/theme.dart';
-import '../../../../app/widgets/nav_menu_button.dart';
-import '../../../../app/widgets/profile_nav_button.dart';
 import '../../../../core/services/open_library_service.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../../../../shared/widgets/filter_widgets.dart';
-import '../../../../shared/widgets/pill_tab_bar.dart';
 import '../../../books/domain/models/book.dart';
 import '../../../books/presentation/widgets/book_list_tile.dart'
     show bookGenreList;
@@ -147,18 +144,15 @@ class _ReadingPageState extends ConsumerState<ReadingPage> {
         builder: (context) => Scaffold(
           appBar: AppBar(
             title: const Text('My Reading'),
-            actions: const [
-              ProfileNavButton(),
-              NavMenuButton(),
-              SizedBox(width: 4),
-            ],
+            bottom: const TabBar(
+              tabs: [
+                Tab(text: 'To read'),
+                Tab(text: 'Reading'),
+                Tab(text: 'Read'),
+                Tab(text: 'Stats'),
+              ],
+            ),
           ),
-          floatingActionButton: PillTabBar(
-            controller: DefaultTabController.of(context),
-            labels: const ['To read', 'Reading', 'Read', 'Stats'],
-          ),
-          floatingActionButtonLocation:
-              FloatingActionButtonLocation.centerFloat,
           body: Column(
             children: [
               Padding(
@@ -315,7 +309,7 @@ class _ReadingList extends ConsumerWidget {
           );
         }
         return ListView.builder(
-          padding: const EdgeInsets.fromLTRB(0, 12, 0, 88),
+          padding: const EdgeInsets.fromLTRB(0, 12, 0, 16),
           itemCount: filtered.length,
           itemBuilder: (context, index) {
             final entry = filtered[index];

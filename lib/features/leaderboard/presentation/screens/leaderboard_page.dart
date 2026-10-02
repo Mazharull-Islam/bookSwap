@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/theme.dart';
-import '../../../../app/widgets/nav_menu_button.dart';
-import '../../../../app/widgets/profile_nav_button.dart';
-import '../../../../shared/widgets/pill_tab_bar.dart';
 import '../../../book_of_month/domain/period.dart';
 import '../providers/leaderboard_providers.dart';
 import '../widgets/ranking_tile.dart';
@@ -16,45 +13,38 @@ class LeaderboardPage extends ConsumerWidget {
     final periodId = ref.watch(leaderboardPeriodIdProvider);
     return DefaultTabController(
       length: 2,
-      child: Builder(
-        builder: (context) => Scaffold(
-          appBar: AppBar(
-            title: const Text('Leaderboard'),
-            actions: const [
-              ProfileNavButton(),
-              NavMenuButton(),
-              SizedBox(width: 4),
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Leaderboard'),
+          bottom: const TabBar(
+            tabs: [
+              Tab(text: 'Top Readers'),
+              Tab(text: 'Popular Authors'),
             ],
           ),
-          floatingActionButton: PillTabBar(
-            controller: DefaultTabController.of(context),
-            labels: const ['Top Readers', 'Popular Authors'],
-          ),
-          floatingActionButtonLocation:
-              FloatingActionButtonLocation.centerFloat,
-          body: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                child: Text(
-                  periodLabel(periodId),
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w700,
-                    color: forest,
-                    fontSize: 16,
-                  ),
+        ),
+        body: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              child: Text(
+                periodLabel(periodId),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: forest,
+                  fontSize: 16,
                 ),
               ),
-              Expanded(
-                child: TabBarView(
-                  children: [
-                    _TopReadersTab(periodId: periodId),
-                    _TopAuthorsTab(periodId: periodId),
-                  ],
-                ),
+            ),
+            Expanded(
+              child: TabBarView(
+                children: [
+                  _TopReadersTab(periodId: periodId),
+                  _TopAuthorsTab(periodId: periodId),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -75,7 +65,7 @@ class _TopReadersTab extends ConsumerWidget {
       );
     }
     return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 88),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
       itemCount: readers.length,
       itemBuilder: (context, index) {
         final reader = readers[index];
@@ -104,7 +94,7 @@ class _TopAuthorsTab extends ConsumerWidget {
       );
     }
     return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 88),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
       itemCount: authors.length,
       itemBuilder: (context, index) {
         final author = authors[index];

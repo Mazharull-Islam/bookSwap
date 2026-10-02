@@ -19,9 +19,9 @@ import '../features/discovery/presentation/screens/discovery_page.dart';
 import '../features/forum/presentation/screens/forum_page.dart';
 import '../features/leaderboard/presentation/screens/leaderboard_page.dart';
 import '../features/reading/presentation/screens/reading_page.dart';
-import '../features/reputation/presentation/widgets/badge_notification_watcher.dart';
 import '../features/wanted_books/presentation/screens/wanted_books_page.dart';
-import 'providers/book_sync_controller.dart';
+import 'screens/more_page.dart';
+import 'widgets/app_shell.dart';
 
 enum _AuthStage {
   loading,
@@ -54,6 +54,7 @@ String? _redirectFor(_AuthStage stage, String location) {
     case _AuthStage.authenticated:
       return location.startsWith('/shelf') ||
               location == '/profile' ||
+              location == '/more' ||
               location == '/discover' ||
               location == '/wishlist' ||
               location == '/reading' ||
@@ -105,7 +106,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const BlockedUsersPage(),
       ),
       ShellRoute(
-        builder: (context, state, child) => AppShell(child: child),
+        builder: (context, state, child) =>
+            AppShell(location: state.uri.path, child: child),
         routes: [
           GoRoute(
             path: '/shelf',
@@ -139,6 +141,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: '/leaderboard',
             builder: (context, state) => const LeaderboardPage(),
           ),
+          GoRoute(path: '/more', builder: (context, state) => const MorePage()),
           GoRoute(
             path: '/profile',
             builder: (context, state) => const ProfilePage(),
@@ -158,16 +161,5 @@ class _RootPage extends ConsumerWidget {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     return const WelcomePage();
-  }
-}
-
-class AppShell extends ConsumerWidget {
-  const AppShell({super.key, required this.child});
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    ref.watch(bookSyncControllerProvider);
-    return BadgeNotificationWatcher(child: child);
   }
 }

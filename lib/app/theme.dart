@@ -28,6 +28,24 @@ ThemeData buildTheme() => ThemeData(
       borderSide: const BorderSide(color: Color(0xFFD6DED5)),
     ),
   ),
+  navigationBarTheme: NavigationBarThemeData(
+    backgroundColor: Colors.white,
+    indicatorColor: const Color(0xFFE9EEDF),
+    labelTextStyle: WidgetStatePropertyAll(
+      const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: ink),
+    ),
+  ),
+  navigationRailTheme: const NavigationRailThemeData(
+    backgroundColor: Colors.white,
+    indicatorColor: Color(0xFFE9EEDF),
+  ),
+  tabBarTheme: const TabBarThemeData(
+    labelColor: forest,
+    unselectedLabelColor: Color(0xFF617065),
+    indicatorColor: forest,
+    labelStyle: TextStyle(fontWeight: FontWeight.w700),
+    dividerColor: Color(0xFFD6DED5),
+  ),
   filledButtonTheme: FilledButtonThemeData(
     style: FilledButton.styleFrom(
       backgroundColor: forest,

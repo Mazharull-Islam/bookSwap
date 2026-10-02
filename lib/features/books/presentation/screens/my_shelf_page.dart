@@ -3,8 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../app/providers/current_user_provider.dart';
 import '../../../../app/theme.dart';
-import '../../../../app/widgets/nav_menu_button.dart';
-import '../../../../app/widgets/profile_nav_button.dart';
 import '../../../../core/services/book_sync_service.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../../../../shared/widgets/filter_widgets.dart';
@@ -99,9 +97,6 @@ class _MyShelfPageState extends ConsumerState<MyShelfPage> {
             onPressed: () => ref.read(shelfViewModeProvider.notifier).state =
                 isGrid ? ShelfViewMode.list : ShelfViewMode.grid,
           ),
-          const SizedBox(width: 8),
-          const ProfileNavButton(),
-          const NavMenuButton(),
           const SizedBox(width: 4),
         ],
       ),

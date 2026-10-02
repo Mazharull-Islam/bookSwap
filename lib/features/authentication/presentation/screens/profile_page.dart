@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../app/theme.dart';
-import '../../../../app/widgets/nav_menu_button.dart';
 import '../../../../shared/widgets/primary_button.dart';
 import '../../../location/presentation/widgets/location_settings_card.dart';
 import '../../../reputation/presentation/widgets/reputation_card.dart';
@@ -16,17 +15,14 @@ class ProfilePage extends ConsumerWidget {
     final user = ref.watch(authControllerProvider).valueOrNull;
     return Scaffold(
       appBar: AppBar(
-        // Profile is reached via the menu rather than being one of the main
-        // shell destinations, and go_router's `go()` navigation replaces
-        // the location instead of pushing — so there's no navigation stack
-        // for an automatic back arrow to pop. This just returns to My Shelf.
+        // go_router's go() replaces the location, so there's no stack for
+        // an automatic back arrow; this returns to the More menu.
         leading: IconButton(
           tooltip: 'Back',
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/shelf'),
+          onPressed: () => context.go('/more'),
         ),
         title: const Text('Profile'),
-        actions: const [NavMenuButton()],
       ),
       body: SafeArea(
         child: Center(
