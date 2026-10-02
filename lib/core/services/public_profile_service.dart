@@ -1,22 +1,74 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Reads the minimal, member-readable slice of another user's identity —
-/// just a display name, never contact details. See firestore.rules'
-/// public_profiles collection for the enforcement side of this.
+/// The member-readable slice of another user's identity — a display name
+/// and an optional, deliberately coarse (~1km) location. Never contact
+/// details. See firestore.rules' public_profiles collection for the
+/// enforcement side of this.
+class PublicProfile {
+  const PublicProfile({
+    required this.uid,
+    this.firstName,
+    this.latitude,
+    this.longitude,
+  });
+
+  final String uid;
+  final String? firstName;
+  final double? latitude;
+  final double? longitude;
+
+  bool get hasLocation => latitude != null && longitude != null;
+
+  factory PublicProfile.fromDoc(String uid, Map<String, dynamic>? data) =>
+      PublicProfile(
+        uid: uid,
+        firstName: data?['firstName'] as String?,
+        latitude: (data?['latitude'] as num?)?.toDouble(),
+        longitude: (data?['longitude'] as num?)?.toDouble(),
+      );
+}
+
 class PublicProfileService {
   PublicProfileService(this._firestore);
   final FirebaseFirestore _firestore;
 
+  CollectionReference<Map<String, dynamic>> get _collection =>
+      _firestore.collection('public_profiles');
+
   Future<String?> fetchDisplayName(String uid) async {
     try {
-      final doc = await _firestore.collection('public_profiles').doc(uid).get();
+      final doc = await _collection.doc(uid).get();
       return doc.data()?['firstName'] as String?;
     } catch (_) {
       // A lookup failure shouldn't block showing the book itself.
       return null;
     }
   }
+
+  /// Every member's public profile, live — needed to compute distance to
+  /// Discovery listings client-side (SRS §3.1/§3.3), since there's no
+  /// backend function to do that privately. See roundCoordinate() for the
+  /// precision trim this relies on.
+  Stream<Map<String, PublicProfile>> watchAll() => _collection.snapshots().map(
+    (s) => {
+      for (final doc in s.docs)
+        doc.id: PublicProfile.fromDoc(doc.id, doc.data()),
+    },
+  );
+
+  /// Merge-set rather than update so accounts that predate public_profiles
+  /// (no doc yet) get one created instead of being rejected.
+  Future<void> updateLocation(
+    String uid,
+    String firstName,
+    double lat,
+    double lng,
+  ) => _collection.doc(uid).set({
+    'firstName': firstName,
+    'latitude': lat,
+    'longitude': lng,
+  }, SetOptions(merge: true));
 }
 
 final publicProfileServiceProvider = Provider<PublicProfileService>(
@@ -27,4 +79,8 @@ final publicProfileServiceProvider = Provider<PublicProfileService>(
 /// a session don't re-hit Firestore.
 final displayNameProvider = FutureProvider.family<String?, String>(
   (ref, uid) => ref.watch(publicProfileServiceProvider).fetchDisplayName(uid),
+);
+
+final allPublicProfilesProvider = StreamProvider<Map<String, PublicProfile>>(
+  (ref) => ref.watch(publicProfileServiceProvider).watchAll(),
 );

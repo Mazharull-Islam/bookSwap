@@ -261,4 +261,13 @@ class FirebaseAuthRepository implements AuthRepository {
 
   @override
   Future<void> signOut() => _request(() => _network(_auth.signOut()));
+
+  @override
+  Future<void> updateMaxDistance(double? km) => _request(() async {
+    final user = _auth.currentUser;
+    if (user == null) throw const AuthFailure('Please sign in again.');
+    await _network(
+      _store.collection('profiles').doc(user.uid).update({'maxDistanceKm': km}),
+    );
+  });
 }

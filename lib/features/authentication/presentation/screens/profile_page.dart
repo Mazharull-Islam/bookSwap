@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/theme.dart';
 import '../../../../app/widgets/nav_menu_button.dart';
 import '../../../../shared/widgets/primary_button.dart';
+import '../../../location/presentation/widgets/location_settings_card.dart';
 import '../../../reputation/presentation/widgets/reputation_card.dart';
 import '../providers/auth_providers.dart';
 
@@ -53,6 +54,8 @@ class ProfilePage extends ConsumerWidget {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 20),
+                  const LocationSettingsCard(),
+                  const SizedBox(height: 16),
                   const ReputationCard(),
                   const SizedBox(height: 16),
                   OutlinedButton(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/providers/current_user_provider.dart';
 import '../../../../app/theme.dart';
+import '../../../../core/services/public_profile_service.dart';
 import '../../../../shared/widgets/owner_label.dart';
 import '../../../../shared/widgets/primary_button.dart';
 import '../../../books/domain/models/book.dart';
@@ -10,6 +11,8 @@ import '../../../books/presentation/widgets/book_list_tile.dart';
 import '../../../books/presentation/widgets/genre_pill_list.dart';
 import '../../../borrow_requests/domain/repositories/request_repository.dart';
 import '../../../borrow_requests/presentation/providers/request_providers.dart';
+import '../../../location/domain/owner_distance.dart';
+import '../../../location/presentation/providers/location_providers.dart';
 import '../../domain/book_group.dart';
 
 Future<void> showBookGroupDetailDialog(BuildContext context, BookGroup group) {
@@ -43,9 +46,9 @@ class _BookGroupDetailDialogState
       if (mounted) setState(() => _sent.add(listing.id));
     } on RequestValidationFailure catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.message)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.message)));
       }
     } finally {
       if (mounted) setState(() => _sending.remove(listing.id));
@@ -57,6 +60,10 @@ class _BookGroupDetailDialogState
     final group = widget.group;
     final book = group.representative;
     final genres = bookGenreList(book.genre);
+    final myLocation = ref.watch(myLocationProvider);
+    final profiles =
+        ref.watch(allPublicProfilesProvider).valueOrNull ??
+        const <String, PublicProfile>{};
     return Dialog(
       insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -125,7 +132,15 @@ class _BookGroupDetailDialogState
                         ),
                       ),
                       const SizedBox(height: 8),
-                      ...group.listings.map(_listingCard),
+                      ...group.listings.map(
+                        (listing) => _listingCard(
+                          listing,
+                          distanceToOwnerKm(
+                            myLocation: myLocation,
+                            ownerLocation: profiles[listing.ownerId],
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -137,7 +152,7 @@ class _BookGroupDetailDialogState
     );
   }
 
-  Widget _listingCard(Book listing) {
+  Widget _listingCard(Book listing, double? distanceKm) {
     final canRequest = listing.status == BookStatus.available;
     final sending = _sending.contains(listing.id);
     final sent = _sent.contains(listing.id);
@@ -176,6 +191,13 @@ class _BookGroupDetailDialogState
             'Condition: ${listing.condition}',
             style: const TextStyle(color: Color(0xFF617065)),
           ),
+          if (distanceKm != null)
+            Text(
+              distanceKm < 1
+                  ? 'Less than 1 km away'
+                  : '${distanceKm.round()} km away',
+              style: const TextStyle(color: Color(0xFF617065)),
+            ),
           if (canRequest) ...[
             const SizedBox(height: 8),
             SizedBox(

@@ -15,6 +15,9 @@ abstract interface class AuthRepository {
   Future<void> resendVerification();
   Future<void> resetPassword(String email);
   Future<void> signOut();
+
+  /// Null clears the preference (no distance limit).
+  Future<void> updateMaxDistance(double? km);
 }
 
 String? validateEmail(String? input) {

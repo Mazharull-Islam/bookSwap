@@ -13,8 +13,8 @@ service cloud.firestore {
       return value is string && value.size() >= min && value.size() <= max;
     }
     function validProfile(data) {
-      return data.keys().hasAll(['email', 'firstName', 'lastName', 'gender', 'mobile', 'address', 'preferences', 'favoriteBook', 'acceptedTermsVersion', 'acceptedTermsAt'])
-        && data.keys().hasOnly(['email', 'firstName', 'lastName', 'gender', 'mobile', 'address', 'preferences', 'favoriteBook', 'acceptedTermsVersion', 'acceptedTermsAt'])
+      return data.keys().hasAll(['email', 'firstName', 'lastName', 'gender', 'mobile', 'address', 'preferences', 'favoriteBook', 'acceptedTermsVersion', 'acceptedTermsAt', 'maxDistanceKm'])
+        && data.keys().hasOnly(['email', 'firstName', 'lastName', 'gender', 'mobile', 'address', 'preferences', 'favoriteBook', 'acceptedTermsVersion', 'acceptedTermsAt', 'maxDistanceKm'])
         && data.email == request.auth.token.email.lower()
         && text(data.firstName, 1, 100) && data.firstName.matches('.*[^ ].*')
         && text(data.lastName, 1, 100) && data.lastName.matches('.*[^ ].*')
@@ -25,25 +25,48 @@ service cloud.firestore {
         && data.preferences.hasOnly(['Fiction', 'Mystery', 'Fantasy', 'Science fiction', 'Romance', 'History', 'Biography', 'Self-development', 'Science & technology', 'Academic', 'Poetry', 'Other'])
         && text(data.favoriteBook, 0, 200)
         && data.acceptedTermsVersion == '1.1'
-        && data.acceptedTermsAt == request.time;
+        && data.acceptedTermsAt == request.time
+        && (data.maxDistanceKm == null || (data.maxDistanceKm is number && data.maxDistanceKm > 0));
     }
     match /profiles/{uid} {
       // Pending accounts can finish registration and read only their own profile.
       allow get: if owns(uid);
       allow create: if owns(uid) && validProfile(request.resource.data);
-      allow list, update, delete: if false;
+      // Deliberately not validProfile() here — its acceptedTermsAt ==
+      // request.time check is create-only (request.time is now, not the
+      // original creation time an update would be leaving unchanged).
+      // affectedKeys().hasOnly(['maxDistanceKm']) already guarantees every
+      // other field, including acceptedTermsAt, is untouched by this write.
+      allow update: if owns(uid)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['maxDistanceKm'])
+        && (request.resource.data.maxDistanceKm == null || (request.resource.data.maxDistanceKm is number && request.resource.data.maxDistanceKm > 0));
+      allow list, delete: if false;
     }
     function validPublicProfile(data) {
-      return data.keys().hasOnly(['firstName'])
-        && text(data.firstName, 1, 100);
+      return data.keys().hasAll(['firstName'])
+        && data.keys().hasOnly(['firstName', 'latitude', 'longitude'])
+        && text(data.firstName, 1, 100)
+        && (!('latitude' in data) || (data.latitude is number && data.latitude >= -90 && data.latitude <= 90))
+        && (!('longitude' in data) || (data.longitude is number && data.longitude >= -180 && data.longitude <= 180));
     }
     // Deliberately separate from /profiles: this is the only piece of another
     // member's identity anyone can read before a borrow request is accepted —
-    // no contact info (mobile/email/address) ever lives here.
+    // no contact info (mobile/email/address) ever lives here. `list` is
+    // enabled (unlike most member-private collections) specifically so
+    // Discovery can compute distance to every listing's owner client-side
+    // (SRS §3.1/§3.3) — there's no backend function to do that privately.
+    // latitude/longitude are rounded to ~1km precision before they're ever
+    // written (see roundCoordinate()), the deliberate privacy trim this
+    // relies on instead of true server-side distance-only computation.
     match /public_profiles/{uid} {
       allow get: if member();
+      allow list: if member();
       allow create: if owns(uid) && validPublicProfile(request.resource.data);
-      allow list, update, delete: if false;
+      allow update: if owns(uid)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['latitude', 'longitude'])
+        && request.resource.data.latitude is number && request.resource.data.latitude >= -90 && request.resource.data.latitude <= 90
+        && request.resource.data.longitude is number && request.resource.data.longitude >= -180 && request.resource.data.longitude <= 180;
+      allow delete: if false;
     }
     function validBook(data, bookId) {
       return data.keys().hasAll(['id', 'ownerId', 'title', 'author', 'genre', 'condition', 'estimatedValue', 'description', 'coverPhotoUrl', 'isbn', 'workKey', 'status', 'updatedAtMs'])

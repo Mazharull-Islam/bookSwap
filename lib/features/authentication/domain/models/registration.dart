@@ -106,7 +106,8 @@ class ReaderProfile {
       acceptedTermsVersion = data['acceptedTermsVersion'] as String,
       acceptedTermsAt = DateTime.parse(
         data['acceptedTermsAt'] as String,
-      ).toUtc();
+      ).toUtc(),
+      maxDistanceKm = (data['maxDistanceKm'] as num?)?.toDouble();
 
   Map<String, dynamic> toMap() => {
     'firstName': firstName,
@@ -118,6 +119,7 @@ class ReaderProfile {
     'favoriteBook': favoriteBook,
     'acceptedTermsVersion': acceptedTermsVersion,
     'acceptedTermsAt': acceptedTermsAt.toIso8601String(),
+    'maxDistanceKm': maxDistanceKm,
   };
 
   ReaderProfile(Registration data)
@@ -129,9 +131,15 @@ class ReaderProfile {
       preferences = List.unmodifiable(data.preferences),
       favoriteBook = data.favoriteBook.trim(),
       acceptedTermsVersion = termsVersion,
-      acceptedTermsAt = DateTime.now().toUtc();
+      acceptedTermsAt = DateTime.now().toUtc(),
+      maxDistanceKm = null;
   final String firstName, lastName, gender, mobile, address, favoriteBook;
   final List<String> preferences;
   final String acceptedTermsVersion;
   final DateTime acceptedTermsAt;
+
+  /// Null means "no distance preference set" — Discovery then shows
+  /// everything regardless of distance (SRS §3.1's "configure a maximum
+  /// preferred exchange distance").
+  final double? maxDistanceKm;
 }

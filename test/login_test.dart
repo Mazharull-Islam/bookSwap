@@ -7,10 +7,16 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:bookswap_login/app/app.dart';
+import 'package:bookswap_login/app/providers/book_sync_controller.dart';
 import 'package:bookswap_login/core/database/hive_service.dart';
 import 'package:bookswap_login/core/services/book_sync_service.dart';
+import 'package:bookswap_login/core/services/public_profile_service.dart';
 import 'package:bookswap_login/features/authentication/domain/models/auth_user.dart';
+import 'package:bookswap_login/features/borrow_requests/domain/models/borrow_request.dart';
+import 'package:bookswap_login/features/borrow_requests/presentation/providers/request_providers.dart';
 import 'package:bookswap_login/features/authentication/presentation/providers/auth_providers.dart';
+import 'package:bookswap_login/features/wanted_books/domain/models/wanted_book.dart';
+import 'package:bookswap_login/features/wanted_books/presentation/providers/wanted_book_providers.dart';
 import 'support/demo_auth_repository.dart';
 
 class _NoopBookSyncService implements BookSyncService {
@@ -24,6 +30,23 @@ Widget testApp([DemoAuthRepository? repository]) => ProviderScope(
       repository ?? DemoAuthRepository(),
     ),
     bookSyncServiceProvider.overrideWithValue(_NoopBookSyncService()),
+    // No Firebase app exists under flutter_test, so every provider backed by
+    // real FirebaseFirestore.instance that the signed-in shell touches
+    // (location, request badges, wishlist matches) gets an empty stream.
+    allPublicProfilesProvider.overrideWith(
+      (ref) => Stream.value(const <String, PublicProfile>{}),
+    ),
+    incomingRequestsProvider.overrideWith(
+      (ref) => Stream.value(const <BorrowRequest>[]),
+    ),
+    outgoingRequestsProvider.overrideWith(
+      (ref) => Stream.value(const <BorrowRequest>[]),
+    ),
+    allWantedBooksProvider.overrideWith(
+      (ref) => Stream.value(const <WantedBook>[]),
+    ),
+    // Skip the periodic 2-minute sync timer entirely.
+    bookSyncControllerProvider.overrideWith((ref) {}),
   ],
   child: const BookSwapApp(),
 );
@@ -57,8 +80,18 @@ void main() {
   });
 
   tearDownAll(() async {
-    await Hive.close();
-    if (hiveDir.existsSync()) hiveDir.deleteSync(recursive: true);
+    // Known issue (investigation parked): once a test has reached /shelf,
+    // Hive.close() never returns under flutter_test, which used to stall the
+    // suite for 12 minutes. The app never calls Hive.close(), so this is a
+    // test-harness-only problem; cleanup is best-effort so the run finishes.
+    try {
+      await Hive.close().timeout(const Duration(seconds: 5));
+      if (hiveDir.existsSync()) hiveDir.deleteSync(recursive: true);
+    } on TimeoutException {
+      // Leave the temp dir; the OS clears it.
+    } on FileSystemException {
+      // Box files still locked after the close timed out.
+    }
   });
 
   testWidgets(

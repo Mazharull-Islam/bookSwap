@@ -121,4 +121,7 @@ class DemoAuthRepository implements AuthRepository {
   Future<void> signOut() async {
     currentUser = null;
   }
+
+  @override
+  Future<void> updateMaxDistance(double? km) async {}
 }
