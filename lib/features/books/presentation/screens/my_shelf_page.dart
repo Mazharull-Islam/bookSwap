@@ -7,12 +7,15 @@ import '../../../../app/widgets/nav_menu_button.dart';
 import '../../../../app/widgets/profile_nav_button.dart';
 import '../../../../core/services/book_sync_service.dart';
 import '../../../../shared/widgets/app_text_field.dart';
+import '../../../../shared/widgets/filter_widgets.dart';
 import '../../../../shared/widgets/primary_button.dart';
 import '../../domain/models/book.dart';
+import '../../domain/shelf_filter.dart';
 import '../providers/book_providers.dart';
 import '../widgets/book_detail_dialog.dart';
 import '../widgets/book_grid_tile.dart';
 import '../widgets/book_list_tile.dart';
+import '../widgets/shelf_filter_sheet.dart';
 
 class MyShelfPage extends ConsumerStatefulWidget {
   const MyShelfPage({super.key});
@@ -64,21 +67,24 @@ class _MyShelfPageState extends ConsumerState<MyShelfPage> {
   Future<void> _refresh(WidgetRef ref) =>
       ref.read(bookSyncServiceProvider).sync(ref.read(currentUserProvider).id);
 
-  List<Book> _filtered(List<Book> books, String query) {
+  List<Book> _filtered(List<Book> books, String query, ShelfFilter filter) {
     final q = query.trim().toLowerCase();
-    if (q.isEmpty) return books;
-    return books
-        .where(
-          (b) =>
-              b.title.toLowerCase().contains(q) ||
-              b.author.toLowerCase().contains(q),
-        )
-        .toList();
+    final searched = q.isEmpty
+        ? books
+        : books
+              .where(
+                (b) =>
+                    b.title.toLowerCase().contains(q) ||
+                    b.author.toLowerCase().contains(q),
+              )
+              .toList();
+    return applyShelfFilter(searched, filter);
   }
 
   @override
   Widget build(BuildContext context) {
     final shelf = ref.watch(myShelfProvider);
+    final filter = ref.watch(shelfFilterProvider);
     final viewMode = ref.watch(shelfViewModeProvider);
     final isGrid = viewMode == ShelfViewMode.grid;
     return Scaffold(
@@ -87,7 +93,9 @@ class _MyShelfPageState extends ConsumerState<MyShelfPage> {
         actions: [
           IconButton(
             tooltip: isGrid ? 'Switch to list view' : 'Switch to grid view',
-            icon: Icon(isGrid ? Icons.view_list_outlined : Icons.grid_view_outlined),
+            icon: Icon(
+              isGrid ? Icons.view_list_outlined : Icons.grid_view_outlined,
+            ),
             onPressed: () => ref.read(shelfViewModeProvider.notifier).state =
                 isGrid ? ShelfViewMode.list : ShelfViewMode.grid,
           ),
@@ -101,42 +109,57 @@ class _MyShelfPageState extends ConsumerState<MyShelfPage> {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: AppTextField(
-              controller: _query,
-              label: 'Search your shelf',
-              hint: 'Try a title or author...',
-              prefixIcon: Icons.search,
-              suffixIcon: _query.text.isEmpty
-                  ? null
-                  : IconButton(
-                      icon: const Icon(Icons.clear),
-                      onPressed: () {
-                        _query.clear();
-                        setState(() {});
-                      },
-                    ),
-              onChanged: (_) => setState(() {}),
+            child: Row(
+              children: [
+                Expanded(
+                  child: AppTextField(
+                    controller: _query,
+                    label: 'Search your shelf',
+                    hint: 'Try a title or author...',
+                    prefixIcon: Icons.search,
+                    suffixIcon: _query.text.isEmpty
+                        ? null
+                        : IconButton(
+                            icon: const Icon(Icons.clear),
+                            onPressed: () {
+                              _query.clear();
+                              setState(() {});
+                            },
+                          ),
+                    onChanged: (_) => setState(() {}),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                FilterButton(
+                  count: filter.activeCount,
+                  onPressed: () => showFilterSheet(
+                    context,
+                    builder: (_) => const ShelfFilterSheet(),
+                  ),
+                ),
+              ],
             ),
           ),
           Expanded(
             child: RefreshIndicator(
               onRefresh: () => _refresh(ref),
               child: shelf.when(
-                loading: () => const _ScrollableCenter(
-                  child: CircularProgressIndicator(),
-                ),
+                loading: () =>
+                    const _ScrollableCenter(child: CircularProgressIndicator()),
                 error: (error, _) => _ScrollableCenter(
                   child: Padding(
                     padding: const EdgeInsets.all(24),
                     child: Text(
                       'Could not load your shelf. Please try again.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Theme.of(context).colorScheme.error),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
                     ),
                   ),
                 ),
                 data: (allBooks) {
-                  final books = _filtered(allBooks, _query.text);
+                  final books = _filtered(allBooks, _query.text, filter);
                   if (books.isEmpty) {
                     return _ScrollableCenter(
                       child: allBooks.isEmpty
@@ -228,9 +251,9 @@ class _EmptyShelf extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             'Your shelf is empty',
-            style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-              fontSize: 22,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.headlineLarge?.copyWith(fontSize: 22),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
@@ -257,7 +280,7 @@ class _NoSearchResults extends StatelessWidget {
           const Icon(Icons.search_off, size: 56, color: forest),
           const SizedBox(height: 16),
           const Text(
-            'No books on your shelf match that search.',
+            'No books on your shelf match your search or filters.',
             textAlign: TextAlign.center,
             style: TextStyle(color: Color(0xFF617065)),
           ),

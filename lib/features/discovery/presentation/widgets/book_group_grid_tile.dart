@@ -39,7 +39,10 @@ class BookGroupGridTile extends StatelessWidget {
                         group.ownerCount == 1
                             ? '1 member'
                             : '${group.ownerCount} members',
-                        style: const TextStyle(fontSize: 10, color: Colors.white),
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: Colors.white,
+                        ),
                       ),
                       backgroundColor: forest,
                       padding: EdgeInsets.zero,
@@ -65,7 +68,10 @@ class BookGroupGridTile extends StatelessWidget {
                     book.author,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 12, color: Color(0xFF617065)),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF617065),
+                    ),
                   ),
                 ],
               ),

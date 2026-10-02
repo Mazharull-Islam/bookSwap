@@ -4,6 +4,7 @@ import '../../application/use_cases/book_use_cases.dart';
 import '../../data/repositories/hive_book_repository.dart';
 import '../../domain/models/book.dart';
 import '../../domain/repositories/book_repository.dart';
+import '../../domain/shelf_filter.dart';
 
 final bookRepositoryProvider = Provider<BookRepository>(
   (ref) => HiveBookRepository(),
@@ -28,4 +29,8 @@ enum ShelfViewMode { list, grid }
 
 final shelfViewModeProvider = StateProvider<ShelfViewMode>(
   (ref) => ShelfViewMode.list,
+);
+
+final shelfFilterProvider = StateProvider<ShelfFilter>(
+  (ref) => const ShelfFilter(),
 );

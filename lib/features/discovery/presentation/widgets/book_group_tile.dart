@@ -15,10 +15,7 @@ class BookGroupTile extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       child: ListTile(
         onTap: onTap,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 8,
-        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: BookCoverImage(url: book.coverPhotoUrl, width: 48, height: 64),
         title: Text(book.title, maxLines: 1, overflow: TextOverflow.ellipsis),
         subtitle: Text(
@@ -28,9 +25,7 @@ class BookGroupTile extends StatelessWidget {
         ),
         trailing: Chip(
           label: Text(
-            group.ownerCount == 1
-                ? '1 member'
-                : '${group.ownerCount} members',
+            group.ownerCount == 1 ? '1 member' : '${group.ownerCount} members',
             style: const TextStyle(fontSize: 11, color: Colors.white),
           ),
           backgroundColor: forest,

@@ -4,12 +4,14 @@ import '../../../../app/theme.dart';
 import '../../../../app/widgets/nav_menu_button.dart';
 import '../../../../app/widgets/profile_nav_button.dart';
 import '../../../../shared/widgets/app_text_field.dart';
+import '../../../../shared/widgets/filter_widgets.dart';
 import '../../../book_of_month/presentation/widgets/book_of_month_banner.dart';
 import '../../../books/presentation/providers/book_providers.dart';
 import '../providers/discovery_providers.dart';
 import '../widgets/book_group_detail_dialog.dart';
 import '../widgets/book_group_grid_tile.dart';
 import '../widgets/book_group_tile.dart';
+import '../widgets/discovery_filter_sheet.dart';
 
 class DiscoveryPage extends ConsumerStatefulWidget {
   const DiscoveryPage({super.key});
@@ -30,6 +32,7 @@ class _DiscoveryPageState extends ConsumerState<DiscoveryPage> {
   @override
   Widget build(BuildContext context) {
     final results = ref.watch(discoveryResultsProvider);
+    final filter = ref.watch(discoveryFilterProvider);
     final viewMode = ref.watch(discoveryViewModeProvider);
     final isGrid = viewMode == ShelfViewMode.grid;
     return Scaffold(
@@ -58,43 +61,58 @@ class _DiscoveryPageState extends ConsumerState<DiscoveryPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const BookOfMonthBanner(),
-            AppTextField(
-              controller: _query,
-              label: 'Search for a book',
-              hint: 'Try a title or author...',
-              prefixIcon: Icons.search,
-              suffixIcon: _query.text.isEmpty
-                  ? null
-                  : IconButton(
-                      icon: const Icon(Icons.clear),
-                      onPressed: () {
-                        _query.clear();
-                        ref.read(discoverySearchQueryProvider.notifier).state =
-                            '';
-                        setState(() {});
-                      },
-                    ),
-              onChanged: (value) {
-                ref.read(discoverySearchQueryProvider.notifier).state = value;
-                setState(() {});
-              },
+            Row(
+              children: [
+                Expanded(
+                  child: AppTextField(
+                    controller: _query,
+                    label: 'Search for a book',
+                    hint: 'Try a title or author...',
+                    prefixIcon: Icons.search,
+                    suffixIcon: _query.text.isEmpty
+                        ? null
+                        : IconButton(
+                            icon: const Icon(Icons.clear),
+                            onPressed: () {
+                              _query.clear();
+                              ref
+                                      .read(
+                                        discoverySearchQueryProvider.notifier,
+                                      )
+                                      .state =
+                                  '';
+                              setState(() {});
+                            },
+                          ),
+                    onChanged: (value) {
+                      ref.read(discoverySearchQueryProvider.notifier).state =
+                          value;
+                      setState(() {});
+                    },
+                  ),
+                ),
+                const SizedBox(width: 8),
+                FilterButton(
+                  count: filter.activeCount,
+                  onPressed: () => showFilterSheet(
+                    context,
+                    builder: (_) => const DiscoveryFilterSheet(),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
             Expanded(
               child: Builder(
                 builder: (context) {
-                  if (results == null) {
-                    return const _Hint(
-                      icon: Icons.search,
-                      text:
-                          'Search by title to see which members nearby have '
-                          'it on their shelf.',
-                    );
-                  }
                   if (results.isEmpty) {
-                    return const _Hint(
+                    final narrowed =
+                        _query.text.trim().isNotEmpty || filter.activeCount > 0;
+                    return _Hint(
                       icon: Icons.menu_book_outlined,
-                      text: 'No members have that book listed yet.',
+                      text: narrowed
+                          ? 'No listings match your search and filters.'
+                          : 'No members have listed any books yet.',
                     );
                   }
                   return isGrid
