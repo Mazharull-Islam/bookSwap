@@ -127,6 +127,29 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('return dialog records a condition', (tester) async {
+      final handle = tester.ensureSemantics();
+      phone(tester, height: 2000);
+      await signInWithFixtures(tester);
+      await openRoute(tester, '/requests');
+      await tapVisible(tester, find.text('Mark as returned'));
+      expect(find.text('When you lent it: Good'), findsOneWidget);
+      await checkGuidelines(tester);
+      handle.dispose();
+    });
+
+    testWidgets('borrower note dialog', (tester) async {
+      final handle = tester.ensureSemantics();
+      phone(tester, height: 2000);
+      await signInWithFixtures(tester);
+      await openRoute(tester, '/requests');
+      await tapVisible(tester, find.text('History'));
+      await tapVisible(tester, find.byKey(const Key('add-note-out-3')));
+      expect(find.byKey(const Key('borrowerNoteField')), findsOneWidget);
+      await checkGuidelines(tester);
+      handle.dispose();
+    });
+
     testWidgets('review dialog', (tester) async {
       final handle = tester.ensureSemantics();
       phone(tester, height: 2000);

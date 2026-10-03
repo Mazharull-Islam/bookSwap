@@ -13,6 +13,7 @@ class ReputationCard extends ConsumerWidget {
     final reliability = ref.watch(reliabilityStatsProvider);
     final badges = ref.watch(earnedBadgesProvider);
     final percent = reliability.percent;
+    final condition = ref.watch(conditionRecordProvider);
 
     return Container(
       width: double.infinity,
@@ -37,6 +38,15 @@ class ReputationCard extends ConsumerWidget {
               '${reliability.completed == 1 ? 'loan' : 'loans'} completed',
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
+          if (condition.recorded > 0) ...[
+            const SizedBox(height: 4),
+            Text(
+              'Books returned as good as lent: '
+              '${condition.recorded - condition.flagged} of '
+              '${condition.recorded}',
+              style: TextStyle(color: context.colors.textMuted),
+            ),
+          ],
           if (badges.isNotEmpty) ...[
             const SizedBox(height: 14),
             Wrap(

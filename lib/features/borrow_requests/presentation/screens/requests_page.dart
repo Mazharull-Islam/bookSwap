@@ -13,6 +13,8 @@ import '../../domain/repositories/request_repository.dart';
 import '../providers/request_providers.dart';
 import '../widgets/request_card.dart';
 import '../../../reviews/presentation/widgets/review_loan_action.dart';
+import '../widgets/return_dialog.dart';
+import '../widgets/condition_line.dart';
 
 Future<bool> _confirm(
   BuildContext context, {
@@ -191,19 +193,13 @@ class _IncomingTab extends ConsumerWidget {
     WidgetRef ref,
     BorrowRequest request,
   ) async {
-    final ok = await _confirm(
-      context,
-      title: 'Mark as returned?',
-      message:
-          'Confirm you have "${request.bookTitle}" back. It becomes available '
-          "again and the loan moves to History. This can't be undone.",
-      confirmLabel: 'Mark as returned',
-    );
-    if (!ok) return;
+    final condition = await showReturnDialog(context, request);
+    if (condition == null) return;
     try {
       await ref.read(markLoanReturnedProvider)(
         request.id,
         bookId: request.bookId,
+        conditionIn: condition,
       );
     } catch (e) {
       if (context.mounted) {
@@ -334,6 +330,7 @@ class _IncomingTab extends ConsumerWidget {
                           : 'Borrower contact: ${request.borrowerContact}',
                       style: TextStyle(color: context.colors.textMuted),
                     ),
+                    ConditionLine(request),
                     if (request.expectedReturnDateMs != null)
                       _ReturnLine(request),
                     if (request.proposedReturnDateMs != null) ...[
@@ -464,6 +461,7 @@ class _OutgoingTab extends ConsumerWidget {
                       'Owner contact: ${request.lenderContact ?? 'unavailable'}',
                       style: TextStyle(color: context.colors.textMuted),
                     ),
+                    ConditionLine(request),
                     if (request.expectedReturnDateMs != null)
                       _ReturnLine(request),
                     if (request.borrowerContact == null) ...[
@@ -546,6 +544,11 @@ class _HistoryTab extends ConsumerWidget {
               Text(
                 '${loan.lent ? 'Lent' : 'Borrowed'} · Returned ${formatDateMs(loan.request.returnedAt!)}',
                 style: TextStyle(color: context.colors.textMuted),
+              ),
+              ConditionLine(loan.request),
+              BorrowerNoteSection(
+                request: loan.request,
+                viewerIsBorrower: !loan.lent,
               ),
               // Only the borrower reviews a book, and only once it's back.
               if (!loan.lent) ...[

@@ -22,6 +22,7 @@ abstract interface class RequestRepository {
     String requestId, {
     required DateTime expectedReturnDate,
     required String lenderContact,
+    required String conditionOut,
   });
 
   Future<void> decline(String requestId);
@@ -29,7 +30,11 @@ abstract interface class RequestRepository {
   Future<void> shareBorrowerContact(String requestId, String contact);
 
   /// Lender-only: marks an active loan as returned/exchanged.
-  Future<void> markReturned(String requestId);
+  /// [conditionIn] is the condition the lender found the book in.
+  Future<void> markReturned(String requestId, {required String conditionIn});
+
+  /// Borrower-only: explains a return that was flagged as worse.
+  Future<void> addBorrowerNote(String requestId, String note);
 
   /// Borrower-only: proposes a new return date on an active loan.
   Future<void> requestExtension(String requestId, DateTime proposedReturnDate);

@@ -6,60 +6,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:bookswap_login/core/utils/date_format.dart';
 import 'package:bookswap_login/core/utils/friendly_error.dart';
-import 'package:bookswap_login/features/books/domain/models/book.dart';
-import 'package:bookswap_login/features/borrow_requests/domain/models/borrow_request.dart';
-import 'package:bookswap_login/features/borrow_requests/domain/repositories/request_repository.dart';
 import 'package:bookswap_login/features/borrow_requests/presentation/providers/request_providers.dart';
 import 'support/demo_auth_repository.dart';
+import 'support/fake_request_repository.dart';
 import 'support/test_app.dart';
-
-class FakeRequestRepository implements RequestRepository {
-  final declined = <String>[];
-  final extensionsResolved = <String>[];
-  final returned = <String>[];
-  Object? failWith;
-
-  @override
-  Future<void> decline(String requestId) async {
-    if (failWith != null) throw failWith!;
-    declined.add(requestId);
-  }
-
-  @override
-  Future<void> resolveExtension(
-    String requestId, {
-    required bool approve,
-  }) async {
-    extensionsResolved.add('$requestId:$approve');
-  }
-
-  @override
-  Future<void> markReturned(String requestId) async => returned.add(requestId);
-
-  @override
-  Stream<List<BorrowRequest>> watchIncoming(String lenderId) =>
-      const Stream.empty();
-  @override
-  Stream<List<BorrowRequest>> watchOutgoing(String borrowerId) =>
-      const Stream.empty();
-  @override
-  Future<BorrowRequest> sendRequest({
-    required Book book,
-    required String borrowerId,
-  }) => throw UnimplementedError();
-  @override
-  Future<void> accept(
-    String requestId, {
-    required DateTime expectedReturnDate,
-    required String lenderContact,
-  }) => throw UnimplementedError();
-  @override
-  Future<void> shareBorrowerContact(String requestId, String contact) =>
-      throw UnimplementedError();
-  @override
-  Future<void> requestExtension(String requestId, DateTime proposed) =>
-      throw UnimplementedError();
-}
 
 void main() {
   group('date helpers', () {

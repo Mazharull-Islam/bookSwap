@@ -30,6 +30,15 @@ abstract class BorrowRequest with _$BorrowRequest {
     /// declined and simply cleared) — never a separate history of past
     /// extension attempts.
     int? proposedReturnDateMs,
+
+    /// The book's condition when it went out (snapshotted from its listing
+    /// at acceptance) and as the lender found it on return — SRS §3.5's
+    /// condition history. See loan_condition.dart for what counts as worse.
+    String? conditionOut,
+    String? conditionIn,
+
+    /// The borrower's explanation after a return flagged as worse. Optional.
+    String? borrowerNote,
   }) = _BorrowRequest;
 
   factory BorrowRequest.fromJson(Map<String, dynamic> json) =>

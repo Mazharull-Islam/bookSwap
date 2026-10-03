@@ -17,6 +17,11 @@ final reliabilityStatsProvider = Provider<ReliabilityStats>((ref) {
   return computeReliability(incoming: incoming, outgoing: outgoing);
 });
 
+final conditionRecordProvider = Provider<ConditionRecord>((ref) {
+  final outgoing = ref.watch(outgoingRequestsProvider).valueOrNull ?? const [];
+  return computeConditionRecord(outgoing);
+});
+
 final earnedBadgesProvider = Provider<List<AchievementBadge>>((ref) {
   final incoming = ref.watch(incomingRequestsProvider).valueOrNull ?? const [];
   final outgoing = ref.watch(outgoingRequestsProvider).valueOrNull ?? const [];

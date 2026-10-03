@@ -94,6 +94,19 @@ final fixtureOthersBooks = [
 
 final fixtureIncoming = [
   const BorrowRequest(
+    id: 'in-3',
+    bookId: 'mine-1',
+    bookTitle: 'The Left Hand of Darkness',
+    borrowerId: 'owner-3',
+    lenderId: 'demo-reader',
+    status: RequestStatus.accepted,
+    requestedAt: _fixtureNow,
+    returnedAt: _fixtureNow,
+    conditionOut: 'Good',
+    conditionIn: 'Fair',
+    borrowerNote: 'It got wet on the commute.',
+  ),
+  const BorrowRequest(
     id: 'in-1',
     bookId: 'mine-1',
     bookTitle: 'The Left Hand of Darkness',
@@ -113,6 +126,7 @@ final fixtureIncoming = [
         .add(const Duration(days: 7))
         .millisecondsSinceEpoch,
     borrowerContact: '+8801700000000',
+    conditionOut: 'Good',
     proposedReturnDateMs: DateTime.now()
         .add(const Duration(days: 14))
         .millisecondsSinceEpoch,
@@ -132,6 +146,7 @@ final fixtureOutgoing = [
         .subtract(const Duration(days: 2))
         .millisecondsSinceEpoch,
     lenderContact: '+8801711111111',
+    conditionOut: 'Like new',
   ),
   const BorrowRequest(
     id: 'out-3',
@@ -142,6 +157,9 @@ final fixtureOutgoing = [
     status: RequestStatus.accepted,
     requestedAt: _fixtureNow,
     returnedAt: _fixtureNow,
+    // Borrowed Like new, came back Good: one step worse, so it's flagged.
+    conditionOut: 'Like new',
+    conditionIn: 'Good',
   ),
   const BorrowRequest(
     id: 'out-2',

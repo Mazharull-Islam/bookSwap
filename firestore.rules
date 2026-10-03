@@ -121,7 +121,7 @@ service cloud.firestore {
     // a rules evaluation error, which denies the whole write.
     function validRequest(data, requestId) {
       return data.keys().hasAll(['id', 'bookId', 'bookTitle', 'borrowerId', 'lenderId', 'status', 'requestedAt'])
-        && data.keys().hasOnly(['id', 'bookId', 'bookTitle', 'bookCoverUrl', 'borrowerId', 'lenderId', 'status', 'requestedAt', 'respondedAt', 'expectedReturnDateMs', 'borrowerContact', 'lenderContact', 'returnedAt', 'proposedReturnDateMs'])
+        && data.keys().hasOnly(['id', 'bookId', 'bookTitle', 'bookCoverUrl', 'borrowerId', 'lenderId', 'status', 'requestedAt', 'respondedAt', 'expectedReturnDateMs', 'borrowerContact', 'lenderContact', 'returnedAt', 'proposedReturnDateMs', 'conditionOut', 'conditionIn', 'borrowerNote'])
         && data.id == requestId
         && text(data.bookId, 1, 200)
         && text(data.bookTitle, 1, 300)
@@ -136,7 +136,11 @@ service cloud.firestore {
         && (data.get('borrowerContact', null) == null || text(data.get('borrowerContact', null), 1, 32))
         && (data.get('lenderContact', null) == null || text(data.get('lenderContact', null), 1, 32))
         && (data.get('returnedAt', null) == null || data.get('returnedAt', null) is number)
-        && (data.get('proposedReturnDateMs', null) == null || data.get('proposedReturnDateMs', null) is number);
+        && (data.get('proposedReturnDateMs', null) == null || data.get('proposedReturnDateMs', null) is number)
+        // Condition history (SRS §3.5).
+        && (data.get('conditionOut', null) == null || data.get('conditionOut', null) in ['New', 'Like new', 'Good', 'Fair', 'Worn'])
+        && (data.get('conditionIn', null) == null || data.get('conditionIn', null) in ['New', 'Like new', 'Good', 'Fair', 'Worn'])
+        && (data.get('borrowerNote', null) == null || text(data.get('borrowerNote', null), 1, 300));
     }
     // Contact fields (borrowerContact/lenderContact) are deliberately absent
     // until each party explicitly reveals theirs — never both at creation.
@@ -204,7 +208,7 @@ service cloud.firestore {
           && request.resource.data.bookId == resource.data.bookId
           && request.resource.data.status in ['accepted', 'declined']
           && request.resource.data.diff(resource.data).affectedKeys()
-               .hasOnly(['status', 'respondedAt', 'expectedReturnDateMs', 'lenderContact']))
+               .hasOnly(['status', 'respondedAt', 'expectedReturnDateMs', 'lenderContact', 'conditionOut']))
         ||
         (resource.data.borrowerId == request.auth.uid
           && resource.data.status == 'accepted'
@@ -223,7 +227,16 @@ service cloud.firestore {
           && request.resource.data.status == 'accepted'
           && request.resource.data.returnedAt is number
           && request.resource.data.diff(resource.data).affectedKeys()
-               .hasOnly(['returnedAt']))
+               .hasOnly(['returnedAt', 'conditionIn']))
+        ||
+        // The borrower can explain a return once it's recorded (typically
+        // one flagged as worse). Only the note changes.
+        (resource.data.borrowerId == request.auth.uid
+          && resource.data.status == 'accepted'
+          && resource.data.get('returnedAt', null) != null
+          && resource.data.get('conditionIn', null) != null
+          && request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(['borrowerNote']))
         ||
         // Loan extensions (SRS §3.5): borrower proposes a new return date on
         // an active loan (one pending proposal at a time)...

@@ -42,6 +42,9 @@ final markLoanReturnedProvider = Provider(
     ref.watch(bookRepositoryProvider),
   ),
 );
+final addBorrowerNoteProvider = Provider(
+  (ref) => AddBorrowerNote(ref.watch(requestRepositoryProvider)),
+);
 final requestLoanExtensionProvider = Provider(
   (ref) => RequestLoanExtension(ref.watch(requestRepositoryProvider)),
 );

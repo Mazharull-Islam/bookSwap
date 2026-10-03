@@ -82,11 +82,13 @@ class FirestoreRequestRepository implements RequestRepository {
     String requestId, {
     required DateTime expectedReturnDate,
     required String lenderContact,
+    required String conditionOut,
   }) => _requests.doc(requestId).update({
     'status': 'accepted',
     'respondedAt': DateTime.now().millisecondsSinceEpoch,
     'expectedReturnDateMs': expectedReturnDate.millisecondsSinceEpoch,
     'lenderContact': lenderContact,
+    'conditionOut': conditionOut,
   });
 
   @override
@@ -100,9 +102,15 @@ class FirestoreRequestRepository implements RequestRepository {
       _requests.doc(requestId).update({'borrowerContact': contact});
 
   @override
-  Future<void> markReturned(String requestId) => _requests
-      .doc(requestId)
-      .update({'returnedAt': DateTime.now().millisecondsSinceEpoch});
+  Future<void> markReturned(String requestId, {required String conditionIn}) =>
+      _requests.doc(requestId).update({
+        'returnedAt': DateTime.now().millisecondsSinceEpoch,
+        'conditionIn': conditionIn,
+      });
+
+  @override
+  Future<void> addBorrowerNote(String requestId, String note) =>
+      _requests.doc(requestId).update({'borrowerNote': note});
 
   @override
   Future<void> requestExtension(

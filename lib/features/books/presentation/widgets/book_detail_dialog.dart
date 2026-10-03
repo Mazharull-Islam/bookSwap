@@ -7,6 +7,7 @@ import 'book_cover_image.dart';
 import 'book_list_tile.dart';
 import 'genre_pill_list.dart';
 import '../../../../shared/widgets/section_heading.dart';
+import '../../../borrow_requests/presentation/widgets/condition_history.dart';
 
 Future<void> showBookDetailDialog(
   BuildContext context, {
@@ -83,6 +84,11 @@ Future<void> showBookDetailDialog(
                           style: const TextStyle(height: 1.5),
                         ),
                       ],
+                      const SizedBox(height: 18),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ConditionHistory(bookId: book.id),
+                      ),
                     ],
                   ),
                 ),

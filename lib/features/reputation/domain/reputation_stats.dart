@@ -1,3 +1,4 @@
+import '../../borrow_requests/domain/loan_condition.dart';
 import '../../borrow_requests/domain/models/borrow_request.dart';
 import 'models/achievement_badge.dart';
 
@@ -61,4 +62,29 @@ List<AchievementBadge> computeEarnedBadges({
     badges.add(AchievementBadge.bookworm);
   }
   return badges;
+}
+
+/// How the books you borrowed came back, from the lender's recorded
+/// conditions. Informational only — it never changes a score or a badge.
+class ConditionRecord {
+  const ConditionRecord({required this.recorded, required this.flagged});
+
+  /// Returned loans where both conditions were recorded.
+  final int recorded;
+
+  /// Of those, how many came back worse than they went out.
+  final int flagged;
+}
+
+ConditionRecord computeConditionRecord(List<BorrowRequest> outgoing) {
+  final recorded = outgoing
+      .where(
+        (r) =>
+            _isCompleted(r) && r.conditionOut != null && r.conditionIn != null,
+      )
+      .toList();
+  return ConditionRecord(
+    recorded: recorded.length,
+    flagged: recorded.where((r) => r.conditionFlagged).length,
+  );
 }
