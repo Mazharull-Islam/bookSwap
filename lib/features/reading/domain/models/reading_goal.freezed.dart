@@ -15,7 +15,10 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ReadingGoal {
 
- String get userId; int get targetCount; int get startedAtMs; int get periodDays;
+ String get userId; int get targetCount; int get startedAtMs; int get periodDays;/// Last change, for last-write-wins when syncing between devices.
+ int get updatedAtMs;/// Set when the goal is cleared (soft delete, same reasoning as
+/// ReadingEntry.deletedAtMs).
+ int? get deletedAtMs;
 /// Create a copy of ReadingGoal
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +31,16 @@ $ReadingGoalCopyWith<ReadingGoal> get copyWith => _$ReadingGoalCopyWithImpl<Read
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is ReadingGoal&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.targetCount, targetCount) || other.targetCount == targetCount)&&(identical(other.startedAtMs, startedAtMs) || other.startedAtMs == startedAtMs)&&(identical(other.periodDays, periodDays) || other.periodDays == periodDays));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ReadingGoal&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.targetCount, targetCount) || other.targetCount == targetCount)&&(identical(other.startedAtMs, startedAtMs) || other.startedAtMs == startedAtMs)&&(identical(other.periodDays, periodDays) || other.periodDays == periodDays)&&(identical(other.updatedAtMs, updatedAtMs) || other.updatedAtMs == updatedAtMs)&&(identical(other.deletedAtMs, deletedAtMs) || other.deletedAtMs == deletedAtMs));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,userId,targetCount,startedAtMs,periodDays);
+int get hashCode => Object.hash(runtimeType,userId,targetCount,startedAtMs,periodDays,updatedAtMs,deletedAtMs);
 
 @override
 String toString() {
-  return 'ReadingGoal(userId: $userId, targetCount: $targetCount, startedAtMs: $startedAtMs, periodDays: $periodDays)';
+  return 'ReadingGoal(userId: $userId, targetCount: $targetCount, startedAtMs: $startedAtMs, periodDays: $periodDays, updatedAtMs: $updatedAtMs, deletedAtMs: $deletedAtMs)';
 }
 
 
@@ -48,7 +51,7 @@ abstract mixin class $ReadingGoalCopyWith<$Res>  {
   factory $ReadingGoalCopyWith(ReadingGoal value, $Res Function(ReadingGoal) _then) = _$ReadingGoalCopyWithImpl;
 @useResult
 $Res call({
- String userId, int targetCount, int startedAtMs, int periodDays
+ String userId, int targetCount, int startedAtMs, int periodDays, int updatedAtMs, int? deletedAtMs
 });
 
 
@@ -65,13 +68,15 @@ class _$ReadingGoalCopyWithImpl<$Res>
 
 /// Create a copy of ReadingGoal
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? targetCount = null,Object? startedAtMs = null,Object? periodDays = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? targetCount = null,Object? startedAtMs = null,Object? periodDays = null,Object? updatedAtMs = null,Object? deletedAtMs = freezed,}) {
   return _then(_self.copyWith(
 userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,targetCount: null == targetCount ? _self.targetCount : targetCount // ignore: cast_nullable_to_non_nullable
 as int,startedAtMs: null == startedAtMs ? _self.startedAtMs : startedAtMs // ignore: cast_nullable_to_non_nullable
 as int,periodDays: null == periodDays ? _self.periodDays : periodDays // ignore: cast_nullable_to_non_nullable
-as int,
+as int,updatedAtMs: null == updatedAtMs ? _self.updatedAtMs : updatedAtMs // ignore: cast_nullable_to_non_nullable
+as int,deletedAtMs: freezed == deletedAtMs ? _self.deletedAtMs : deletedAtMs // ignore: cast_nullable_to_non_nullable
+as int?,
   ));
 }
 
@@ -156,10 +161,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String userId,  int targetCount,  int startedAtMs,  int periodDays)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String userId,  int targetCount,  int startedAtMs,  int periodDays,  int updatedAtMs,  int? deletedAtMs)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _ReadingGoal() when $default != null:
-return $default(_that.userId,_that.targetCount,_that.startedAtMs,_that.periodDays);case _:
+return $default(_that.userId,_that.targetCount,_that.startedAtMs,_that.periodDays,_that.updatedAtMs,_that.deletedAtMs);case _:
   return orElse();
 
 }
@@ -177,10 +182,10 @@ return $default(_that.userId,_that.targetCount,_that.startedAtMs,_that.periodDay
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String userId,  int targetCount,  int startedAtMs,  int periodDays)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String userId,  int targetCount,  int startedAtMs,  int periodDays,  int updatedAtMs,  int? deletedAtMs)  $default,) {final _that = this;
 switch (_that) {
 case _ReadingGoal():
-return $default(_that.userId,_that.targetCount,_that.startedAtMs,_that.periodDays);case _:
+return $default(_that.userId,_that.targetCount,_that.startedAtMs,_that.periodDays,_that.updatedAtMs,_that.deletedAtMs);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -197,10 +202,10 @@ return $default(_that.userId,_that.targetCount,_that.startedAtMs,_that.periodDay
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String userId,  int targetCount,  int startedAtMs,  int periodDays)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String userId,  int targetCount,  int startedAtMs,  int periodDays,  int updatedAtMs,  int? deletedAtMs)?  $default,) {final _that = this;
 switch (_that) {
 case _ReadingGoal() when $default != null:
-return $default(_that.userId,_that.targetCount,_that.startedAtMs,_that.periodDays);case _:
+return $default(_that.userId,_that.targetCount,_that.startedAtMs,_that.periodDays,_that.updatedAtMs,_that.deletedAtMs);case _:
   return null;
 
 }
@@ -212,13 +217,18 @@ return $default(_that.userId,_that.targetCount,_that.startedAtMs,_that.periodDay
 @JsonSerializable()
 
 class _ReadingGoal implements ReadingGoal {
-  const _ReadingGoal({required this.userId, required this.targetCount, required this.startedAtMs, required this.periodDays});
+  const _ReadingGoal({required this.userId, required this.targetCount, required this.startedAtMs, required this.periodDays, this.updatedAtMs = 0, this.deletedAtMs});
   factory _ReadingGoal.fromJson(Map<String, dynamic> json) => _$ReadingGoalFromJson(json);
 
 @override final  String userId;
 @override final  int targetCount;
 @override final  int startedAtMs;
 @override final  int periodDays;
+/// Last change, for last-write-wins when syncing between devices.
+@override@JsonKey() final  int updatedAtMs;
+/// Set when the goal is cleared (soft delete, same reasoning as
+/// ReadingEntry.deletedAtMs).
+@override final  int? deletedAtMs;
 
 /// Create a copy of ReadingGoal
 /// with the given fields replaced by the non-null parameter values.
@@ -233,16 +243,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ReadingGoal&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.targetCount, targetCount) || other.targetCount == targetCount)&&(identical(other.startedAtMs, startedAtMs) || other.startedAtMs == startedAtMs)&&(identical(other.periodDays, periodDays) || other.periodDays == periodDays));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ReadingGoal&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.targetCount, targetCount) || other.targetCount == targetCount)&&(identical(other.startedAtMs, startedAtMs) || other.startedAtMs == startedAtMs)&&(identical(other.periodDays, periodDays) || other.periodDays == periodDays)&&(identical(other.updatedAtMs, updatedAtMs) || other.updatedAtMs == updatedAtMs)&&(identical(other.deletedAtMs, deletedAtMs) || other.deletedAtMs == deletedAtMs));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,userId,targetCount,startedAtMs,periodDays);
+int get hashCode => Object.hash(runtimeType,userId,targetCount,startedAtMs,periodDays,updatedAtMs,deletedAtMs);
 
 @override
 String toString() {
-  return 'ReadingGoal(userId: $userId, targetCount: $targetCount, startedAtMs: $startedAtMs, periodDays: $periodDays)';
+  return 'ReadingGoal(userId: $userId, targetCount: $targetCount, startedAtMs: $startedAtMs, periodDays: $periodDays, updatedAtMs: $updatedAtMs, deletedAtMs: $deletedAtMs)';
 }
 
 
@@ -253,7 +263,7 @@ abstract mixin class _$ReadingGoalCopyWith<$Res> implements $ReadingGoalCopyWith
   factory _$ReadingGoalCopyWith(_ReadingGoal value, $Res Function(_ReadingGoal) _then) = __$ReadingGoalCopyWithImpl;
 @override @useResult
 $Res call({
- String userId, int targetCount, int startedAtMs, int periodDays
+ String userId, int targetCount, int startedAtMs, int periodDays, int updatedAtMs, int? deletedAtMs
 });
 
 
@@ -270,13 +280,15 @@ class __$ReadingGoalCopyWithImpl<$Res>
 
 /// Create a copy of ReadingGoal
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? targetCount = null,Object? startedAtMs = null,Object? periodDays = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? targetCount = null,Object? startedAtMs = null,Object? periodDays = null,Object? updatedAtMs = null,Object? deletedAtMs = freezed,}) {
   return _then(_ReadingGoal(
 userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,targetCount: null == targetCount ? _self.targetCount : targetCount // ignore: cast_nullable_to_non_nullable
 as int,startedAtMs: null == startedAtMs ? _self.startedAtMs : startedAtMs // ignore: cast_nullable_to_non_nullable
 as int,periodDays: null == periodDays ? _self.periodDays : periodDays // ignore: cast_nullable_to_non_nullable
-as int,
+as int,updatedAtMs: null == updatedAtMs ? _self.updatedAtMs : updatedAtMs // ignore: cast_nullable_to_non_nullable
+as int,deletedAtMs: freezed == deletedAtMs ? _self.deletedAtMs : deletedAtMs // ignore: cast_nullable_to_non_nullable
+as int?,
   ));
 }
 

@@ -10,9 +10,9 @@ class HiveReadingGoalRepository implements ReadingGoalRepository {
 
   ReadingGoal? _decode(String userId) {
     final raw = _box.get(userId);
-    return raw == null
-        ? null
-        : ReadingGoal.fromJson(Map<String, dynamic>.from(raw));
+    if (raw == null) return null;
+    final goal = ReadingGoal.fromJson(Map<String, dynamic>.from(raw));
+    return goal.deletedAtMs == null ? goal : null;
   }
 
   @override
@@ -23,10 +23,24 @@ class HiveReadingGoalRepository implements ReadingGoalRepository {
 
   @override
   Future<ReadingGoal> setGoal(ReadingGoal goal) async {
-    await _box.put(goal.userId, goal.toJson());
-    return goal;
+    final saved = goal.copyWith(
+      updatedAtMs: DateTime.now().millisecondsSinceEpoch,
+      deletedAtMs: null,
+    );
+    await _box.put(goal.userId, saved.toJson());
+    return saved;
   }
 
+  /// A soft delete, so clearing the goal syncs to other devices.
   @override
-  Future<void> clearGoal(String userId) => _box.delete(userId);
+  Future<void> clearGoal(String userId) async {
+    final raw = _box.get(userId);
+    if (raw == null) return;
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final goal = ReadingGoal.fromJson(Map<String, dynamic>.from(raw));
+    await _box.put(
+      userId,
+      goal.copyWith(deletedAtMs: now, updatedAtMs: now).toJson(),
+    );
+  }
 }

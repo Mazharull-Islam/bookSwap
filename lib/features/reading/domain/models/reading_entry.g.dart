@@ -23,6 +23,7 @@ _ReadingEntry _$ReadingEntryFromJson(Map<String, dynamic> json) =>
       rating: (json['rating'] as num?)?.toInt(),
       review: json['review'] as String? ?? '',
       updatedAtMs: (json['updatedAtMs'] as num).toInt(),
+      deletedAtMs: (json['deletedAtMs'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$ReadingEntryToJson(_ReadingEntry instance) =>
@@ -40,6 +41,7 @@ Map<String, dynamic> _$ReadingEntryToJson(_ReadingEntry instance) =>
       'rating': instance.rating,
       'review': instance.review,
       'updatedAtMs': instance.updatedAtMs,
+      'deletedAtMs': instance.deletedAtMs,
     };
 
 const _$ReadingStatusEnumMap = {

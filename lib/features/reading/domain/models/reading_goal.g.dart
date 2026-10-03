@@ -11,6 +11,8 @@ _ReadingGoal _$ReadingGoalFromJson(Map<String, dynamic> json) => _ReadingGoal(
   targetCount: (json['targetCount'] as num).toInt(),
   startedAtMs: (json['startedAtMs'] as num).toInt(),
   periodDays: (json['periodDays'] as num).toInt(),
+  updatedAtMs: (json['updatedAtMs'] as num?)?.toInt() ?? 0,
+  deletedAtMs: (json['deletedAtMs'] as num?)?.toInt(),
 );
 
 Map<String, dynamic> _$ReadingGoalToJson(_ReadingGoal instance) =>
@@ -19,4 +21,6 @@ Map<String, dynamic> _$ReadingGoalToJson(_ReadingGoal instance) =>
       'targetCount': instance.targetCount,
       'startedAtMs': instance.startedAtMs,
       'periodDays': instance.periodDays,
+      'updatedAtMs': instance.updatedAtMs,
+      'deletedAtMs': instance.deletedAtMs,
     };

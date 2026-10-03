@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import '../../features/books/domain/models/book.dart';
 import '../database/hive_service.dart';
 
@@ -26,8 +27,18 @@ class FirestoreBookSyncService implements BookSyncService {
   Future<void> sync(String uid) async {
     debugPrint('BookSync: starting sync for uid=$uid');
     try {
-      await _push(uid);
-      await _pull();
+      if (_isFirstSyncOnThisDevice(uid)) {
+        // A new install or cleared browser starts with an empty local box.
+        // The normal order (push first, deleting remote books that aren't
+        // local) would read that as "the member deleted everything" and wipe
+        // the server copy. Pull first and delete nothing this once.
+        await _pull();
+        await _push(uid, deleteRemoteOnly: false);
+        await _markSynced(uid);
+      } else {
+        await _push(uid);
+        await _pull();
+      }
       debugPrint('BookSync: sync completed for uid=$uid');
     } catch (e, st) {
       // Background convenience only — local Hive remains authoritative.
@@ -35,9 +46,26 @@ class FirestoreBookSyncService implements BookSyncService {
     }
   }
 
-  /// Upserts every locally-owned book and deletes remote copies of books
-  /// that were removed locally, so deletions don't get resurrected by pull.
-  Future<void> _push(String uid) async {
+  static String _syncedKey(String uid) => 'bookSyncedFor:$uid';
+
+  bool _isFirstSyncOnThisDevice(String uid) {
+    if (!Hive.isBoxOpen(HiveService.settingsBoxName)) return false;
+    return !Hive.box<String>(
+      HiveService.settingsBoxName,
+    ).containsKey(_syncedKey(uid));
+  }
+
+  Future<void> _markSynced(String uid) async {
+    if (!Hive.isBoxOpen(HiveService.settingsBoxName)) return;
+    await Hive.box<String>(
+      HiveService.settingsBoxName,
+    ).put(_syncedKey(uid), DateTime.now().toIso8601String());
+  }
+
+  /// Upserts every locally-owned book and, unless [deleteRemoteOnly] is off,
+  /// deletes remote copies of books that were removed locally so deletions
+  /// don't get resurrected by pull.
+  Future<void> _push(String uid, {bool deleteRemoteOnly = true}) async {
     final box = HiveService.booksBox;
     final allLocal = box.values
         .map((raw) => _decode(Map<String, dynamic>.from(raw)))
@@ -52,9 +80,9 @@ class FirestoreBookSyncService implements BookSyncService {
     final remoteOwned = await _remote.where('ownerId', isEqualTo: uid).get();
     final ownedIds = owned.map((b) => b.id).toSet();
 
-    final toDelete = remoteOwned.docs
-        .where((doc) => !ownedIds.contains(doc.id))
-        .toList();
+    final toDelete = deleteRemoteOnly
+        ? remoteOwned.docs.where((doc) => !ownedIds.contains(doc.id)).toList()
+        : <QueryDocumentSnapshot<Map<String, dynamic>>>[];
     final batch = _firestore.batch();
     for (final book in owned) {
       batch.set(_remote.doc(book.id), book.toJson());

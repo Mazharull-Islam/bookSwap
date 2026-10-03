@@ -13,6 +13,13 @@ abstract class ReadingGoal with _$ReadingGoal {
     required int targetCount,
     required int startedAtMs,
     required int periodDays,
+
+    /// Last change, for last-write-wins when syncing between devices.
+    @Default(0) int updatedAtMs,
+
+    /// Set when the goal is cleared (soft delete, same reasoning as
+    /// ReadingEntry.deletedAtMs).
+    int? deletedAtMs,
   }) = _ReadingGoal;
 
   factory ReadingGoal.fromJson(Map<String, dynamic> json) =>

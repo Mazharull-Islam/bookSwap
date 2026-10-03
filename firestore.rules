@@ -147,6 +147,50 @@ service cloud.firestore {
     // See BorrowRequest/FirestoreRequestRepository for the write choreography
     // this enforces: only the lender may accept/decline, only the borrower
     // may publish their own contact, and only after acceptance.
+    // My Reading sync: a member's own reading list and goal, private to them.
+    // Entries are never hard-deleted by the app (removal sets deletedAtMs) so
+    // it can propagate to the member's other devices.
+    function validReadingEntry(data, entryId) {
+      return data.keys().hasAll(['id', 'userId', 'title', 'status', 'updatedAtMs'])
+        && data.keys().hasOnly(['id', 'userId', 'title', 'author', 'genre', 'publishedYear', 'description', 'coverUrl', 'workKey', 'status', 'rating', 'review', 'updatedAtMs', 'deletedAtMs'])
+        && data.id == entryId
+        && data.userId == request.auth.uid
+        && text(data.title, 1, 300)
+        && text(data.get('author', ''), 0, 300)
+        && text(data.get('genre', ''), 0, 1000)
+        && text(data.get('description', ''), 0, 5000)
+        && text(data.get('review', ''), 0, 2000)
+        && (data.get('publishedYear', null) == null || data.get('publishedYear', null) is string)
+        && (data.get('coverUrl', null) == null || data.get('coverUrl', null) is string)
+        && (data.get('workKey', null) == null || data.get('workKey', null) is string)
+        && data.status in ['planToRead', 'reading', 'read']
+        && (data.get('rating', null) == null || (data.get('rating', null) is int && data.get('rating', null) >= 1 && data.get('rating', null) <= 5))
+        && data.updatedAtMs is number
+        && (data.get('deletedAtMs', null) == null || data.get('deletedAtMs', null) is number);
+    }
+    match /reading_entries/{entryId} {
+      allow read: if member() && resource.data.userId == request.auth.uid;
+      allow create: if member() && validReadingEntry(request.resource.data, entryId);
+      allow update: if member()
+        && resource.data.userId == request.auth.uid
+        && validReadingEntry(request.resource.data, entryId);
+      allow delete: if member() && resource.data.userId == request.auth.uid;
+    }
+    function validReadingGoal(data, uid) {
+      return data.keys().hasAll(['userId', 'targetCount', 'startedAtMs', 'periodDays'])
+        && data.keys().hasOnly(['userId', 'targetCount', 'startedAtMs', 'periodDays', 'updatedAtMs', 'deletedAtMs'])
+        && data.userId == uid
+        && data.targetCount is int && data.targetCount >= 1 && data.targetCount <= 10000
+        && data.startedAtMs is number
+        && data.periodDays is int && data.periodDays >= 1 && data.periodDays <= 3660
+        && (data.get('updatedAtMs', null) == null || data.get('updatedAtMs', null) is number)
+        && (data.get('deletedAtMs', null) == null || data.get('deletedAtMs', null) is number);
+    }
+    match /reading_goals/{uid} {
+      allow read: if member() && owns(uid);
+      allow create, update: if member() && owns(uid) && validReadingGoal(request.resource.data, uid);
+      allow delete: if member() && owns(uid);
+    }
     // Public reviews (SRS §3.8). One review per returned loan, written only
     // by that loan's borrower; the document id is the request id, which is
     // how this rule can check the loan with a single get().

@@ -14,8 +14,10 @@ class HiveReadingRepository implements ReadingRepository {
   ReadingEntry _decode(dynamic raw) =>
       ReadingEntry.fromJson(Map<String, dynamic>.from(raw as Map));
 
-  List<ReadingEntry> _mineFor(String userId) =>
-      _box.values.map(_decode).where((e) => e.userId == userId).toList();
+  List<ReadingEntry> _mineFor(String userId) => _box.values
+      .map(_decode)
+      .where((e) => e.userId == userId && e.deletedAtMs == null)
+      .toList();
 
   @override
   Stream<List<ReadingEntry>> watchMine(String userId) async* {
@@ -65,6 +67,16 @@ class HiveReadingRepository implements ReadingRepository {
     return saved;
   }
 
+  /// A soft delete: the entry stays in the box, marked, so the removal can
+  /// sync to other devices. Nothing reads entries with deletedAtMs set.
   @override
-  Future<void> remove(String id) => _box.delete(id);
+  Future<void> remove(String id) async {
+    final raw = _box.get(id);
+    if (raw == null) return;
+    final now = DateTime.now().millisecondsSinceEpoch;
+    await _box.put(
+      id,
+      _decode(raw).copyWith(deletedAtMs: now, updatedAtMs: now).toJson(),
+    );
+  }
 }

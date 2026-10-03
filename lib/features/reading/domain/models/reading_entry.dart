@@ -31,6 +31,11 @@ abstract class ReadingEntry with _$ReadingEntry {
     int? rating,
     @Default('') String review,
     required int updatedAtMs,
+
+    /// Set when the member removes the entry. Kept rather than deleted so the
+    /// removal syncs to the member's other devices; every reader ignores
+    /// entries with this set, and old ones are purged locally after a while.
+    int? deletedAtMs,
   }) = _ReadingEntry;
 
   factory ReadingEntry.fromJson(Map<String, dynamic> json) =>
