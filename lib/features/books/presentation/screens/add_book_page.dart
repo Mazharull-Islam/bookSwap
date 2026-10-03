@@ -11,6 +11,7 @@ import '../../domain/repositories/book_repository.dart';
 import '../providers/book_providers.dart';
 import '../widgets/book_suggestion_tile.dart';
 import '../widgets/selected_book_card.dart';
+import '../../../../app/app_colors.dart';
 
 class AddBookPage extends ConsumerStatefulWidget {
   const AddBookPage({super.key, this.existing});
@@ -217,7 +218,7 @@ class _AddBookPageState extends ConsumerState<AddBookPage> {
                           constraints: const BoxConstraints(maxHeight: 260),
                           decoration: BoxDecoration(
                             color: Theme.of(context).colorScheme.surface,
-                            border: Border.all(color: const Color(0xFFD6DED5)),
+                            border: Border.all(color: context.colors.border),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           // Material ancestor so BookSuggestionTile's ListTile
@@ -262,22 +263,22 @@ class _AddBookPageState extends ConsumerState<AddBookPage> {
                       vertical: 10,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFF4E5),
+                      color: context.colors.warningSurface,
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(color: const Color(0xFFE0A93A)),
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
                         Icon(
                           Icons.info_outline,
-                          color: Color(0xFF8A6116),
+                          color: context.colors.warningText,
                           size: 20,
                         ),
                         SizedBox(width: 10),
                         Expanded(
                           child: Text(
                             'Book already in shelf',
-                            style: TextStyle(color: Color(0xFF8A6116)),
+                            style: TextStyle(color: context.colors.warningText),
                           ),
                         ),
                       ],
@@ -330,9 +331,9 @@ class _AddBookPageState extends ConsumerState<AddBookPage> {
                 ),
                 if (!_hasSelection) ...[
                   const SizedBox(height: 16),
-                  const Text(
+                  Text(
                     'Search a title above and pick a result to continue.',
-                    style: TextStyle(color: Color(0xFF617065)),
+                    style: TextStyle(color: context.colors.textMuted),
                   ),
                 ],
                 if (_error != null) ...[

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../app/theme.dart';
+import '../../../../app/app_colors.dart';
 import '../../domain/models/book.dart';
 import 'book_cover_image.dart';
 
@@ -11,10 +11,10 @@ String bookStatusLabel(BookStatus status) => switch (status) {
 };
 
 Color bookStatusColor(BookStatus status) => switch (status) {
-  BookStatus.available => forest,
-  BookStatus.requested => const Color(0xFFB16C46),
-  BookStatus.lent => const Color(0xFF3D6FA5),
-  BookStatus.returned => const Color(0xFF7A7A7A),
+  BookStatus.available => StatusFills.accepted,
+  BookStatus.requested => StatusFills.pending,
+  BookStatus.lent => StatusFills.lent,
+  BookStatus.returned => StatusFills.returned,
 };
 
 List<String> bookGenreList(String genre) => genre.trim().isEmpty
@@ -51,7 +51,7 @@ class BookListTile extends StatelessWidget {
           Chip(
             label: Text(
               bookStatusLabel(book.status),
-              style: const TextStyle(fontSize: 11, color: Colors.white),
+              style: const TextStyle(fontSize: 12, color: Colors.white),
             ),
             backgroundColor: bookStatusColor(book.status),
             padding: EdgeInsets.zero,

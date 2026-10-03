@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../domain/models/forum_reply.dart';
 import 'forum_post_tile.dart' show formatForumDate;
 import 'like_button.dart';
+import '../../../../app/app_colors.dart';
 
 class ReplyTile extends StatelessWidget {
   const ReplyTile({
@@ -22,7 +23,7 @@ class ReplyTile extends StatelessWidget {
     margin: const EdgeInsets.only(bottom: 8),
     padding: const EdgeInsets.all(12),
     decoration: BoxDecoration(
-      color: const Color(0xFFE9EEDF),
+      color: context.colors.surfaceSoft,
       borderRadius: BorderRadius.circular(12),
     ),
     child: Column(
@@ -33,7 +34,7 @@ class ReplyTile extends StatelessWidget {
             Expanded(
               child: Text(
                 '${reply.authorName} · ${formatForumDate(reply.createdAtMs)}',
-                style: const TextStyle(fontSize: 12, color: Color(0xFF617065)),
+                style: TextStyle(fontSize: 12, color: context.colors.textMuted),
               ),
             ),
             IconButton(

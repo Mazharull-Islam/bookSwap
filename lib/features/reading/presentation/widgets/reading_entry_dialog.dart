@@ -13,6 +13,7 @@ import '../../../leaderboard/presentation/providers/leaderboard_providers.dart';
 import '../../domain/models/reading_entry.dart';
 import '../providers/reading_providers.dart';
 import 'reading_status.dart';
+import '../../../../app/app_colors.dart';
 
 Future<void> showReadingEntryDialog(BuildContext context, ReadingEntry entry) {
   return showDialog(
@@ -112,13 +113,13 @@ class _ReadingEntryDialogState extends ConsumerState<_ReadingEntryDialog> {
                             widget.entry.author,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(color: Color(0xFF617065)),
+                            style: TextStyle(color: context.colors.textMuted),
                           ),
                         if (widget.entry.publishedYear != null)
                           Text(
                             'Published ${widget.entry.publishedYear}',
-                            style: const TextStyle(
-                              color: Color(0xFF617065),
+                            style: TextStyle(
+                              color: context.colors.textMuted,
                               fontSize: 12,
                             ),
                           ),
@@ -137,7 +138,7 @@ class _ReadingEntryDialogState extends ConsumerState<_ReadingEntryDialog> {
                   widget.entry.description,
                   maxLines: 6,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: Color(0xFF617065)),
+                  style: TextStyle(color: context.colors.textMuted),
                 ),
               ],
               const SizedBox(height: 20),
@@ -157,9 +158,9 @@ class _ReadingEntryDialogState extends ConsumerState<_ReadingEntryDialog> {
               ),
               if (_status == ReadingStatus.read) ...[
                 const SizedBox(height: 20),
-                const Text(
+                Text(
                   'Your rating',
-                  style: TextStyle(color: Color(0xFF617065)),
+                  style: TextStyle(color: context.colors.textMuted),
                 ),
                 const SizedBox(height: 6),
                 StarRating(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../app/theme.dart';
+import '../../../../app/app_colors.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../../../../shared/widgets/primary_button.dart';
 import '../../../../shared/widgets/secondary_button.dart';
@@ -79,13 +79,13 @@ class _LoginFormState extends ConsumerState<_LoginForm> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
+            Text(
               'YOUR NEXT CHAPTER',
               style: TextStyle(
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 2.3,
-                color: forest,
+                color: context.colors.brand,
               ),
             ),
             const SizedBox(height: 12),
@@ -94,9 +94,9 @@ class _LoginFormState extends ConsumerState<_LoginForm> {
               style: Theme.of(context).textTheme.headlineLarge,
             ),
             const SizedBox(height: 10),
-            const Text(
+            Text(
               'Sign in and find a story worth sharing.',
-              style: TextStyle(color: Color(0xFF617065), fontSize: 16),
+              style: TextStyle(color: context.colors.textMuted, fontSize: 16),
             ),
             const SizedBox(height: 30),
             AppTextField(
@@ -206,16 +206,16 @@ class _LoginFormState extends ConsumerState<_LoginForm> {
               onPressed: loading ? null : _google,
             ),
             const SizedBox(height: 12),
-            const Text(
+            Text(
               'New here? Google sign-up still requires the registration form. Existing members can use the same Google email to sign in.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12, color: Color(0xFF617065)),
+              style: TextStyle(fontSize: 12, color: context.colors.textMuted),
             ),
             const SizedBox(height: 26),
-            const Text(
+            Text(
               'Borrow a book. Share a little possibility.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12, color: Color(0xFF617065)),
+              style: TextStyle(fontSize: 12, color: context.colors.textMuted),
             ),
           ],
         ),

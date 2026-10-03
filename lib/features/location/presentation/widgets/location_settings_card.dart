@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
-import '../../../../app/theme.dart';
+import '../../../../app/app_colors.dart';
 import '../../../../core/services/location_service.dart';
 import '../../../../core/services/reverse_geocoding_service.dart';
 import '../../../authentication/presentation/providers/auth_providers.dart';
@@ -95,15 +95,18 @@ class _LocationSettingsCardState extends ConsumerState<LocationSettingsCard> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFE9EEDF),
+        color: context.colors.surfaceSoft,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Location & distance',
-            style: TextStyle(fontWeight: FontWeight.w700, color: forest),
+            style: TextStyle(
+              fontWeight: FontWeight.w700,
+              color: context.colors.brand,
+            ),
           ),
           const SizedBox(height: 10),
           Row(
@@ -115,7 +118,7 @@ class _LocationSettingsCardState extends ConsumerState<LocationSettingsCard> {
                             ? 'Area set: $areaLabel'
                             : 'Area set — used to show distance on Discovery.')
                       : 'No area set yet.',
-                  style: const TextStyle(color: Color(0xFF617065)),
+                  style: TextStyle(color: context.colors.textMuted),
                 ),
               ),
               const SizedBox(width: 8),
@@ -142,9 +145,9 @@ class _LocationSettingsCardState extends ConsumerState<LocationSettingsCard> {
             label: const Text('Pick on map'),
           ),
           const SizedBox(height: 14),
-          const Text(
+          Text(
             'Max exchange distance',
-            style: TextStyle(color: Color(0xFF617065)),
+            style: TextStyle(color: context.colors.textMuted),
           ),
           const SizedBox(height: 6),
           DropdownButtonFormField<double?>(

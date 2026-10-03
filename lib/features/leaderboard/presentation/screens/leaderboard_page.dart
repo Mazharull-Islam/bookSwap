@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../app/theme.dart';
+import '../../../../app/app_colors.dart';
 import '../../../book_of_month/domain/period.dart';
 import '../providers/leaderboard_providers.dart';
 import '../widgets/ranking_tile.dart';
@@ -29,9 +29,9 @@ class LeaderboardPage extends ConsumerWidget {
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
               child: Text(
                 periodLabel(periodId),
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.w700,
-                  color: forest,
+                  color: context.colors.brand,
                   fontSize: 16,
                 ),
               ),
@@ -121,12 +121,12 @@ class _Hint extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 56, color: forest),
+          Icon(icon, size: 56, color: context.colors.brand),
           const SizedBox(height: 16),
           Text(
             text,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: Color(0xFF617065)),
+            style: TextStyle(color: context.colors.textMuted),
           ),
         ],
       ),

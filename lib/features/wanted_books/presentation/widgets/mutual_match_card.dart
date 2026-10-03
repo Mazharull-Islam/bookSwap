@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../app/theme.dart';
+import '../../../../app/app_colors.dart';
 import '../../../../shared/widgets/owner_label.dart';
 import '../../../../shared/widgets/primary_button.dart';
 import '../../../books/presentation/widgets/book_cover_image.dart';
@@ -28,20 +28,23 @@ class MutualMatchCard extends StatelessWidget {
     margin: const EdgeInsets.only(bottom: 12),
     padding: const EdgeInsets.all(14),
     decoration: BoxDecoration(
-      color: const Color(0xFFE9EEDF),
+      color: context.colors.surfaceSoft,
       borderRadius: BorderRadius.circular(14),
-      border: Border.all(color: forest.withValues(alpha: 0.25)),
+      border: Border.all(color: context.colors.brand.withValues(alpha: 0.25)),
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            const Icon(Icons.swap_horiz, color: forest, size: 20),
+            Icon(Icons.swap_horiz, color: context.colors.brand, size: 20),
             const SizedBox(width: 6),
-            const Text(
+            Text(
               'Mutual swap match',
-              style: TextStyle(fontWeight: FontWeight.w700, color: forest),
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                color: context.colors.brand,
+              ),
             ),
           ],
         ),
@@ -56,9 +59,9 @@ class MutualMatchCard extends StatelessWidget {
                 coverUrl: match.myBook.coverPhotoUrl,
               ),
             ),
-            const Padding(
+            Padding(
               padding: EdgeInsets.symmetric(horizontal: 8),
-              child: Icon(Icons.sync_alt, color: Color(0xFF617065)),
+              child: Icon(Icons.sync_alt, color: context.colors.textMuted),
             ),
             Expanded(
               child: _BookColumn(
@@ -72,14 +75,11 @@ class MutualMatchCard extends StatelessWidget {
         const SizedBox(height: 8),
         Row(
           children: [
-            const Text(
-              'With ',
-              style: TextStyle(color: Color(0xFF617065)),
-            ),
+            Text('With ', style: TextStyle(color: context.colors.textMuted)),
             OwnerLabel(
               ownerId: match.otherUserId,
-              style: const TextStyle(
-                color: Color(0xFF617065),
+              style: TextStyle(
+                color: context.colors.textMuted,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -116,7 +116,7 @@ class _BookColumn extends StatelessWidget {
     children: [
       Text(
         label,
-        style: const TextStyle(fontSize: 11, color: Color(0xFF617065)),
+        style: TextStyle(fontSize: 12, color: context.colors.textMuted),
       ),
       const SizedBox(height: 4),
       Row(

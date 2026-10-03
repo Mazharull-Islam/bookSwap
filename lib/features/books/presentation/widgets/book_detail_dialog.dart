@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../app/theme.dart';
+import '../../../../app/app_colors.dart';
 import '../../../../shared/widgets/primary_button.dart';
 import '../../../../shared/widgets/secondary_button.dart';
 import '../../domain/models/book.dart';
@@ -59,7 +59,7 @@ Future<void> showBookDetailDialog(
                         Text(
                           book.author,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(color: Color(0xFF617065)),
+                          style: TextStyle(color: context.colors.textMuted),
                         ),
                       ],
                       if (genres.isNotEmpty) ...[
@@ -71,13 +71,13 @@ Future<void> showBookDetailDialog(
                       ],
                       if (book.description.isNotEmpty) ...[
                         const SizedBox(height: 18),
-                        const Align(
+                        Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
                             'Synopsis',
                             style: TextStyle(
                               fontWeight: FontWeight.w700,
-                              color: forest,
+                              color: context.colors.brand,
                             ),
                           ),
                         ),

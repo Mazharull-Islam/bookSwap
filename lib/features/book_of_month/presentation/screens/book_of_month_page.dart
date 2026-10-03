@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/providers/current_user_provider.dart';
-import '../../../../app/theme.dart';
+import '../../../../app/app_colors.dart';
 import '../../../../core/services/open_library_service.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../../../books/domain/models/book.dart';
@@ -184,9 +184,9 @@ class _BookOfMonthPageState extends ConsumerState<BookOfMonthPage> {
         children: [
           Text(
             periodLabel(periodId),
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.w700,
-              color: forest,
+              color: context.colors.brand,
               fontSize: 16,
             ),
           ),
@@ -220,7 +220,7 @@ class _BookOfMonthPageState extends ConsumerState<BookOfMonthPage> {
                     constraints: const BoxConstraints(maxHeight: 260),
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.surface,
-                      border: Border.all(color: const Color(0xFFD6DED5)),
+                      border: Border.all(color: context.colors.border),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Material(
@@ -255,12 +255,12 @@ class _BookOfMonthPageState extends ConsumerState<BookOfMonthPage> {
               ),
             ),
           if (board.isEmpty)
-            const Padding(
+            Padding(
               padding: EdgeInsets.symmetric(vertical: 24),
               child: Text(
                 'No nominations yet this month — search above to start.',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Color(0xFF617065)),
+                style: TextStyle(color: context.colors.textMuted),
               ),
             )
           else
@@ -295,9 +295,12 @@ class _ArchiveSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Past picks',
-          style: TextStyle(fontWeight: FontWeight.w700, color: forest),
+          style: TextStyle(
+            fontWeight: FontWeight.w700,
+            color: context.colors.brand,
+          ),
         ),
         const SizedBox(height: 8),
         ...past.map((period) => _PastPickTile(periodId: period.id)),

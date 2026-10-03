@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../app/theme.dart';
+import '../../../../app/app_colors.dart';
 import 'book_swap_brand.dart';
 
 class AuthPage extends StatelessWidget {
@@ -9,7 +9,7 @@ class AuthPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
-      backgroundColor: paper,
+      backgroundColor: context.colors.background,
       surfaceTintColor: Colors.transparent,
       title: const BookSwapBrand(),
       centerTitle: true,

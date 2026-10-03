@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../app/theme.dart';
+import '../../../../app/app_colors.dart';
 import '../../../../shared/widgets/primary_button.dart';
 import '../../domain/models/registration.dart';
 import '../widgets/auth_page.dart';
@@ -59,13 +59,13 @@ class TermsPage extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text(
+        Text(
           'A COMMUNITY BUILT ON CARE',
           style: TextStyle(
             letterSpacing: 2,
-            fontSize: 11,
+            fontSize: 12,
             fontWeight: FontWeight.w700,
-            color: forest,
+            color: context.colors.brand,
           ),
         ),
         const SizedBox(height: 12),
@@ -79,7 +79,7 @@ class TermsPage extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: const Color(0xFFE9EEDF),
+            color: context.colors.surfaceSoft,
             borderRadius: BorderRadius.circular(18),
           ),
           child: const Text(
@@ -95,10 +95,10 @@ class TermsPage extends StatelessWidget {
               children: [
                 Text(
                   section.$1,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 19,
                     fontWeight: FontWeight.w700,
-                    color: forest,
+                    color: context.colors.brand,
                   ),
                 ),
                 const SizedBox(height: 8),

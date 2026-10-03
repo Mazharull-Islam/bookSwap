@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../app/theme.dart';
+import '../../../../app/app_colors.dart';
 
 class BookArt extends StatelessWidget {
   const BookArt({super.key, this.compact = false});
@@ -29,7 +29,7 @@ class BookArt extends StatelessWidget {
                 child: Transform.rotate(
                   angle: -0.20,
                   child: _cover(
-                    const Color(0xFFB16C46),
+                    context.colors.pending,
                     Icons.wb_sunny_outlined,
                   ),
                 ),
@@ -39,7 +39,7 @@ class BookArt extends StatelessWidget {
                 top: 27,
                 child: Transform.rotate(
                   angle: 0.16,
-                  child: _cover(forest, Icons.eco_outlined),
+                  child: _cover(context.colors.brand, Icons.eco_outlined),
                 ),
               ),
               const Positioned(
@@ -75,11 +75,19 @@ class BookArt extends StatelessWidget {
     child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(icon, color: paper, size: 42),
+        Icon(icon, color: const Color(0xFFFAF8F2), size: 42),
         const SizedBox(height: 22),
-        Container(width: 46, height: 3, color: paper),
+        const SizedBox(
+          width: 46,
+          height: 3,
+          child: ColoredBox(color: Color(0xFFFAF8F2)),
+        ),
         const SizedBox(height: 6),
-        Container(width: 30, height: 2, color: paper),
+        const SizedBox(
+          width: 30,
+          height: 2,
+          child: ColoredBox(color: Color(0xFFFAF8F2)),
+        ),
       ],
     ),
   );

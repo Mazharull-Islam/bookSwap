@@ -386,4 +386,23 @@ void main() {
     expect(find.text('Search for a book'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('Appearance choice on More switches the app to dark mode', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await signInDemo(tester);
+    Brightness current() =>
+        Theme.of(tester.element(find.byType(Scaffold).first)).brightness;
+    expect(current(), Brightness.light);
+    await tapVisible(tester, find.text('More'));
+    await tapVisible(tester, find.text('Dark'));
+    expect(current(), Brightness.dark);
+    await tapVisible(tester, find.text('Light'));
+    expect(current(), Brightness.light);
+    expect(tester.takeException(), isNull);
+  });
 }

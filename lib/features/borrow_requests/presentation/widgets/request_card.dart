@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../shared/widgets/owner_label.dart';
 import '../../../books/presentation/widgets/book_cover_image.dart';
 import '../../domain/models/borrow_request.dart';
+import '../../../../app/app_colors.dart';
 
 /// Active (accepted, not yet returned) and past its expected return date.
 bool isOverdue(BorrowRequest request) =>
@@ -22,14 +23,14 @@ String requestStatusLabel(BorrowRequest request) => switch (request.status) {
 };
 
 Color requestStatusColor(BorrowRequest request) => switch (request.status) {
-  RequestStatus.pending => const Color(0xFFB16C46),
+  RequestStatus.pending => StatusFills.pending,
   RequestStatus.accepted =>
     request.returnedAt != null
-        ? const Color(0xFF7A7A7A)
+        ? StatusFills.returned
         : isOverdue(request)
-        ? const Color(0xFFB3261E)
-        : const Color(0xFF254E3B),
-  RequestStatus.declined => const Color(0xFF7A7A7A),
+        ? StatusFills.danger
+        : StatusFills.accepted,
+  RequestStatus.declined => StatusFills.returned,
 };
 
 class RequestCard extends StatelessWidget {
@@ -74,9 +75,9 @@ class RequestCard extends StatelessWidget {
                     const SizedBox(height: 2),
                     OwnerLabel(
                       ownerId: otherPartyId,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: Color(0xFF617065),
+                        color: context.colors.textMuted,
                       ),
                     ),
                   ],
@@ -85,7 +86,7 @@ class RequestCard extends StatelessWidget {
               Chip(
                 label: Text(
                   requestStatusLabel(request),
-                  style: const TextStyle(fontSize: 11, color: Colors.white),
+                  style: const TextStyle(fontSize: 12, color: Colors.white),
                 ),
                 backgroundColor: requestStatusColor(request),
                 padding: EdgeInsets.zero,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../app/theme.dart';
+import '../../../../app/app_colors.dart';
 import '../providers/forum_providers.dart';
 import '../widgets/create_post_dialog.dart';
 import '../widgets/forum_post_tile.dart';
@@ -21,12 +21,16 @@ class ForumPage extends ConsumerWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.forum_outlined, size: 56, color: forest),
+                    Icon(
+                      Icons.forum_outlined,
+                      size: 56,
+                      color: context.colors.brand,
+                    ),
                     const SizedBox(height: 16),
-                    const Text(
+                    Text(
                       'No discussions yet — start one!',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Color(0xFF617065)),
+                      style: TextStyle(color: context.colors.textMuted),
                     ),
                   ],
                 ),

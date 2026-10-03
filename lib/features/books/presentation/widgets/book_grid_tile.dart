@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../domain/models/book.dart';
 import 'book_cover_image.dart';
 import 'book_list_tile.dart';
+import '../../../../app/app_colors.dart';
 
 class BookGridTile extends StatelessWidget {
   const BookGridTile({
@@ -37,7 +38,7 @@ class BookGridTile extends StatelessWidget {
                   child: Chip(
                     label: Text(
                       bookStatusLabel(book.status),
-                      style: const TextStyle(fontSize: 10, color: Colors.white),
+                      style: const TextStyle(fontSize: 12, color: Colors.white),
                     ),
                     backgroundColor: bookStatusColor(book.status),
                     padding: EdgeInsets.zero,
@@ -66,9 +67,9 @@ class BookGridTile extends StatelessWidget {
                         book.author,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
-                          color: Color(0xFF617065),
+                          color: context.colors.textMuted,
                         ),
                       ),
                     ],

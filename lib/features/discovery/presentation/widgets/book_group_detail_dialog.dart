@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/providers/current_user_provider.dart';
-import '../../../../app/theme.dart';
+import '../../../../app/app_colors.dart';
 import '../../../../core/services/public_profile_service.dart';
 import '../../../../shared/widgets/owner_label.dart';
 import '../../../../shared/widgets/primary_button.dart';
@@ -108,7 +108,7 @@ class _BookGroupDetailDialogState
                         Text(
                           book.author,
                           textAlign: TextAlign.center,
-                          style: const TextStyle(color: Color(0xFF617065)),
+                          style: TextStyle(color: context.colors.textMuted),
                         ),
                       ],
                       if (genres.isNotEmpty) ...[
@@ -125,9 +125,9 @@ class _BookGroupDetailDialogState
                           group.ownerCount == 1
                               ? 'Available from 1 member'
                               : 'Available from ${group.ownerCount} members',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontWeight: FontWeight.w700,
-                            color: forest,
+                            color: context.colors.brand,
                           ),
                         ),
                       ),
@@ -161,7 +161,7 @@ class _BookGroupDetailDialogState
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: const Color(0xFFE9EEDF),
+        color: context.colors.surfaceSoft,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Column(
@@ -178,7 +178,7 @@ class _BookGroupDetailDialogState
               Chip(
                 label: Text(
                   bookStatusLabel(listing.status),
-                  style: const TextStyle(fontSize: 11, color: Colors.white),
+                  style: const TextStyle(fontSize: 12, color: Colors.white),
                 ),
                 backgroundColor: bookStatusColor(listing.status),
                 padding: EdgeInsets.zero,
@@ -189,14 +189,14 @@ class _BookGroupDetailDialogState
           const SizedBox(height: 4),
           Text(
             'Condition: ${listing.condition}',
-            style: const TextStyle(color: Color(0xFF617065)),
+            style: TextStyle(color: context.colors.textMuted),
           ),
           if (distanceKm != null)
             Text(
               distanceKm < 1
                   ? 'Less than 1 km away'
                   : '${distanceKm.round()} km away',
-              style: const TextStyle(color: Color(0xFF617065)),
+              style: TextStyle(color: context.colors.textMuted),
             ),
           if (canRequest) ...[
             const SizedBox(height: 8),

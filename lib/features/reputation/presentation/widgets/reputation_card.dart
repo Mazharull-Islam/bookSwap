@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../app/theme.dart';
+import '../../../../app/app_colors.dart';
 import '../../domain/models/achievement_badge.dart';
 import '../providers/reputation_providers.dart';
 
@@ -17,21 +17,24 @@ class ReputationCard extends ConsumerWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFE9EEDF),
+        color: context.colors.surfaceSoft,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Reputation',
-            style: TextStyle(fontWeight: FontWeight.w700, color: forest),
+            style: TextStyle(
+              fontWeight: FontWeight.w700,
+              color: context.colors.brand,
+            ),
           ),
           const SizedBox(height: 8),
           if (percent == null)
-            const Text(
+            Text(
               'Not enough history yet — complete a loan to build your reputation.',
-              style: TextStyle(color: Color(0xFF617065)),
+              style: TextStyle(color: context.colors.textMuted),
             )
           else
             Text(
@@ -65,9 +68,9 @@ class _BadgeChip extends StatelessWidget {
     child: Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: const Color(0xFFD6DED5)),
+        border: Border.all(color: context.colors.border),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

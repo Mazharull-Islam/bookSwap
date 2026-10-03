@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../domain/models/forum_post.dart';
+import '../../../../app/app_colors.dart';
 
 String formatForumDate(int ms) => DateTime.fromMillisecondsSinceEpoch(
   ms,
@@ -32,21 +33,21 @@ class ForumPostTile extends StatelessWidget {
             post.body,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(color: Color(0xFF617065)),
+            style: TextStyle(color: context.colors.textMuted),
           ),
           const SizedBox(height: 6),
           Row(
             children: [
               Text(
                 '${post.authorName} · ${formatForumDate(post.createdAtMs)}',
-                style: const TextStyle(fontSize: 11, color: Color(0xFF9AA69C)),
+                style: TextStyle(fontSize: 12, color: context.colors.textFaint),
               ),
               if (post.genre != null) ...[
                 const SizedBox(width: 8),
                 Chip(
                   label: Text(
                     post.genre!,
-                    style: const TextStyle(fontSize: 10),
+                    style: const TextStyle(fontSize: 12),
                   ),
                   padding: EdgeInsets.zero,
                   visualDensity: VisualDensity.compact,
@@ -54,26 +55,26 @@ class ForumPostTile extends StatelessWidget {
                 ),
               ],
               const Spacer(),
-              const Icon(
+              Icon(
                 Icons.favorite_border,
                 size: 14,
-                color: Color(0xFF9AA69C),
+                color: context.colors.textFaint,
               ),
               const SizedBox(width: 2),
               Text(
                 '${post.likedBy.length}',
-                style: const TextStyle(fontSize: 11, color: Color(0xFF9AA69C)),
+                style: TextStyle(fontSize: 12, color: context.colors.textFaint),
               ),
               const SizedBox(width: 10),
-              const Icon(
+              Icon(
                 Icons.chat_bubble_outline,
                 size: 14,
-                color: Color(0xFF9AA69C),
+                color: context.colors.textFaint,
               ),
               const SizedBox(width: 2),
               Text(
                 '${post.replyCount}',
-                style: const TextStyle(fontSize: 11, color: Color(0xFF9AA69C)),
+                style: TextStyle(fontSize: 12, color: context.colors.textFaint),
               ),
             ],
           ),

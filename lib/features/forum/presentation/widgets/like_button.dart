@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../app/theme.dart';
+import '../../../../app/app_colors.dart';
 
 class LikeButton extends StatelessWidget {
   const LikeButton({
@@ -17,7 +17,7 @@ class LikeButton extends StatelessWidget {
   Widget build(BuildContext context) => TextButton.icon(
     onPressed: onToggle,
     style: TextButton.styleFrom(
-      foregroundColor: liked ? forest : const Color(0xFF617065),
+      foregroundColor: liked ? context.colors.brand : context.colors.textMuted,
       visualDensity: VisualDensity.compact,
     ),
     icon: Icon(liked ? Icons.favorite : Icons.favorite_border, size: 18),

@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/providers/current_user_provider.dart';
-import '../../../../app/theme.dart';
+import '../../../../app/app_colors.dart';
 import '../../../../core/services/open_library_service.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../../../books/domain/models/book.dart';
@@ -178,7 +178,7 @@ class _WantedBooksPageState extends ConsumerState<WantedBooksPage> {
                       constraints: const BoxConstraints(maxHeight: 260),
                       decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.surface,
-                        border: Border.all(color: const Color(0xFFD6DED5)),
+                        border: Border.all(color: context.colors.border),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Material(
@@ -204,9 +204,12 @@ class _WantedBooksPageState extends ConsumerState<WantedBooksPage> {
             ),
             if (matches.isNotEmpty) ...[
               const SizedBox(height: 20),
-              const Text(
+              Text(
                 'Matches',
-                style: TextStyle(fontWeight: FontWeight.w700, color: forest),
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: context.colors.brand,
+                ),
               ),
               const SizedBox(height: 8),
               ...matches.map(
@@ -219,9 +222,12 @@ class _WantedBooksPageState extends ConsumerState<WantedBooksPage> {
               ),
             ],
             const SizedBox(height: 20),
-            const Text(
+            Text(
               'What you want',
-              style: TextStyle(fontWeight: FontWeight.w700, color: forest),
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                color: context.colors.brand,
+              ),
             ),
             const SizedBox(height: 8),
             wanted.when(
@@ -229,20 +235,20 @@ class _WantedBooksPageState extends ConsumerState<WantedBooksPage> {
                 padding: EdgeInsets.symmetric(vertical: 24),
                 child: Center(child: CircularProgressIndicator()),
               ),
-              error: (error, _) => const Padding(
+              error: (error, _) => Padding(
                 padding: EdgeInsets.symmetric(vertical: 24),
                 child: Text(
                   'Could not load your wishlist. Please try again.',
-                  style: TextStyle(color: Color(0xFF617065)),
+                  style: TextStyle(color: context.colors.textMuted),
                 ),
               ),
               data: (items) => items.isEmpty
-                  ? const Padding(
+                  ? Padding(
                       padding: EdgeInsets.symmetric(vertical: 24),
                       child: Text(
                         "Search above for books you'd like to borrow — "
                         "we'll flag it if a match works out both ways.",
-                        style: TextStyle(color: Color(0xFF617065)),
+                        style: TextStyle(color: context.colors.textMuted),
                       ),
                     )
                   : Column(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/providers/current_user_provider.dart';
-import '../../../../app/theme.dart';
+import '../../../../app/app_colors.dart';
 import '../../../../core/services/public_profile_service.dart';
 import '../../../../shared/widgets/primary_button.dart';
 import '../../../authentication/presentation/providers/auth_providers.dart';
@@ -210,7 +210,7 @@ class _IncomingTab extends ConsumerWidget {
                       request.borrowerContact == null
                           ? 'Waiting for the borrower to share their contact.'
                           : 'Borrower contact: ${request.borrowerContact}',
-                      style: const TextStyle(color: Color(0xFF617065)),
+                      style: TextStyle(color: context.colors.textMuted),
                     ),
                     if (request.expectedReturnDateMs != null)
                       Text(
@@ -218,8 +218,8 @@ class _IncomingTab extends ConsumerWidget {
                         '${isOverdue(request) ? ' (overdue)' : ''}',
                         style: TextStyle(
                           color: isOverdue(request)
-                              ? const Color(0xFFB3261E)
-                              : const Color(0xFF617065),
+                              ? context.colors.danger
+                              : context.colors.textMuted,
                           fontWeight: isOverdue(request)
                               ? FontWeight.w600
                               : FontWeight.normal,
@@ -229,8 +229,8 @@ class _IncomingTab extends ConsumerWidget {
                       const SizedBox(height: 8),
                       Text(
                         'Extension requested: ${_formatDate(request.proposedReturnDateMs!)}',
-                        style: const TextStyle(
-                          color: Color(0xFFB16C46),
+                        style: TextStyle(
+                          color: context.colors.pending,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -347,16 +347,16 @@ class _OutgoingTab extends ConsumerWidget {
               request: request,
               otherPartyId: request.lenderId,
               footer: switch (request.status) {
-                RequestStatus.pending => const Text(
+                RequestStatus.pending => Text(
                   'Waiting for the owner to respond.',
-                  style: TextStyle(color: Color(0xFF617065)),
+                  style: TextStyle(color: context.colors.textMuted),
                 ),
                 RequestStatus.accepted => Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'Owner contact: ${request.lenderContact ?? 'unavailable'}',
-                      style: const TextStyle(color: Color(0xFF617065)),
+                      style: TextStyle(color: context.colors.textMuted),
                     ),
                     if (request.expectedReturnDateMs != null)
                       Text(
@@ -364,8 +364,8 @@ class _OutgoingTab extends ConsumerWidget {
                         '${isOverdue(request) ? ' (overdue)' : ''}',
                         style: TextStyle(
                           color: isOverdue(request)
-                              ? const Color(0xFFB3261E)
-                              : const Color(0xFF617065),
+                              ? context.colors.danger
+                              : context.colors.textMuted,
                           fontWeight: isOverdue(request)
                               ? FontWeight.w600
                               : FontWeight.normal,
@@ -386,8 +386,8 @@ class _OutgoingTab extends ConsumerWidget {
                       Text(
                         'Extension requested: awaiting approval '
                         '(until ${_formatDate(request.proposedReturnDateMs!)})',
-                        style: const TextStyle(
-                          color: Color(0xFFB16C46),
+                        style: TextStyle(
+                          color: context.colors.pending,
                           fontWeight: FontWeight.w600,
                         ),
                       )
@@ -447,7 +447,7 @@ class _HistoryTab extends ConsumerWidget {
               : loan.request.lenderId,
           footer: Text(
             '${loan.lent ? 'Lent' : 'Borrowed'} · Returned ${_formatDate(loan.request.returnedAt!)}',
-            style: const TextStyle(color: Color(0xFF617065)),
+            style: TextStyle(color: context.colors.textMuted),
           ),
         );
       },
@@ -467,12 +467,12 @@ class _Hint extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 56, color: forest),
+          Icon(icon, size: 56, color: context.colors.brand),
           const SizedBox(height: 16),
           Text(
             text,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: Color(0xFF617065)),
+            style: TextStyle(color: context.colors.textMuted),
           ),
         ],
       ),

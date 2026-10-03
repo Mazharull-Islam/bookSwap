@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../app/theme.dart';
+import '../../../../app/app_colors.dart';
 
 /// Small rounded genre tags, wrapped onto multiple lines as needed.
 class GenrePillList extends StatelessWidget {
@@ -22,12 +22,12 @@ class GenrePillList extends StatelessWidget {
           (genre) => Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: forest,
+              color: context.colors.brand,
               borderRadius: BorderRadius.circular(999),
             ),
             child: Text(
               genre,
-              style: const TextStyle(fontSize: 11, color: Colors.white),
+              style: TextStyle(fontSize: 12, color: context.colors.onBrand),
             ),
           ),
         )

@@ -3,6 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../../../../core/utils/distance_calculator.dart';
 import '../../../../shared/widgets/primary_button.dart';
+import '../../../../app/app_colors.dart';
 
 const _fallbackCenter = LatLng(23.8103, 90.4125);
 
@@ -74,7 +75,7 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
                         : 'Pin placed. Only an approximate area (~1 km) is '
                               'saved.',
                     textAlign: TextAlign.center,
-                    style: const TextStyle(color: Color(0xFF617065)),
+                    style: TextStyle(color: context.colors.textMuted),
                   ),
                   const SizedBox(height: 12),
                   PrimaryButton(

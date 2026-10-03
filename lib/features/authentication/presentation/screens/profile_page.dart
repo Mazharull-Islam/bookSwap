@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../app/theme.dart';
+import '../../../../app/app_colors.dart';
 import '../../../../shared/widgets/primary_button.dart';
 import '../../../location/presentation/widgets/location_settings_card.dart';
 import '../../../reputation/presentation/widgets/reputation_card.dart';
@@ -33,10 +33,10 @@ class ProfilePage extends ConsumerWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.check_circle_outline,
                     size: 72,
-                    color: forest,
+                    color: context.colors.brand,
                   ),
                   const SizedBox(height: 24),
                   Text(

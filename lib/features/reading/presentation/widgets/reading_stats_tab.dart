@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../app/theme.dart';
+import '../../../../app/app_colors.dart';
 import '../../../../shared/widgets/primary_button.dart';
 import '../../../borrow_requests/domain/models/borrow_request.dart';
 import '../../../borrow_requests/presentation/providers/request_providers.dart';
@@ -42,9 +42,12 @@ class ReadingStatsTab extends ConsumerWidget {
       children: [
         _GoalCard(goal: goal, entries: entries),
         const SizedBox(height: 20),
-        const Text(
+        Text(
           'Your stats',
-          style: TextStyle(fontWeight: FontWeight.w700, color: forest),
+          style: TextStyle(
+            fontWeight: FontWeight.w700,
+            color: context.colors.brand,
+          ),
         ),
         const SizedBox(height: 8),
         Row(
@@ -136,7 +139,7 @@ class _GoalCard extends ConsumerWidget {
       return Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: const Color(0xFFE9EEDF),
+          color: context.colors.surfaceSoft,
           borderRadius: BorderRadius.circular(14),
         ),
         child: Column(
@@ -147,9 +150,9 @@ class _GoalCard extends ConsumerWidget {
               style: TextStyle(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 4),
-            const Text(
+            Text(
               'Set a target to track your progress over time.',
-              style: TextStyle(color: Color(0xFF617065)),
+              style: TextStyle(color: context.colors.textMuted),
             ),
             const SizedBox(height: 12),
             PrimaryButton(
@@ -165,11 +168,13 @@ class _GoalCard extends ConsumerWidget {
     final ratio = goal!.targetCount == 0
         ? 0.0
         : (progress / goal!.targetCount).clamp(0, 1).toDouble();
-    const goldColor = Color(0xFFCB9A3B);
+    final goldColor = context.colors.gold;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: metGoal ? const Color(0xFFFBF1DC) : const Color(0xFFE9EEDF),
+        color: metGoal
+            ? context.colors.goldSurface
+            : context.colors.surfaceSoft,
         borderRadius: BorderRadius.circular(14),
         border: metGoal ? Border.all(color: goldColor) : null,
       ),
@@ -186,7 +191,7 @@ class _GoalCard extends ConsumerWidget {
               ),
               Text(
                 goalPeriodLabel(goal!.periodDays),
-                style: const TextStyle(color: Color(0xFF617065), fontSize: 12),
+                style: TextStyle(color: context.colors.textMuted, fontSize: 12),
               ),
             ],
           ),
@@ -196,8 +201,8 @@ class _GoalCard extends ConsumerWidget {
             child: LinearProgressIndicator(
               value: ratio,
               minHeight: 8,
-              backgroundColor: Colors.white,
-              color: metGoal ? goldColor : forest,
+              backgroundColor: context.colors.surface,
+              color: metGoal ? goldColor : context.colors.brand,
             ),
           ),
           const SizedBox(height: 8),
@@ -206,9 +211,9 @@ class _GoalCard extends ConsumerWidget {
               Text('$progress / ${goal!.targetCount} books'),
               if (metGoal) ...[
                 const SizedBox(width: 8),
-                const Icon(Icons.emoji_events, color: goldColor, size: 18),
+                Icon(Icons.emoji_events, color: goldColor, size: 18),
                 const SizedBox(width: 4),
-                const Text(
+                Text(
                   'Goal met!',
                   style: TextStyle(
                     color: goldColor,
@@ -247,25 +252,25 @@ class _StatTile extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.all(14),
     decoration: BoxDecoration(
-      color: Colors.white,
+      color: context.colors.surface,
       borderRadius: BorderRadius.circular(14),
-      border: Border.all(color: const Color(0xFFD6DED5)),
+      border: Border.all(color: context.colors.border),
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.w700,
-            color: forest,
+            color: context.colors.brand,
           ),
         ),
         const SizedBox(height: 4),
         Text(
           label,
-          style: const TextStyle(color: Color(0xFF617065), fontSize: 12),
+          style: TextStyle(color: context.colors.textMuted, fontSize: 12),
         ),
       ],
     ),

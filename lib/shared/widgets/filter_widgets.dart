@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../app/theme.dart';
+import '../../app/app_colors.dart';
 
 /// Search-row companion: a tune icon that shows how many filters are on.
 class FilterButton extends StatelessWidget {
@@ -48,13 +48,13 @@ class FilterSheetFrame extends StatelessWidget {
       children: [
         Row(
           children: [
-            const Expanded(
+            Expanded(
               child: Text(
                 'Filters',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: forest,
+                  color: context.colors.brand,
                 ),
               ),
             ),
@@ -86,7 +86,7 @@ class FilterSection extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: const TextStyle(color: Color(0xFF617065))),
+        Text(title, style: TextStyle(color: context.colors.textMuted)),
         const SizedBox(height: 8),
         child,
       ],

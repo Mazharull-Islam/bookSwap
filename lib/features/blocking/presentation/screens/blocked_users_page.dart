@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/providers/current_user_provider.dart';
-import '../../../../app/theme.dart';
+import '../../../../app/app_colors.dart';
 import '../providers/block_providers.dart';
 
 class BlockedUsersPage extends ConsumerWidget {
@@ -31,19 +31,26 @@ class BlockedUsersPage extends ConsumerWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.block_outlined, size: 56, color: forest),
+                    Icon(
+                      Icons.block_outlined,
+                      size: 56,
+                      color: context.colors.brand,
+                    ),
                     const SizedBox(height: 16),
-                    const Text(
+                    Text(
                       "You haven't blocked anyone.",
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Color(0xFF617065)),
+                      style: TextStyle(color: context.colors.textMuted),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
+                    Text(
                       'Block someone from an incoming request to stop them '
                       'sending you new ones.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Color(0xFF617065), fontSize: 12),
+                      style: TextStyle(
+                        color: context.colors.textMuted,
+                        fontSize: 12,
+                      ),
                     ),
                   ],
                 ),

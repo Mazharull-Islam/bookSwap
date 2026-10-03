@@ -7,6 +7,7 @@ abstract final class HiveService {
   static const readingBoxName = 'reading_entries';
   static const readingGoalsBoxName = 'reading_goals';
   static const seenBadgesBoxName = 'seen_badges';
+  static const settingsBoxName = 'settings';
 
   static Future<void> init() async {
     await Hive.initFlutter();
@@ -14,6 +15,7 @@ abstract final class HiveService {
     await Hive.openBox<Map>(readingBoxName);
     await Hive.openBox<Map>(readingGoalsBoxName);
     await Hive.openBox<List>(seenBadgesBoxName);
+    await Hive.openBox<String>(settingsBoxName);
   }
 
   static Box<Map> get booksBox => Hive.box<Map>(booksBoxName);

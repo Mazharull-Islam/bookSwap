@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../app/theme.dart';
+import '../../../../app/app_colors.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../../../../shared/widgets/primary_button.dart';
 import '../../../../shared/widgets/secondary_button.dart';
@@ -146,10 +146,10 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
       children: [
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w700,
-            color: forest,
+            color: context.colors.brand,
           ),
         ),
         const SizedBox(height: 4),
@@ -175,13 +175,13 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text(
+                Text(
                   'MAKE ROOM FOR MORE STORIES',
                   style: TextStyle(
                     letterSpacing: 2,
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: FontWeight.w700,
-                    color: forest,
+                    color: context.colors.brand,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -197,7 +197,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFE9EEDF),
+                    color: context.colors.surfaceSoft,
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Text(

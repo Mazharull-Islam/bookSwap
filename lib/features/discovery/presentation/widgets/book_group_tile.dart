@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../app/theme.dart';
+import '../../../../app/app_colors.dart';
 import '../../../books/presentation/widgets/book_cover_image.dart';
 import '../../domain/book_group.dart';
 
@@ -26,9 +26,9 @@ class BookGroupTile extends StatelessWidget {
         trailing: Chip(
           label: Text(
             group.ownerCount == 1 ? '1 member' : '${group.ownerCount} members',
-            style: const TextStyle(fontSize: 11, color: Colors.white),
+            style: TextStyle(fontSize: 12, color: context.colors.onBrand),
           ),
-          backgroundColor: forest,
+          backgroundColor: context.colors.brand,
           padding: EdgeInsets.zero,
           visualDensity: VisualDensity.compact,
         ),

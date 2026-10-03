@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../shared/widgets/primary_button.dart';
 import '../../../books/presentation/widgets/book_cover_image.dart';
 import '../../domain/models/book_of_month_nomination.dart';
+import '../../../../app/app_colors.dart';
 
 class NominationTile extends StatelessWidget {
   const NominationTile({
@@ -24,9 +25,9 @@ class NominationTile extends StatelessWidget {
     margin: const EdgeInsets.only(bottom: 8),
     padding: const EdgeInsets.all(12),
     decoration: BoxDecoration(
-      color: isLeader ? const Color(0xFFFBF1DC) : const Color(0xFFE9EEDF),
+      color: isLeader ? context.colors.goldSurface : context.colors.surfaceSoft,
       borderRadius: BorderRadius.circular(12),
-      border: isLeader ? Border.all(color: const Color(0xFFCB9A3B)) : null,
+      border: isLeader ? Border.all(color: context.colors.gold) : null,
     ),
     child: Row(
       children: [
@@ -37,20 +38,20 @@ class NominationTile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (isLeader)
-                const Row(
+                Row(
                   children: [
                     Icon(
                       Icons.emoji_events,
                       size: 14,
-                      color: Color(0xFFCB9A3B),
+                      color: context.colors.gold,
                     ),
                     SizedBox(width: 4),
                     Text(
                       'Leading',
                       style: TextStyle(
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFFCB9A3B),
+                        color: context.colors.gold,
                       ),
                     ),
                   ],
@@ -66,12 +67,12 @@ class NominationTile extends StatelessWidget {
                   nomination.author,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: Color(0xFF617065)),
+                  style: TextStyle(color: context.colors.textMuted),
                 ),
               Text(
                 'Nominated by ${nomination.nominatedByName} · $voteCount '
                 '${voteCount == 1 ? 'vote' : 'votes'}',
-                style: const TextStyle(fontSize: 11, color: Color(0xFF9AA69C)),
+                style: TextStyle(fontSize: 12, color: context.colors.textFaint),
               ),
             ],
           ),

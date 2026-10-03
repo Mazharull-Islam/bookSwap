@@ -7,6 +7,7 @@ import '../providers/forum_providers.dart';
 import '../widgets/forum_post_tile.dart' show formatForumDate;
 import '../widgets/like_button.dart';
 import '../widgets/reply_tile.dart';
+import '../../../../app/app_colors.dart';
 
 class PostDetailPage extends ConsumerStatefulWidget {
   const PostDetailPage({super.key, required this.postId});
@@ -104,7 +105,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                       Text(
                         '${post.authorName} · ${formatForumDate(post.createdAtMs)}'
                         '${post.genre != null ? ' · ${post.genre}' : ''}',
-                        style: const TextStyle(color: Color(0xFF617065)),
+                        style: TextStyle(color: context.colors.textMuted),
                       ),
                       const SizedBox(height: 12),
                       Text(post.body),

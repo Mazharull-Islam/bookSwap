@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'providers/theme_mode_provider.dart';
 import 'router.dart';
 import 'theme.dart';
 
@@ -13,7 +14,7 @@ class BookSwapApp extends ConsumerWidget {
       return MaterialApp(
         title: 'BookSwap',
         debugShowCheckedModeBanner: false,
-        theme: buildTheme(),
+        theme: buildTheme(Brightness.light),
         home: Scaffold(
           body: Center(
             child: Padding(
@@ -27,7 +28,9 @@ class BookSwapApp extends ConsumerWidget {
     return MaterialApp.router(
       title: 'BookSwap',
       debugShowCheckedModeBanner: false,
-      theme: buildTheme(),
+      theme: buildTheme(Brightness.light),
+      darkTheme: buildTheme(Brightness.dark),
+      themeMode: ref.watch(themeModeProvider),
       routerConfig: ref.watch(routerProvider),
     );
   }

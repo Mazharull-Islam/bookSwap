@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../app/theme.dart';
+import '../../../../app/app_colors.dart';
 import '../../../books/presentation/widgets/book_cover_image.dart';
 import '../providers/book_of_month_providers.dart';
 
@@ -23,13 +23,13 @@ class BookOfMonthBanner extends ConsumerWidget {
         child: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: const Color(0xFFFBF1DC),
+            color: context.colors.goldSurface,
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: const Color(0xFFCB9A3B)),
+            border: Border.all(color: context.colors.gold),
           ),
           child: Row(
             children: [
-              const Icon(Icons.emoji_events, color: Color(0xFFCB9A3B)),
+              Icon(Icons.emoji_events, color: context.colors.gold),
               const SizedBox(width: 10),
               BookCoverImage(url: pick.coverUrl, width: 32, height: 44),
               const SizedBox(width: 10),
@@ -37,9 +37,12 @@ class BookOfMonthBanner extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Book of the Month',
-                      style: TextStyle(fontSize: 11, color: Color(0xFF8A6116)),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: context.colors.warningText,
+                      ),
                     ),
                     Text(
                       pick.title,
@@ -50,7 +53,7 @@ class BookOfMonthBanner extends ConsumerWidget {
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right, color: forest),
+              Icon(Icons.chevron_right, color: context.colors.brand),
             ],
           ),
         ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../app/theme.dart';
+import '../../../../app/app_colors.dart';
 import '../../../../shared/widgets/primary_button.dart';
 import '../widgets/book_art.dart';
 import '../widgets/book_swap_brand.dart';
@@ -26,7 +26,7 @@ class WelcomePage extends StatelessWidget {
                   width: double.infinity,
                   padding: EdgeInsets.all(constraints.maxWidth < 400 ? 24 : 40),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFE9EEDF),
+                    color: context.colors.surfaceSoft,
                     borderRadius: BorderRadius.circular(32),
                   ),
                   child: Column(
@@ -55,13 +55,13 @@ class WelcomePage extends StatelessWidget {
                         onPressed: () => context.push('/login'),
                       ),
                       const SizedBox(height: 20),
-                      const Row(
+                      Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
                             Icons.location_on_outlined,
                             size: 18,
-                            color: forest,
+                            color: context.colors.brand,
                           ),
                           SizedBox(width: 8),
                           Flexible(child: Text('More stories. Fewer miles.')),

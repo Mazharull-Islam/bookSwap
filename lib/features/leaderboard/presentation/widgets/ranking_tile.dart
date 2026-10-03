@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../app/theme.dart';
+import '../../../../app/app_colors.dart';
 
 class RankingTile extends StatelessWidget {
   const RankingTile({
@@ -22,9 +22,11 @@ class RankingTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        color: isTopThree ? const Color(0xFFFBF1DC) : const Color(0xFFE9EEDF),
+        color: isTopThree
+            ? context.colors.goldSurface
+            : context.colors.surfaceSoft,
         borderRadius: BorderRadius.circular(12),
-        border: isTopThree ? Border.all(color: const Color(0xFFCB9A3B)) : null,
+        border: isTopThree ? Border.all(color: context.colors.gold) : null,
       ),
       child: Row(
         children: [
@@ -34,7 +36,7 @@ class RankingTile extends StatelessWidget {
               '$rank',
               style: TextStyle(
                 fontWeight: FontWeight.w700,
-                color: isTopThree ? const Color(0xFFCB9A3B) : forest,
+                color: isTopThree ? context.colors.gold : context.colors.brand,
               ),
             ),
           ),
@@ -48,7 +50,7 @@ class RankingTile extends StatelessWidget {
           ),
           Text(
             '$count $countLabel',
-            style: const TextStyle(color: Color(0xFF617065), fontSize: 12),
+            style: TextStyle(color: context.colors.textMuted, fontSize: 12),
           ),
         ],
       ),

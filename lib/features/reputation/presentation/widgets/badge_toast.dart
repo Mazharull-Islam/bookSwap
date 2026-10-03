@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../app/theme.dart';
+import '../../../../app/app_colors.dart';
 import '../../domain/models/achievement_badge.dart';
 
 /// Inserts a self-dismissing banner into the app's root overlay — works
@@ -60,7 +60,7 @@ class _BadgeToastState extends State<_BadgeToast> {
               opacity: _visible ? 1 : 0,
               child: Material(
                 elevation: 6,
-                color: forest,
+                color: context.colors.brand,
                 borderRadius: BorderRadius.circular(999),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
@@ -77,8 +77,8 @@ class _BadgeToastState extends State<_BadgeToast> {
                       const SizedBox(width: 10),
                       Text(
                         'Badge earned: ${widget.info.label}',
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: context.colors.onBrand,
                           fontWeight: FontWeight.w700,
                         ),
                       ),

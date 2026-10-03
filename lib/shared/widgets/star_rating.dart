@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../app/app_colors.dart';
 
 /// A row of 5 stars. Read-only when [onChanged] is null; otherwise each
 /// star is tappable to set the rating (1-5).
@@ -22,7 +23,7 @@ class StarRating extends StatelessWidget {
       final icon = Icon(
         filled ? Icons.star : Icons.star_border,
         size: size,
-        color: const Color(0xFFCB9A3B),
+        color: context.colors.gold,
       );
       if (onChanged == null) return icon;
       return GestureDetector(onTap: () => onChanged!(i + 1), child: icon);

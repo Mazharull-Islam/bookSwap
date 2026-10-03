@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../app/theme.dart';
+import '../../../../app/app_colors.dart';
 
 class BookCoverImage extends StatelessWidget {
   const BookCoverImage({
@@ -9,7 +9,7 @@ class BookCoverImage extends StatelessWidget {
     this.height,
     this.borderRadius = 8,
     this.iconSize = 22,
-    this.placeholderColor = const Color(0xFFE9EEDF),
+    this.placeholderColor,
   });
 
   final String? url;
@@ -19,7 +19,7 @@ class BookCoverImage extends StatelessWidget {
   final double? height;
   final double borderRadius;
   final double iconSize;
-  final Color placeholderColor;
+  final Color? placeholderColor;
 
   @override
   Widget build(BuildContext context) => ClipRRect(
@@ -30,15 +30,19 @@ class BookCoverImage extends StatelessWidget {
             width: width,
             height: height,
             fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) => _placeholder(),
+            errorBuilder: (context, error, stackTrace) => _placeholder(context),
           )
-        : _placeholder(),
+        : _placeholder(context),
   );
 
-  Widget _placeholder() => Container(
+  Widget _placeholder(BuildContext context) => Container(
     width: width,
     height: height,
-    color: placeholderColor,
-    child: Icon(Icons.menu_book_outlined, color: forest, size: iconSize),
+    color: placeholderColor ?? context.colors.surfaceSoft,
+    child: Icon(
+      Icons.menu_book_outlined,
+      color: context.colors.brand,
+      size: iconSize,
+    ),
   );
 }

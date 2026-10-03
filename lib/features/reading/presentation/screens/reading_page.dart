@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/providers/current_user_provider.dart';
-import '../../../../app/theme.dart';
+import '../../../../app/app_colors.dart';
 import '../../../../core/services/open_library_service.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../../../../shared/widgets/filter_widgets.dart';
@@ -188,7 +188,7 @@ class _ReadingPageState extends ConsumerState<ReadingPage> {
                           constraints: const BoxConstraints(maxHeight: 260),
                           decoration: BoxDecoration(
                             color: Theme.of(context).colorScheme.surface,
-                            border: Border.all(color: const Color(0xFFD6DED5)),
+                            border: Border.all(color: context.colors.border),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Material(
@@ -336,12 +336,12 @@ class _Hint extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 56, color: forest),
+          Icon(icon, size: 56, color: context.colors.brand),
           const SizedBox(height: 16),
           Text(
             text,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: Color(0xFF617065)),
+            style: TextStyle(color: context.colors.textMuted),
           ),
         ],
       ),

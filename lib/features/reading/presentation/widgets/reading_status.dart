@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../domain/models/reading_entry.dart';
+import '../../../../app/app_colors.dart';
 
 String readingStatusLabel(ReadingStatus status) => switch (status) {
   ReadingStatus.planToRead => 'Plan to read',
@@ -8,7 +9,7 @@ String readingStatusLabel(ReadingStatus status) => switch (status) {
 };
 
 Color readingStatusColor(ReadingStatus status) => switch (status) {
-  ReadingStatus.planToRead => const Color(0xFF7A7A7A),
-  ReadingStatus.reading => const Color(0xFFB16C46),
-  ReadingStatus.read => const Color(0xFF254E3B),
+  ReadingStatus.planToRead => StatusFills.returned,
+  ReadingStatus.reading => StatusFills.pending,
+  ReadingStatus.read => StatusFills.accepted,
 };

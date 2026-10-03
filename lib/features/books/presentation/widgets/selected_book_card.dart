@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'book_cover_image.dart';
 import 'genre_pill_list.dart';
+import '../../../../app/app_colors.dart';
 
 /// Summary of the book chosen from title-search suggestions (or the book
 /// being edited), shown between the title field and the condition/description
@@ -25,7 +26,7 @@ class SelectedBookCard extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.all(12),
     decoration: BoxDecoration(
-      color: const Color(0xFFE9EEDF),
+      color: context.colors.surfaceSoft,
       borderRadius: BorderRadius.circular(14),
     ),
     child: Row(
@@ -36,7 +37,7 @@ class SelectedBookCard extends StatelessWidget {
           width: 56,
           height: 80,
           iconSize: 24,
-          placeholderColor: Colors.white,
+          placeholderColor: context.colors.surface,
         ),
         const SizedBox(width: 14),
         Expanded(
@@ -53,7 +54,7 @@ class SelectedBookCard extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   author,
-                  style: const TextStyle(color: Color(0xFF617065)),
+                  style: TextStyle(color: context.colors.textMuted),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -66,9 +67,9 @@ class SelectedBookCard extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   'Published $publishedYear',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: Color(0xFF617065),
+                    color: context.colors.textMuted,
                   ),
                 ),
               ],

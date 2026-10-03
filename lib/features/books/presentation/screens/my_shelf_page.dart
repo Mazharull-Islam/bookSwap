@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../app/providers/current_user_provider.dart';
-import '../../../../app/theme.dart';
+import '../../../../app/app_colors.dart';
 import '../../../../core/services/book_sync_service.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../../../../shared/widgets/filter_widgets.dart';
@@ -242,7 +242,7 @@ class _EmptyShelf extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.menu_book_outlined, size: 64, color: forest),
+          Icon(Icons.menu_book_outlined, size: 64, color: context.colors.brand),
           const SizedBox(height: 16),
           Text(
             'Your shelf is empty',
@@ -272,12 +272,12 @@ class _NoSearchResults extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.search_off, size: 56, color: forest),
+          Icon(Icons.search_off, size: 56, color: context.colors.brand),
           const SizedBox(height: 16),
-          const Text(
+          Text(
             'No books on your shelf match your search or filters.',
             textAlign: TextAlign.center,
-            style: TextStyle(color: Color(0xFF617065)),
+            style: TextStyle(color: context.colors.textMuted),
           ),
         ],
       ),
