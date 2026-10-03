@@ -21,6 +21,8 @@ import '../widgets/reading_entry_dialog.dart';
 import '../widgets/reading_entry_tile.dart';
 import '../widgets/reading_filter_sheet.dart';
 import '../widgets/reading_stats_tab.dart';
+import '../../../../core/services/book_enrichment_service.dart';
+import '../../../../shared/genre_normalizer.dart';
 
 class ReadingPage extends ConsumerStatefulWidget {
   const ReadingPage({super.key});
@@ -108,7 +110,7 @@ class _ReadingPageState extends ConsumerState<ReadingPage> {
           userId: ref.read(currentUserProvider).id,
           title: suggestion.title,
           author: suggestion.author,
-          genre: suggestion.genres.join(', '),
+          genre: standardGenres(subjects: suggestion.genres).join(', '),
           publishedYear: suggestion.publishedYear,
           coverUrl: suggestion.coverUrl,
           workKey: suggestion.workKey,
@@ -123,16 +125,17 @@ class _ReadingPageState extends ConsumerState<ReadingPage> {
       }
       return;
     }
-    // Best-effort, same as AddBookPage: fetch the synopsis after the entry
-    // already exists rather than blocking the add on it.
-    final synopsis = await ref
-        .read(openLibraryServiceProvider)
-        .fetchSynopsis(suggestion);
-    if (synopsis != null && synopsis.isNotEmpty) {
-      await ref.read(updateReadingEntryProvider)(
-        added.copyWith(description: synopsis),
-      );
-    }
+    // Best-effort, same as AddBookPage: refine genres and fetch a synopsis
+    // after the entry already exists rather than blocking the add on it.
+    final details = await ref
+        .read(bookEnrichmentServiceProvider)
+        .enrich(suggestion);
+    await ref.read(updateReadingEntryProvider)(
+      added.copyWith(
+        genre: details.genres.join(', '),
+        description: details.synopsis ?? added.description,
+      ),
+    );
   }
 
   @override

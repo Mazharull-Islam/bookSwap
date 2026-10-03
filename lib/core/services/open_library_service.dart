@@ -54,7 +54,7 @@ class OpenLibraryService {
     final cover = data['cover'] as Map<String, dynamic>?;
     final subjects = (data['subjects'] as List<dynamic>?)
         ?.map((s) => (s as Map<String, dynamic>)['name'] as String)
-        .take(3)
+        .take(15)
         .toList();
 
     final year = RegExp(
@@ -116,7 +116,7 @@ class OpenLibraryService {
       final isbns = map['isbn'] as List<dynamic>?;
       final subjects = (map['subject'] as List<dynamic>?)
           ?.cast<String>()
-          .take(3)
+          .take(15)
           .toList();
       return BookMetadata(
         title: map['title'] as String? ?? '',

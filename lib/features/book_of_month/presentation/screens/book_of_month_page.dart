@@ -20,6 +20,7 @@ import '../widgets/nomination_tile.dart';
 import '../../../../shared/widgets/section_heading.dart';
 import '../../../../core/utils/friendly_error.dart';
 import '../../domain/repositories/book_of_month_repository.dart';
+import '../../../../shared/genre_normalizer.dart';
 
 class BookOfMonthPage extends ConsumerStatefulWidget {
   const BookOfMonthPage({super.key});
@@ -94,6 +95,12 @@ class _BookOfMonthPageState extends ConsumerState<BookOfMonthPage> {
     }
   }
 
+  /// Standard genres only; null when none could be read.
+  String? _nominationGenre(List<String> subjects) {
+    final genres = standardGenres(subjects: subjects);
+    return genres.first == unknownGenre ? null : genres.join(', ');
+  }
+
   Future<void> _nominate(BookMetadata suggestion) async {
     _query.clear();
     _focus.unfocus();
@@ -108,7 +115,7 @@ class _BookOfMonthPageState extends ConsumerState<BookOfMonthPage> {
         author: suggestion.author,
         coverUrl: suggestion.coverUrl,
         workKey: suggestion.workKey,
-        genre: suggestion.genres.isEmpty ? null : suggestion.genres.join(', '),
+        genre: _nominationGenre(suggestion.genres),
       );
     } on BookOfMonthValidationFailure catch (e) {
       if (mounted) {

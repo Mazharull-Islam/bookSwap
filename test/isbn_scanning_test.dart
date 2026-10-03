@@ -67,7 +67,7 @@ class _FakeOpenLibrary extends OpenLibraryService {
 
   @override
   Future<String?> fetchSynopsis(BookMetadata suggestion) async =>
-      'A desert planet.';
+      'A desert planet where spice is everything.';
 
   @override
   Future<List<BookMetadata>> searchByTitle(
@@ -194,7 +194,10 @@ void main() {
       await tapVisible(tester, find.byKey(const Key('scanIsbn')));
       expect(library.lastIsbn, _duneIsbn);
       expect(find.text('Frank Herbert'), findsOneWidget);
-      expect(find.text('A desert planet.'), findsOneWidget);
+      expect(
+        find.text('A desert planet where spice is everything.'),
+        findsOneWidget,
+      );
       expect(
         tester
             .widget<FilledButton>(

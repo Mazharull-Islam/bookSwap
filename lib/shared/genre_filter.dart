@@ -19,21 +19,32 @@ const filterGenres = [
   'Thriller',
 ];
 
-const _genreKeywords = <String, List<String>>{
+/// Lower-case stems that signal each standard genre. Matched at the start of
+/// a word, so 'biograph' covers biography/biographies but 'alien' wouldn't
+/// be used (it would also hit "alienation").
+const genreKeywords = <String, List<String>>{
   'Action': ['action'],
-  'Adventure': ['adventure'],
-  'Biography': ['biograph', 'memoir'],
+  'Adventure': ['adventure', 'quest', 'survival'],
+  'Biography': ['biograph', 'memoir', 'autobiograph'],
   'Comedy': ['comedy', 'humor', 'humour', 'satire'],
-  'Crime': ['crime', 'detective', 'murder'],
+  'Crime': ['crime', 'detective', 'murder', 'noir', 'police procedural'],
   'Drama': ['drama'],
-  'Fantasy': ['fantasy'],
+  'Fantasy': ['fantasy', 'wizard', 'dragon', 'elves', 'magic'],
   'Historical': ['historical', 'history'],
-  'Horror': ['horror', 'ghost'],
-  'Mystery': ['mystery', 'detective'],
-  'Poetry': ['poetry', 'poems'],
-  'Romance': ['romance', 'love stories'],
-  'Science fiction': ['science fiction', 'sci-fi', 'scifi'],
-  'Thriller': ['thriller', 'suspense'],
+  'Horror': ['horror', 'ghost', 'haunted', 'supernatural', 'vampire', 'zombie'],
+  'Mystery': ['mystery', 'mysteries', 'detective', 'whodunit'],
+  'Poetry': ['poetry', 'poems', 'poet'],
+  'Romance': ['romance', 'love stories', 'love story', 'romantic'],
+  'Science fiction': [
+    'science fiction',
+    'sci-fi',
+    'scifi',
+    'space opera',
+    'dystopi',
+    'cyberpunk',
+    'time travel',
+  ],
+  'Thriller': ['thriller', 'suspense', 'espionage', 'spy', 'conspiracy'],
 };
 
 /// True when nothing is selected, or [genreText] matches at least one of the
@@ -43,6 +54,6 @@ bool genreMatchesAny(String genreText, Set<String> selected) {
   final text = genreText.toLowerCase();
   return selected.any(
     (genre) =>
-        (_genreKeywords[genre] ?? [genre.toLowerCase()]).any(text.contains),
+        (genreKeywords[genre] ?? [genre.toLowerCase()]).any(text.contains),
   );
 }

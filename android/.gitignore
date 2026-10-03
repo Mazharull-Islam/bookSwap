@@ -12,3 +12,7 @@ GeneratedPluginRegistrant.java
 key.properties
 **/*.keystore
 **/*.jks
+
+# Firebase client config for Android and iOS (contains project API keys)
+app/google-services.json
+ios/Runner/GoogleService-Info.plist

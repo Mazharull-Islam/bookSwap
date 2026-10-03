@@ -15,6 +15,9 @@ import '../widgets/book_suggestion_tile.dart';
 import 'scan_isbn_page.dart';
 import '../widgets/selected_book_card.dart';
 import '../../../../app/app_colors.dart';
+import '../../../../core/services/book_enrichment_service.dart';
+import '../../../../shared/genre_normalizer.dart';
+import '../widgets/book_list_tile.dart' show bookGenreList;
 
 class AddBookPage extends ConsumerStatefulWidget {
   const AddBookPage({super.key, this.existing});
@@ -40,6 +43,7 @@ class _AddBookPageState extends ConsumerState<AddBookPage> {
   List<BookMetadata> _suggestions = [];
   bool _searching = false;
   bool _lookingUp = false;
+  bool _refreshing = false;
   bool _fetchingSynopsis = false;
 
   String _author = '';
@@ -100,10 +104,13 @@ class _AddBookPageState extends ConsumerState<AddBookPage> {
     _title.removeListener(_onTitleChanged);
     _title.text = suggestion.title;
     _title.addListener(_onTitleChanged);
+    // Standard genres from the subject tags right away (no network), then
+    // refined below once the second source has answered.
+    final quickGenres = standardGenres(subjects: suggestion.genres);
     setState(() {
       _author = suggestion.author;
-      _genres = suggestion.genres;
-      _genre = suggestion.genres.join(', ');
+      _genres = quickGenres;
+      _genre = quickGenres.join(', ');
       _publishedYear = suggestion.publishedYear;
       _coverPhotoUrl = suggestion.coverUrl;
       _isbn = suggestion.isbn;
@@ -112,14 +119,45 @@ class _AddBookPageState extends ConsumerState<AddBookPage> {
       _fetchingSynopsis = true;
     });
     _titleFocus.unfocus();
-    final synopsis = await ref
-        .read(openLibraryServiceProvider)
-        .fetchSynopsis(suggestion);
+    final details = await ref
+        .read(bookEnrichmentServiceProvider)
+        .enrich(suggestion);
     if (!mounted) return;
     setState(() {
-      _description.text = synopsis ?? '';
+      _genres = details.genres;
+      _genre = details.genres.join(', ');
+      _description.text = details.synopsis ?? '';
       _fetchingSynopsis = false;
     });
+  }
+
+  /// For a book already on the shelf: re-reads its genres and synopsis from
+  /// the catalogues, keeping what's there if nothing better turns up.
+  Future<void> _refreshDetails() async {
+    if (_refreshing) return;
+    setState(() => _refreshing = true);
+    try {
+      final details = await ref
+          .read(bookEnrichmentServiceProvider)
+          .enrich(
+            BookMetadata(
+              title: _title.text,
+              author: _author,
+              isbn: _isbn,
+              workKey: _workKey,
+              genres: bookGenreList(_genre),
+            ),
+          );
+      if (!mounted) return;
+      setState(() {
+        _genres = details.genres;
+        _genre = details.genres.join(', ');
+        if (details.synopsis != null) _description.text = details.synopsis!;
+      });
+      _say('Updated genres and synopsis.');
+    } finally {
+      if (mounted) setState(() => _refreshing = false);
+    }
   }
 
   void _say(String message) {
@@ -313,6 +351,26 @@ class _AddBookPageState extends ConsumerState<AddBookPage> {
                     ),
                   ],
                 ),
+                if (isEditing) ...[
+                  const SizedBox(height: 8),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: TextButton.icon(
+                      key: const Key('refreshDetails'),
+                      onPressed: _refreshing || _saving
+                          ? null
+                          : _refreshDetails,
+                      icon: _refreshing
+                          ? const SizedBox(
+                              height: 16,
+                              width: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.refresh),
+                      label: const Text('Refresh genres & synopsis'),
+                    ),
+                  ),
+                ],
                 if (_hasSelection) ...[
                   const SizedBox(height: 16),
                   SelectedBookCard(

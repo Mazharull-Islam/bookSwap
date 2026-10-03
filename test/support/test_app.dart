@@ -35,7 +35,9 @@ import 'package:bookswap_login/features/reviews/domain/models/book_review.dart';
 import 'package:bookswap_login/features/reviews/domain/repositories/review_repository.dart';
 import 'package:bookswap_login/features/reviews/presentation/providers/review_providers.dart';
 import 'package:bookswap_login/features/reputation/domain/repositories/seen_badges_repository.dart';
+import 'package:bookswap_login/core/services/google_books_service.dart';
 import 'demo_auth_repository.dart';
+import 'fake_google_books.dart';
 
 class _NoopBookSyncService implements BookSyncService {
   @override
@@ -374,6 +376,7 @@ Widget testApp([
     // provider the signed-in shell touches gets a safe stream.
     ...firestoreFixtureOverrides(),
     seenBadgesRepositoryProvider.overrideWithValue(InMemorySeenBadges()),
+    googleBooksServiceProvider.overrideWithValue(FakeGoogleBooks()),
     // Skip the periodic 2-minute sync timer entirely.
     bookSyncControllerProvider.overrideWith((ref) {}),
     ...extraOverrides,

@@ -28,6 +28,43 @@ class BookLookupFailure implements Exception {
   final String message;
 }
 
+/// The title without a subtitle ("Dune: Book One" -> "Dune"), lower-cased,
+/// minus punctuation and a leading article.
+String _mainTitle(String title) => title
+    .split(RegExp(r'[:–—(]| - '))
+    .first
+    .toLowerCase()
+    .replaceAll(RegExp(r'[^a-z0-9 ]'), ' ')
+    .replaceAll(RegExp(r'^\s*(the|a|an) '), '')
+    .replaceAll(RegExp(r'\s+'), ' ')
+    .trim();
+
+/// Same main title. A longer title without a colon or dash is a different
+/// book ("Dune Messiah" is not "Dune").
+bool _sameTitle(String a, String b) {
+  final x = _mainTitle(a);
+  final y = _mainTitle(b);
+  return x.isNotEmpty && x == y;
+}
+
+/// The candidate that is really [title] by [author], or null. Accepting a
+/// near-miss would attach another book's synopsis, which is worse than none.
+BookMetadata? pickBestVolume(
+  List<BookMetadata> candidates, {
+  required String title,
+  required String author,
+}) {
+  final lastName = author.trim().isEmpty
+      ? null
+      : author.split(',').first.trim().split(RegExp(r'\s+')).last.toLowerCase();
+  for (final c in candidates) {
+    if (!_sameTitle(c.title, title)) continue;
+    if (lastName == null || c.author.trim().isEmpty) return c;
+    if (c.author.toLowerCase().contains(lastName)) return c;
+  }
+  return null;
+}
+
 class GoogleBooksService {
   GoogleBooksService(this._dio);
   final Dio _dio;
@@ -79,6 +116,40 @@ class GoogleBooksService {
     final items = response.data?['items'] as List<dynamic>?;
     if (items == null || items.isEmpty) return null;
     return _fromVolume(items.first as Map<String, dynamic>);
+  }
+
+  /// The Google Books record for this exact book, or null. Tries the ISBN
+  /// first (unambiguous), then title + author.
+  Future<BookMetadata?> findBest({
+    required String title,
+    String author = '',
+    String? isbn,
+  }) async {
+    if (isbn != null && isbn.trim().isNotEmpty) {
+      final byIsbn = await lookupByIsbn(isbn);
+      if (byIsbn != null) return byIsbn;
+    }
+    final firstAuthor = author.split(',').first.trim();
+    final Response<Map<String, dynamic>> response;
+    try {
+      response = await _dio.get<Map<String, dynamic>>(
+        _endpoint,
+        queryParameters: _withKey({
+          'q':
+              'intitle:"${title.trim()}"'
+              '${firstAuthor.isEmpty ? '' : '+inauthor:"$firstAuthor"'}',
+          'maxResults': 5,
+        }),
+      );
+    } on DioException catch (e) {
+      throw BookLookupFailure('Could not look up "$title": ${e.message}');
+    }
+    final items = response.data?['items'] as List<dynamic>? ?? const [];
+    return pickBestVolume(
+      items.map((i) => _fromVolume(i as Map<String, dynamic>)).toList(),
+      title: title,
+      author: author,
+    );
   }
 
   Future<List<BookMetadata>> searchByTitle(
