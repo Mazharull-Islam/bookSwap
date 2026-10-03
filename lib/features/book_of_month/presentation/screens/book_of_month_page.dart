@@ -146,7 +146,9 @@ class _BookOfMonthPageState extends ConsumerState<BookOfMonthPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(friendlyError(e, fallback: 'Could not save your vote.')),
+            content: Text(
+              friendlyError(e, fallback: 'Could not save your vote.'),
+            ),
           ),
         );
       }

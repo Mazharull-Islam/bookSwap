@@ -30,6 +30,11 @@ import 'package:bookswap_login/features/leaderboard/domain/models/reading_activi
 import 'package:bookswap_login/features/leaderboard/presentation/providers/leaderboard_providers.dart';
 import 'package:bookswap_login/features/wanted_books/domain/models/wanted_book.dart';
 import 'package:bookswap_login/features/wanted_books/presentation/providers/wanted_book_providers.dart';
+import 'package:bookswap_login/features/reputation/presentation/providers/reputation_providers.dart';
+import 'package:bookswap_login/features/reviews/domain/models/book_review.dart';
+import 'package:bookswap_login/features/reviews/domain/repositories/review_repository.dart';
+import 'package:bookswap_login/features/reviews/presentation/providers/review_providers.dart';
+import 'package:bookswap_login/features/reputation/domain/repositories/seen_badges_repository.dart';
 import 'demo_auth_repository.dart';
 
 class _NoopBookSyncService implements BookSyncService {
@@ -129,6 +134,16 @@ final fixtureOutgoing = [
     lenderContact: '+8801711111111',
   ),
   const BorrowRequest(
+    id: 'out-3',
+    bookId: 'o-1',
+    bookTitle: 'Dune',
+    borrowerId: 'demo-reader',
+    lenderId: 'owner-2',
+    status: RequestStatus.accepted,
+    requestedAt: _fixtureNow,
+    returnedAt: _fixtureNow,
+  ),
+  const BorrowRequest(
     id: 'out-2',
     bookId: 'o-2',
     bookTitle: 'Dune',
@@ -137,6 +152,87 @@ final fixtureOutgoing = [
     requestedAt: _fixtureNow,
   ),
 ];
+
+/// Two existing reviews of Dune (average 4.0).
+const fixtureReviews = [
+  BookReview(
+    id: 'review-a',
+    requestId: 'review-a',
+    reviewerId: 'owner-2',
+    reviewerName: 'Rafi',
+    bookId: 'o-1',
+    bookTitle: 'Dune',
+    matchKey: 'dune|frank herbert',
+    rating: 5,
+    text: 'Brilliant world-building.',
+    createdAtMs: _fixtureNow,
+    updatedAtMs: _fixtureNow,
+  ),
+  BookReview(
+    id: 'review-b',
+    requestId: 'review-b',
+    reviewerId: 'owner-3',
+    reviewerName: 'Nadia',
+    bookId: 'o-1',
+    bookTitle: 'Dune',
+    matchKey: 'dune|frank herbert',
+    rating: 3,
+    text: 'Slow start.',
+    createdAtMs: _fixtureNow - 1000,
+    updatedAtMs: _fixtureNow - 1000,
+  ),
+];
+
+/// Hive writes started inside a widget test never complete (the fake clock
+/// stops driving Hive's file I/O) and leave the box locked, so tests keep the
+/// seen-badges log in memory.
+class InMemorySeenBadges implements SeenBadgesRepository {
+  InMemorySeenBadges([Map<String, Set<String>>? initial])
+    : data = {...?initial};
+  final Map<String, Set<String>> data;
+
+  @override
+  bool hasBaseline(String userId) => data.containsKey(userId);
+
+  @override
+  Set<String> getSeen(String userId) => {...?data[userId]};
+
+  @override
+  Future<void> setSeen(String userId, Set<String> badgeNames) async {
+    data[userId] = {...badgeNames};
+  }
+}
+
+class InMemoryReviewRepository implements ReviewRepository {
+  InMemoryReviewRepository([List<BookReview> seed = const []])
+    : _reviews = [...seed];
+  final List<BookReview> _reviews;
+  final _changes = StreamController<List<BookReview>>.broadcast();
+  final saved = <BookReview>[];
+  final deleted = <String>[];
+
+  @override
+  Stream<List<BookReview>> watchAll() async* {
+    yield [..._reviews];
+    yield* _changes.stream;
+  }
+
+  @override
+  Future<void> save(BookReview review) async {
+    _reviews
+      ..removeWhere((r) => r.id == review.id)
+      ..add(review);
+    saved.add(review);
+    _changes.add([..._reviews]);
+  }
+
+  @override
+  Future<void> delete(String reviewId) async {
+    _reviews.removeWhere((r) => r.id == reviewId);
+    deleted.add(reviewId);
+    _changes.add([..._reviews]);
+  }
+}
 
 const fixturePost = ForumPost(
   id: 'post-1',
@@ -164,6 +260,9 @@ const fixtureReply = ForumReply(
 /// screens can be exercised.
 List<Override> firestoreFixtureOverrides() => [
   displayNameProvider.overrideWith((ref, id) async => 'Rafi'),
+  reviewRepositoryProvider.overrideWithValue(
+    InMemoryReviewRepository(fixtureReviews),
+  ),
   allPublicProfilesProvider.overrideWith(
     (ref) => Stream.value(const <String, PublicProfile>{}),
   ),
@@ -256,6 +355,7 @@ Widget testApp([
     // No Firebase app exists under flutter_test, so every Firestore-backed
     // provider the signed-in shell touches gets a safe stream.
     ...firestoreFixtureOverrides(),
+    seenBadgesRepositoryProvider.overrideWithValue(InMemorySeenBadges()),
     // Skip the periodic 2-minute sync timer entirely.
     bookSyncControllerProvider.overrideWith((ref) {}),
     ...extraOverrides,
@@ -299,19 +399,9 @@ Future<Directory> initTestHive() async {
   return dir;
 }
 
-/// Known issue (investigation parked): once a test has reached /shelf,
-/// Hive.close() never returns under flutter_test, which used to stall the
-/// suite for 12 minutes. The app never calls Hive.close(), so this is a
-/// test-harness-only problem; cleanup is best-effort so the run finishes.
 Future<void> closeTestHive(Directory dir) async {
-  try {
-    await Hive.close().timeout(const Duration(seconds: 5));
-    if (dir.existsSync()) dir.deleteSync(recursive: true);
-  } on TimeoutException {
-    // Leave the temp dir; the OS clears it.
-  } on FileSystemException {
-    // Box files still locked after the close timed out.
-  }
+  await Hive.close();
+  if (dir.existsSync()) dir.deleteSync(recursive: true);
 }
 
 /// flutter_test draws every font as the same wide placeholder unless the real
