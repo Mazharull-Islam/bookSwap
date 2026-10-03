@@ -87,14 +87,22 @@ class FirebaseAuthRepository implements AuthRepository {
   }
 
   Future<AuthUser> _readUser(firebase.User user, {String? notice}) async {
-    // Do not authorize membership from an offline/cached profile.
+    // Sign-in and registration never authorize membership from an
+    // offline/cached profile.
     final document = await _network(
       _store
           .collection('profiles')
           .doc(user.uid)
           .get(const GetOptions(source: Source.server)),
     );
-    final data = document.data();
+    return _authUserFrom(user, document.data(), notice: notice);
+  }
+
+  AuthUser _authUserFrom(
+    firebase.User user,
+    Map<String, dynamic>? data, {
+    String? notice,
+  }) {
     ReaderProfile? profile;
     if (data != null) {
       profile = ReaderProfile.fromMap({
@@ -116,12 +124,57 @@ class FirebaseAuthRepository implements AuthRepository {
     );
   }
 
+  /// Failures that mean "can't reach the server right now" rather than "this
+  /// session is no longer valid".
+  bool _isOffline(Object error) =>
+      error is TimeoutException ||
+      (error is FirebaseException &&
+          const {
+            'network-request-failed',
+            'unavailable',
+            'deadline-exceeded',
+          }.contains(error.code));
+
+  /// The member's profile from the on-device cache, or null when there isn't
+  /// one (web keeps no offline cache, and a first launch has nothing yet).
+  Future<AuthUser?> _cachedUser(firebase.User user) async {
+    try {
+      final document = await _store
+          .collection('profiles')
+          .doc(user.uid)
+          .get(const GetOptions(source: Source.cache));
+      if (!document.exists) return null;
+      return _authUserFrom(user, document.data());
+    } catch (_) {
+      return null;
+    }
+  }
+
   @override
-  Future<AuthUser?> restoreSession() => _request(() async {
-    final user = await _network(_auth.authStateChanges().first);
-    if (user == null) return null;
-    return refreshSession();
-  });
+  Future<AuthUser?> restoreSession() async {
+    try {
+      return await _request(() async {
+        final user = await _network(_auth.authStateChanges().first);
+        if (user == null) return null;
+        try {
+          return await _refresh();
+        } catch (error) {
+          // Firebase still holds the session. A flaky or missing connection
+          // at launch must not look like a sign-out, so fall back to the
+          // cached profile; the live listeners catch up once back online.
+          // Anything else (disabled account, revoked token) still fails.
+          if (_isOffline(error)) {
+            final cached = await _cachedUser(user);
+            if (cached != null) return cached;
+          }
+          rethrow;
+        }
+      });
+    } on AuthFailure catch (e) {
+      if (kDebugMode) debugPrint('[auth] session restore failed: ${e.message}');
+      throw SessionRestoreFailure(e.message);
+    }
+  }
 
   @override
   Future<AuthUser> signIn(String email, String password) => _request(() async {
@@ -259,7 +312,9 @@ class FirebaseAuthRepository implements AuthRepository {
   });
 
   @override
-  Future<AuthUser> refreshSession() => _request(() async {
+  Future<AuthUser> refreshSession() => _request(_refresh);
+
+  Future<AuthUser> _refresh() async {
     final user = _auth.currentUser;
     if (user == null) throw const AuthFailure('Please sign in again.');
     await _network(user.reload());
@@ -267,7 +322,7 @@ class FirebaseAuthRepository implements AuthRepository {
     if (fresh == null) throw const AuthFailure('Please sign in again.');
     await _network(fresh.getIdToken(true));
     return _readUser(fresh);
-  });
+  }
 
   @override
   Future<void> resendVerification() => _request(() async {

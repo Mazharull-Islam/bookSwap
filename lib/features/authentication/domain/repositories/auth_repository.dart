@@ -6,6 +6,13 @@ class AuthFailure implements Exception {
   final String message;
 }
 
+/// Raised when a saved session couldn't be restored at launch. Distinct from
+/// a failed sign-in so the landing page can say what happened and offer a
+/// retry, rather than silently looking like a sign-out.
+class SessionRestoreFailure extends AuthFailure {
+  const SessionRestoreFailure(super.message);
+}
+
 abstract interface class AuthRepository {
   Future<AuthUser?> restoreSession();
   Future<AuthUser> signIn(String email, String password);

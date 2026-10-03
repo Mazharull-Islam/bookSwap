@@ -36,8 +36,16 @@ class DemoAuthRepository implements AuthRepository {
   bool failResend = false;
   int verificationEmails = 0;
 
+  /// When set, restoreSession throws it (a saved session that couldn't be
+  /// restored at launch).
+  Object? restoreError;
+
   @override
-  Future<AuthUser?> restoreSession() async => currentUser;
+  Future<AuthUser?> restoreSession() async {
+    if (restoreError != null) throw restoreError!;
+    return currentUser;
+  }
+
   @override
   Future<AuthUser?> signInWithGoogle() async {
     if (nextGoogleUser == null) return null;
