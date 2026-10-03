@@ -51,14 +51,18 @@ class BookListTile extends StatelessWidget {
           Chip(
             label: Text(
               bookStatusLabel(book.status),
-              style: const TextStyle(fontSize: 12, color: Colors.white),
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
             ),
             backgroundColor: bookStatusColor(book.status),
             padding: EdgeInsets.zero,
             visualDensity: VisualDensity.compact,
           ),
           IconButton(
-            tooltip: 'Remove',
+            tooltip: 'Remove ${book.title}',
             icon: const Icon(Icons.delete_outline),
             onPressed: onDelete,
           ),

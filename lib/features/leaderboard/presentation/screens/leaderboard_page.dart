@@ -4,6 +4,7 @@ import '../../../../app/app_colors.dart';
 import '../../../book_of_month/domain/period.dart';
 import '../providers/leaderboard_providers.dart';
 import '../widgets/ranking_tile.dart';
+import '../../../../shared/widgets/section_heading.dart';
 
 class LeaderboardPage extends ConsumerWidget {
   const LeaderboardPage({super.key});
@@ -27,14 +28,7 @@ class LeaderboardPage extends ConsumerWidget {
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-              child: Text(
-                periodLabel(periodId),
-                style: TextStyle(
-                  fontWeight: FontWeight.w700,
-                  color: context.colors.brand,
-                  fontSize: 16,
-                ),
-              ),
+              child: SectionHeading(periodLabel(periodId), fontSize: 16),
             ),
             Expanded(
               child: TabBarView(

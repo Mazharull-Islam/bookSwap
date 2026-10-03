@@ -10,6 +10,7 @@ import '../../domain/repositories/auth_repository.dart';
 import '../providers/auth_providers.dart';
 import '../widgets/auth_page.dart';
 import '../widgets/password_input.dart';
+import '../../../../shared/widgets/section_heading.dart';
 
 class RegisterPage extends ConsumerStatefulWidget {
   const RegisterPage({super.key});
@@ -144,14 +145,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-            color: context.colors.brand,
-          ),
-        ),
+        SectionHeading(title, fontSize: 20),
         const SizedBox(height: 4),
         Text(subtitle),
       ],

@@ -35,7 +35,13 @@ class MorePage extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Appearance', style: Theme.of(context).textTheme.bodySmall),
+              Semantics(
+                header: true,
+                child: Text(
+                  'Appearance',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ),
               const SizedBox(height: 8),
               SizedBox(
                 width: double.infinity,

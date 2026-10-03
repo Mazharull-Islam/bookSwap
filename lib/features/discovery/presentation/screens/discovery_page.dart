@@ -67,6 +67,7 @@ class _DiscoveryPageState extends ConsumerState<DiscoveryPage> {
                     suffixIcon: _query.text.isEmpty
                         ? null
                         : IconButton(
+                            tooltip: 'Clear search',
                             icon: const Icon(Icons.clear),
                             onPressed: () {
                               _query.clear();

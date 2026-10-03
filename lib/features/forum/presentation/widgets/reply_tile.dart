@@ -38,9 +38,8 @@ class ReplyTile extends StatelessWidget {
               ),
             ),
             IconButton(
-              tooltip: 'Report',
+              tooltip: 'Report this reply',
               icon: const Icon(Icons.flag_outlined, size: 18),
-              visualDensity: VisualDensity.compact,
               onPressed: onReport,
             ),
           ],

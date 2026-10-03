@@ -33,7 +33,11 @@ class ReadingEntryTile extends StatelessWidget {
       trailing: Chip(
         label: Text(
           readingStatusLabel(entry.status),
-          style: const TextStyle(fontSize: 12, color: Colors.white),
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
         ),
         backgroundColor: readingStatusColor(entry.status),
         padding: EdgeInsets.zero,

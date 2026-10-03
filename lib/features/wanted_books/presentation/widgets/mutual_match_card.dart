@@ -4,6 +4,7 @@ import '../../../../shared/widgets/owner_label.dart';
 import '../../../../shared/widgets/primary_button.dart';
 import '../../../books/presentation/widgets/book_cover_image.dart';
 import '../../domain/mutual_match.dart';
+import '../../../../shared/widgets/section_heading.dart';
 
 /// A detected mutual swap opportunity (SRS §3.5): shows both books side by
 /// side and lets the user act on it immediately by sending a normal borrow
@@ -39,13 +40,7 @@ class MutualMatchCard extends StatelessWidget {
           children: [
             Icon(Icons.swap_horiz, color: context.colors.brand, size: 20),
             const SizedBox(width: 6),
-            Text(
-              'Mutual swap match',
-              style: TextStyle(
-                fontWeight: FontWeight.w700,
-                color: context.colors.brand,
-              ),
-            ),
+            SectionHeading('Mutual swap match'),
           ],
         ),
         const SizedBox(height: 10),

@@ -226,6 +226,7 @@ class _ReadingPageState extends ConsumerState<ReadingPage> {
                         suffixIcon: filter.query.isEmpty
                             ? null
                             : IconButton(
+                                tooltip: 'Clear filter',
                                 icon: const Icon(Icons.clear),
                                 onPressed: () {
                                   _filterQuery.clear();

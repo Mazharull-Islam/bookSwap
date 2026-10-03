@@ -8,6 +8,7 @@ import '../../../../core/services/reverse_geocoding_service.dart';
 import '../../../authentication/presentation/providers/auth_providers.dart';
 import '../providers/location_providers.dart';
 import '../screens/location_picker_page.dart';
+import '../../../../shared/widgets/section_heading.dart';
 
 const _distanceOptions = [1.0, 5.0, 10.0, 25.0, 50.0, 100.0];
 
@@ -101,13 +102,7 @@ class _LocationSettingsCardState extends ConsumerState<LocationSettingsCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Location & distance',
-            style: TextStyle(
-              fontWeight: FontWeight.w700,
-              color: context.colors.brand,
-            ),
-          ),
+          SectionHeading('Location & distance'),
           const SizedBox(height: 10),
           Row(
             children: [
@@ -151,6 +146,7 @@ class _LocationSettingsCardState extends ConsumerState<LocationSettingsCard> {
           ),
           const SizedBox(height: 6),
           DropdownButtonFormField<double?>(
+            isExpanded: true,
             initialValue: maxDistance,
             decoration: const InputDecoration(isDense: true),
             items: [

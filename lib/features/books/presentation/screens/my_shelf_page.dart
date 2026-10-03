@@ -115,6 +115,7 @@ class _MyShelfPageState extends ConsumerState<MyShelfPage> {
                     suffixIcon: _query.text.isEmpty
                         ? null
                         : IconButton(
+                            tooltip: 'Clear search',
                             icon: const Icon(Icons.clear),
                             onPressed: () {
                               _query.clear();

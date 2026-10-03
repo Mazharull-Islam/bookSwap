@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/app_colors.dart';
 import '../../domain/models/achievement_badge.dart';
 import '../providers/reputation_providers.dart';
+import '../../../../shared/widgets/section_heading.dart';
 
 class ReputationCard extends ConsumerWidget {
   const ReputationCard({super.key});
@@ -23,13 +24,7 @@ class ReputationCard extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Reputation',
-            style: TextStyle(
-              fontWeight: FontWeight.w700,
-              color: context.colors.brand,
-            ),
-          ),
+          SectionHeading('Reputation'),
           const SizedBox(height: 8),
           if (percent == null)
             Text(

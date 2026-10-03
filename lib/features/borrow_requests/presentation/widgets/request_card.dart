@@ -86,7 +86,11 @@ class RequestCard extends StatelessWidget {
               Chip(
                 label: Text(
                   requestStatusLabel(request),
-                  style: const TextStyle(fontSize: 12, color: Colors.white),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
                 ),
                 backgroundColor: requestStatusColor(request),
                 padding: EdgeInsets.zero,
@@ -94,9 +98,8 @@ class RequestCard extends StatelessWidget {
               ),
               if (onBlock != null)
                 IconButton(
-                  tooltip: 'Block',
+                  tooltip: 'Block this member',
                   icon: const Icon(Icons.block_outlined, size: 20),
-                  visualDensity: VisualDensity.compact,
                   onPressed: onBlock,
                 ),
             ],

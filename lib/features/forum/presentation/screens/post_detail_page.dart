@@ -165,6 +165,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                         ),
                         const SizedBox(width: 8),
                         IconButton.filled(
+                          tooltip: 'Send reply',
                           onPressed: _sending ? null : _sendReply,
                           icon: const Icon(Icons.send),
                         ),

@@ -18,6 +18,7 @@ import '../../domain/repositories/wanted_book_repository.dart';
 import '../providers/wanted_book_providers.dart';
 import '../widgets/mutual_match_card.dart';
 import '../widgets/wanted_book_tile.dart';
+import '../../../../shared/widgets/section_heading.dart';
 
 class WantedBooksPage extends ConsumerStatefulWidget {
   const WantedBooksPage({super.key});
@@ -204,13 +205,7 @@ class _WantedBooksPageState extends ConsumerState<WantedBooksPage> {
             ),
             if (matches.isNotEmpty) ...[
               const SizedBox(height: 20),
-              Text(
-                'Matches',
-                style: TextStyle(
-                  fontWeight: FontWeight.w700,
-                  color: context.colors.brand,
-                ),
-              ),
+              SectionHeading('Matches'),
               const SizedBox(height: 8),
               ...matches.map(
                 (match) => MutualMatchCard(
@@ -222,13 +217,7 @@ class _WantedBooksPageState extends ConsumerState<WantedBooksPage> {
               ),
             ],
             const SizedBox(height: 20),
-            Text(
-              'What you want',
-              style: TextStyle(
-                fontWeight: FontWeight.w700,
-                color: context.colors.brand,
-              ),
-            ),
+            SectionHeading('What you want'),
             const SizedBox(height: 8),
             wanted.when(
               loading: () => const Padding(

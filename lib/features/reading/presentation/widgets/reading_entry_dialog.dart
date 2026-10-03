@@ -179,20 +179,22 @@ class _ReadingEntryDialogState extends ConsumerState<_ReadingEntryDialog> {
                 ),
               ],
               const SizedBox(height: 20),
-              Row(
+              OverflowBar(
+                alignment: MainAxisAlignment.spaceBetween,
+                overflowAlignment: OverflowBarAlignment.end,
+                spacing: 8,
+                overflowSpacing: 8,
                 children: [
                   TextButton(
                     onPressed: _saving ? null : _remove,
                     child: const Text('Remove'),
                   ),
-                  const Spacer(),
                   TextButton(
                     onPressed: _saving
                         ? null
                         : () => Navigator.of(context).pop(),
                     child: const Text('Cancel'),
                   ),
-                  const SizedBox(width: 8),
                   PrimaryButton(
                     label: 'Save',
                     onPressed: _save,

@@ -6,6 +6,7 @@ import '../../domain/models/book.dart';
 import 'book_cover_image.dart';
 import 'book_list_tile.dart';
 import 'genre_pill_list.dart';
+import '../../../../shared/widgets/section_heading.dart';
 
 Future<void> showBookDetailDialog(
   BuildContext context, {
@@ -29,6 +30,7 @@ Future<void> showBookDetailDialog(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   IconButton(
+                    tooltip: 'Close',
                     icon: const Icon(Icons.close),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
@@ -73,13 +75,7 @@ Future<void> showBookDetailDialog(
                         const SizedBox(height: 18),
                         Align(
                           alignment: Alignment.centerLeft,
-                          child: Text(
-                            'Synopsis',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w700,
-                              color: context.colors.brand,
-                            ),
-                          ),
+                          child: SectionHeading('Synopsis'),
                         ),
                         const SizedBox(height: 6),
                         Text(

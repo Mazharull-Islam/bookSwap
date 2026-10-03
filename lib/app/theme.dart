@@ -41,6 +41,7 @@ ThemeData buildTheme(Brightness brightness) {
     fontFamily: _bodyFont,
     colorScheme: scheme,
     scaffoldBackgroundColor: c.background,
+    materialTapTargetSize: MaterialTapTargetSize.padded,
     extensions: [c],
   );
 
@@ -177,6 +178,12 @@ ThemeData buildTheme(Brightness brightness) {
           fontSize: 16,
           fontWeight: FontWeight.w600,
         ),
+      ),
+    ),
+    iconButtonTheme: IconButtonThemeData(
+      style: IconButton.styleFrom(
+        minimumSize: const Size(48, 48),
+        tapTargetSize: MaterialTapTargetSize.padded,
       ),
     ),
     textButtonTheme: TextButtonThemeData(

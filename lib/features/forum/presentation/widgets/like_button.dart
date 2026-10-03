@@ -14,13 +14,23 @@ class LikeButton extends StatelessWidget {
   final VoidCallback onToggle;
 
   @override
-  Widget build(BuildContext context) => TextButton.icon(
-    onPressed: onToggle,
-    style: TextButton.styleFrom(
-      foregroundColor: liked ? context.colors.brand : context.colors.textMuted,
-      visualDensity: VisualDensity.compact,
+  Widget build(BuildContext context) => Semantics(
+    button: true,
+    toggled: liked,
+    label: '$count ${count == 1 ? 'like' : 'likes'}',
+    hint: liked ? 'Double tap to remove your like' : 'Double tap to like',
+    onTap: onToggle,
+    excludeSemantics: true,
+    child: TextButton.icon(
+      onPressed: onToggle,
+      style: TextButton.styleFrom(
+        foregroundColor: liked
+            ? context.colors.brand
+            : context.colors.textMuted,
+        minimumSize: const Size(48, 48),
+      ),
+      icon: Icon(liked ? Icons.favorite : Icons.favorite_border, size: 18),
+      label: Text('$count'),
     ),
-    icon: Icon(liked ? Icons.favorite : Icons.favorite_border, size: 18),
-    label: Text('$count'),
   );
 }

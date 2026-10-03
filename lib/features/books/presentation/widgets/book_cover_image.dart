@@ -30,6 +30,7 @@ class BookCoverImage extends StatelessWidget {
             width: width,
             height: height,
             fit: BoxFit.cover,
+            excludeFromSemantics: true,
             errorBuilder: (context, error, stackTrace) => _placeholder(context),
           )
         : _placeholder(context),

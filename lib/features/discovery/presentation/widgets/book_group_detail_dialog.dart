@@ -14,6 +14,7 @@ import '../../../borrow_requests/presentation/providers/request_providers.dart';
 import '../../../location/domain/owner_distance.dart';
 import '../../../location/presentation/providers/location_providers.dart';
 import '../../domain/book_group.dart';
+import '../../../../shared/widgets/section_heading.dart';
 
 Future<void> showBookGroupDetailDialog(BuildContext context, BookGroup group) {
   return showDialog(
@@ -78,6 +79,7 @@ class _BookGroupDetailDialogState
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   IconButton(
+                    tooltip: 'Close',
                     icon: const Icon(Icons.close),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
@@ -121,14 +123,10 @@ class _BookGroupDetailDialogState
                       const SizedBox(height: 20),
                       Align(
                         alignment: Alignment.centerLeft,
-                        child: Text(
+                        child: SectionHeading(
                           group.ownerCount == 1
                               ? 'Available from 1 member'
                               : 'Available from ${group.ownerCount} members',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            color: context.colors.brand,
-                          ),
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -178,7 +176,11 @@ class _BookGroupDetailDialogState
               Chip(
                 label: Text(
                   bookStatusLabel(listing.status),
-                  style: const TextStyle(fontSize: 12, color: Colors.white),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
                 ),
                 backgroundColor: bookStatusColor(listing.status),
                 padding: EdgeInsets.zero,

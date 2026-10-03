@@ -17,6 +17,7 @@ import '../../domain/models/book_of_month_nomination.dart';
 import '../../domain/period.dart';
 import '../providers/book_of_month_providers.dart';
 import '../widgets/nomination_tile.dart';
+import '../../../../shared/widgets/section_heading.dart';
 
 class BookOfMonthPage extends ConsumerStatefulWidget {
   const BookOfMonthPage({super.key});
@@ -182,14 +183,7 @@ class _BookOfMonthPageState extends ConsumerState<BookOfMonthPage> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Text(
-            periodLabel(periodId),
-            style: TextStyle(
-              fontWeight: FontWeight.w700,
-              color: context.colors.brand,
-              fontSize: 16,
-            ),
-          ),
+          SectionHeading(periodLabel(periodId), fontSize: 16),
           const SizedBox(height: 12),
           TapRegion(
             onTapOutside: (_) => setState(() => _suggestions = []),
@@ -295,13 +289,7 @@ class _ArchiveSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Past picks',
-          style: TextStyle(
-            fontWeight: FontWeight.w700,
-            color: context.colors.brand,
-          ),
-        ),
+        SectionHeading('Past picks'),
         const SizedBox(height: 8),
         ...past.map((period) => _PastPickTile(periodId: period.id)),
       ],

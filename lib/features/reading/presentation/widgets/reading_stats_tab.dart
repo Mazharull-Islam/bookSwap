@@ -11,6 +11,7 @@ import '../../domain/reading_stats.dart';
 import '../providers/reading_goal_providers.dart';
 import '../providers/reading_providers.dart';
 import 'reading_goal_dialog.dart';
+import '../../../../shared/widgets/section_heading.dart';
 
 class ReadingStatsTab extends ConsumerWidget {
   const ReadingStatsTab({super.key});
@@ -42,13 +43,7 @@ class ReadingStatsTab extends ConsumerWidget {
       children: [
         _GoalCard(goal: goal, entries: entries),
         const SizedBox(height: 20),
-        Text(
-          'Your stats',
-          style: TextStyle(
-            fontWeight: FontWeight.w700,
-            color: context.colors.brand,
-          ),
-        ),
+        SectionHeading('Your stats'),
         const SizedBox(height: 8),
         Row(
           children: [
@@ -259,14 +254,7 @@ class _StatTile extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w700,
-            color: context.colors.brand,
-          ),
-        ),
+        SectionHeading(value, fontSize: 22),
         const SizedBox(height: 4),
         Text(
           label,

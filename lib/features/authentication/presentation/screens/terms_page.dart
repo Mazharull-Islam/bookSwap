@@ -3,6 +3,7 @@ import '../../../../app/app_colors.dart';
 import '../../../../shared/widgets/primary_button.dart';
 import '../../domain/models/registration.dart';
 import '../widgets/auth_page.dart';
+import '../../../../shared/widgets/section_heading.dart';
 
 const communityTerms = <(String, String)>[
   (
@@ -93,14 +94,7 @@ class TermsPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  section.$1,
-                  style: TextStyle(
-                    fontSize: 19,
-                    fontWeight: FontWeight.w700,
-                    color: context.colors.brand,
-                  ),
-                ),
+                SectionHeading(section.$1, fontSize: 19),
                 const SizedBox(height: 8),
                 Text(
                   section.$2,
