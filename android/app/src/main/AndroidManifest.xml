@@ -1,5 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Barcode scanning on Add a book; the app still works on devices
+         without a camera (manual ISBN entry). -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
     <!-- Coarse is enough — location is rounded to ~1km before use anyway
          (see roundCoordinate() in distance_calculator.dart). -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />

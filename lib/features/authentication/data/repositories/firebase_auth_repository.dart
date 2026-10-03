@@ -32,6 +32,11 @@ class FirebaseAuthRepository implements AuthRepository {
     try {
       return await operation();
     } on firebase.FirebaseAuthException catch (error) {
+      // Members only see a friendly sentence; developers need the real code
+      // to tell a misconfigured Firebase app from a user mistake.
+      if (kDebugMode) {
+        debugPrint('[auth] ${error.code}: ${error.message}');
+      }
       throw AuthFailure(switch (error.code) {
         'invalid-credential' ||
         'wrong-password' ||
@@ -53,7 +58,13 @@ class FirebaseAuthRepository implements AuthRepository {
         'operation-not-allowed' || 'unauthorized-domain' =>
           'This sign-in method is not configured yet. Please contact BookSwap.',
         'requires-recent-login' => 'Sign in again before continuing.',
-        _ => 'Unable to authenticate. Please try again.',
+        // Debug builds name the Firebase code on screen so a misconfigured
+        // app (SHA-1, API key, client ID) is diagnosable without logcat.
+        _ =>
+          kDebugMode
+              ? 'Unable to authenticate (${error.code}: ${error.message}). '
+                    'Please try again.'
+              : 'Unable to authenticate. Please try again.',
       });
     } on TimeoutException {
       throw const AuthFailure(
@@ -156,8 +167,22 @@ class FirebaseAuthRepository implements AuthRepository {
             );
           },
         );
+        final idToken = account.authentication.idToken;
+        if (idToken == null || idToken.isEmpty) {
+          // google_sign_in only returns an ID token when the web OAuth client
+          // ID is passed as serverClientId; without it Firebase would be
+          // handed an empty credential and fail with an opaque channel-error.
+          throw AuthFailure(
+            kDebugMode
+                ? 'Google returned no ID token. Set GOOGLE_WEB_CLIENT_ID in '
+                      'your --dart-define-from-file config to the web OAuth '
+                      'client ID.'
+                : 'Google sign-in is not available right now. Please use '
+                      'email and password.',
+          );
+        }
         final credential = firebase.GoogleAuthProvider.credential(
-          idToken: account.authentication.idToken,
+          idToken: idToken,
         );
         result = await _network(_auth.signInWithCredential(credential));
       }

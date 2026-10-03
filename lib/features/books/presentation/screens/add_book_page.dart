@@ -1,15 +1,18 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/providers/current_user_provider.dart';
 import '../../../../core/services/open_library_service.dart';
+import '../../../../core/utils/isbn.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../../../../shared/widgets/primary_button.dart';
 import '../../domain/models/book.dart';
 import '../../domain/repositories/book_repository.dart';
 import '../providers/book_providers.dart';
 import '../widgets/book_suggestion_tile.dart';
+import 'scan_isbn_page.dart';
 import '../widgets/selected_book_card.dart';
 import '../../../../app/app_colors.dart';
 
@@ -36,6 +39,7 @@ class _AddBookPageState extends ConsumerState<AddBookPage> {
   Timer? _debounce;
   List<BookMetadata> _suggestions = [];
   bool _searching = false;
+  bool _lookingUp = false;
   bool _fetchingSynopsis = false;
 
   String _author = '';
@@ -118,6 +122,50 @@ class _AddBookPageState extends ConsumerState<AddBookPage> {
     });
   }
 
+  void _say(String message) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Future<void> _scanBarcode() async {
+    final isbn = await ref.read(isbnScannerProvider)(context);
+    if (isbn != null && mounted) await _lookupIsbn(isbn);
+  }
+
+  Future<void> _typeIsbn() async {
+    final isbn = await showDialog<String>(
+      context: context,
+      builder: (_) => const _IsbnDialog(),
+    );
+    if (isbn != null && mounted) await _lookupIsbn(isbn);
+  }
+
+  Future<void> _lookupIsbn(String isbn) async {
+    setState(() => _lookingUp = true);
+    try {
+      final found = await ref
+          .read(openLibraryServiceProvider)
+          .lookupByIsbn(isbn);
+      if (!mounted) return;
+      if (found == null) {
+        _say("We couldn't find that ISBN. Try searching by title instead.");
+        _titleFocus.requestFocus();
+        return;
+      }
+      await _selectSuggestion(found);
+    } on BookLookupFailure {
+      if (mounted) {
+        _say(
+          "Couldn't reach the book database. Check your connection and try "
+          'again.',
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _lookingUp = false);
+    }
+  }
+
   @override
   void dispose() {
     _debounce?.cancel();
@@ -196,7 +244,7 @@ class _AddBookPageState extends ConsumerState<AddBookPage> {
                         focusNode: _titleFocus,
                         enabled: !_saving,
                         label: 'Title',
-                        suffixIcon: _searching
+                        suffixIcon: (_searching || _lookingUp)
                             ? const Padding(
                                 padding: EdgeInsets.all(12),
                                 child: SizedBox(
@@ -244,6 +292,26 @@ class _AddBookPageState extends ConsumerState<AddBookPage> {
                         ),
                     ],
                   ),
+                ),
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    if (!kIsWeb)
+                      OutlinedButton.icon(
+                        key: const Key('scanIsbn'),
+                        onPressed: _saving || _lookingUp ? null : _scanBarcode,
+                        icon: const Icon(Icons.qr_code_scanner),
+                        label: const Text('Scan barcode'),
+                      ),
+                    OutlinedButton.icon(
+                      key: const Key('typeIsbn'),
+                      onPressed: _saving || _lookingUp ? null : _typeIsbn,
+                      icon: const Icon(Icons.dialpad),
+                      label: const Text('Type an ISBN'),
+                    ),
+                  ],
                 ),
                 if (_hasSelection) ...[
                   const SizedBox(height: 16),
@@ -358,4 +426,59 @@ class _AddBookPageState extends ConsumerState<AddBookPage> {
       ),
     );
   }
+}
+
+class _IsbnDialog extends StatefulWidget {
+  const _IsbnDialog();
+
+  @override
+  State<_IsbnDialog> createState() => _IsbnDialogState();
+}
+
+class _IsbnDialogState extends State<_IsbnDialog> {
+  final _form = GlobalKey<FormState>();
+  final _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    if (_form.currentState!.validate()) {
+      Navigator.of(context).pop(toIsbn13(_controller.text));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+    title: const Text('Type an ISBN'),
+    content: Form(
+      key: _form,
+      child: TextFormField(
+        key: const Key('isbnField'),
+        controller: _controller,
+        autofocus: true,
+        keyboardType: TextInputType.number,
+        textInputAction: TextInputAction.done,
+        decoration: const InputDecoration(
+          labelText: 'ISBN',
+          hintText: '978-0-441-17271-9',
+          helperText: 'The 10 or 13 digit number above the barcode.',
+        ),
+        validator: (v) => toIsbn13(v) == null
+            ? 'Enter a valid ISBN (10 or 13 digits).'
+            : null,
+        onFieldSubmitted: (_) => _submit(),
+      ),
+    ),
+    actions: [
+      TextButton(
+        onPressed: () => Navigator.of(context).pop(),
+        child: const Text('Cancel'),
+      ),
+      FilledButton(onPressed: _submit, child: const Text('Find book')),
+    ],
+  );
 }

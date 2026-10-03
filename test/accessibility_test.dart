@@ -17,6 +17,7 @@ import 'support/test_app.dart';
 /// behind each one.
 const _routes = {
   'My Shelf': '/shelf',
+  'Add a book': '/shelf/add',
   'Discover': '/discover',
   'Wishlist': '/wishlist',
   'Requests': '/requests',

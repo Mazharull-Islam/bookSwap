@@ -57,13 +57,33 @@ class OpenLibraryService {
         .take(3)
         .toList();
 
+    final year = RegExp(
+      r'\d{4}',
+    ).firstMatch(data['publish_date'] as String? ?? '');
     return BookMetadata(
       title: data['title'] as String? ?? '',
       author: authors ?? '',
       coverUrl: (cover?['medium'] ?? cover?['large']) as String?,
+      isbn: isbn.trim(),
       genres: subjects ?? const [],
-      publishedYear: data['publish_date'] as String?,
+      publishedYear: year?.group(0),
+      // The edition data above has no "work" id, which shelf duplicate
+      // detection and Discover's edition grouping depend on.
+      workKey: await _fetchWorkKey(isbn.trim()),
     );
+  }
+
+  Future<String?> _fetchWorkKey(String isbn) async {
+    try {
+      final response = await _dio.get<Map<String, dynamic>>(
+        'https://openlibrary.org/isbn/$isbn.json',
+      );
+      final works = response.data?['works'] as List<dynamic>?;
+      if (works == null || works.isEmpty) return null;
+      return (works.first as Map<String, dynamic>)['key'] as String?;
+    } on DioException {
+      return null;
+    }
   }
 
   static const _searchEndpoint = 'https://openlibrary.org/search.json';
