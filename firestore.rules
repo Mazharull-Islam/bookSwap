@@ -40,7 +40,22 @@ service cloud.firestore {
       allow update: if owns(uid)
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['maxDistanceKm'])
         && (request.resource.data.maxDistanceKm == null || (request.resource.data.maxDistanceKm is number && request.resource.data.maxDistanceKm > 0));
+      // Member-editable fields only (Profile → Edit); email, consent and
+      // the distance preference stay untouchable by this rule.
+      allow update: if owns(uid)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['firstName', 'lastName', 'gender', 'mobile', 'address', 'preferences', 'favoriteBook'])
+        && validProfileEdit(request.resource.data);
       allow list, delete: if false;
+    }
+    function validProfileEdit(data) {
+      return text(data.firstName, 1, 100) && data.firstName.matches('.*[^ ].*')
+        && text(data.lastName, 1, 100) && data.lastName.matches('.*[^ ].*')
+        && data.gender in ['Woman', 'Man', 'Non-binary', 'Self-described / other', 'Prefer not to say']
+        && text(data.mobile, 10, 32) && data.mobile.matches('[+]?([ ()-]*[0-9]){10,15}[ ()-]*')
+        && text(data.address, 1, 200) && data.address.matches('.*[^ ].*')
+        && data.preferences is list && data.preferences.size() > 0 && data.preferences.size() <= 12
+        && data.preferences.hasOnly(['Fiction', 'Mystery', 'Fantasy', 'Science fiction', 'Romance', 'History', 'Biography', 'Self-development', 'Science & technology', 'Academic', 'Poetry', 'Other'])
+        && text(data.favoriteBook, 0, 200);
     }
     function validPublicProfile(data) {
       return data.keys().hasAll(['firstName'])
@@ -66,6 +81,10 @@ service cloud.firestore {
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['latitude', 'longitude'])
         && request.resource.data.latitude is number && request.resource.data.latitude >= -90 && request.resource.data.latitude <= 90
         && request.resource.data.longitude is number && request.resource.data.longitude >= -180 && request.resource.data.longitude <= 180;
+      // Display name kept in step with the private profile (Profile → Edit).
+      allow update: if owns(uid)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['firstName'])
+        && text(request.resource.data.firstName, 1, 100) && request.resource.data.firstName.matches('.*[^ ].*');
       allow delete: if false;
     }
     function validBook(data, bookId) {

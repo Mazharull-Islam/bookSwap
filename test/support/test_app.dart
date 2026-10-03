@@ -273,8 +273,9 @@ Future<void> tapVisible(WidgetTester tester, Finder finder) async {
 Future<void> signInDemo(
   WidgetTester tester, {
   List<Override> overrides = const [],
+  DemoAuthRepository? repository,
 }) async {
-  await tester.pumpWidget(testApp(null, overrides));
+  await tester.pumpWidget(testApp(repository, overrides));
   await tester.pumpAndSettle();
   await tapVisible(tester, find.byKey(const Key('getStarted')));
   await tester.enterText(find.byKey(const Key('email')), 'reader@bookswap.app');

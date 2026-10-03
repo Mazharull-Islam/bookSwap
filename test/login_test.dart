@@ -122,7 +122,7 @@ void main() {
     await tapVisible(tester, find.byKey(const Key('signIn')));
     expect(find.text('Your shelf is empty'), findsOneWidget);
     await goToProfile(tester);
-    expect(find.text('Welcome, Reader.'), findsOneWidget);
+    expect(find.text('Reader Demo'), findsOneWidget);
     await tapVisible(tester, find.text('Sign out'));
     expect(find.text('Welcome back.'), findsOneWidget);
     expect(
@@ -189,7 +189,7 @@ void main() {
       await tapVisible(tester, find.byKey(const Key('termsConsent')));
       await tapVisible(tester, find.byKey(const Key('createAccount')));
       expect(find.text('Verify your email'), findsOneWidget);
-      expect(find.text('Welcome, Sam.'), findsNothing);
+      expect(find.text('Sam Reader'), findsNothing);
       await tapVisible(tester, find.text('I have verified my email'));
       expect(
         find.textContaining('Your email is not verified yet.'),
@@ -199,14 +199,14 @@ void main() {
       await tapVisible(tester, find.text('I have verified my email'));
       expect(find.text('Your shelf is empty'), findsOneWidget);
       await goToProfile(tester);
-      expect(find.text('Welcome, Sam.'), findsOneWidget);
+      expect(find.text('Sam Reader'), findsOneWidget);
       await tapVisible(tester, find.text('Sign out'));
       await enter('email', 'sam@example.com');
       await enter('password', 'Reading123');
       await tapVisible(tester, find.byKey(const Key('signIn')));
       expect(find.text('Your shelf is empty'), findsOneWidget);
       await goToProfile(tester);
-      expect(find.text('Welcome, Sam.'), findsOneWidget);
+      expect(find.text('Sam Reader'), findsOneWidget);
       expect(tester.takeException(), isNull);
     },
   );
@@ -231,7 +231,7 @@ void main() {
       await tapVisible(tester, find.byKey(const Key('getStarted')));
       await tapVisible(tester, find.byKey(const Key('googleSignIn')));
       expect(find.text('Join the neighbourhood.'), findsOneWidget);
-      expect(find.text('Welcome, Sam.'), findsNothing);
+      expect(find.text('Sam Reader'), findsNothing);
       expect(find.byKey(const Key('password')), findsNothing);
       final email = tester.widget<TextFormField>(
         find.byKey(const Key('email')),
@@ -252,7 +252,7 @@ void main() {
       await tapVisible(tester, find.byKey(const Key('createAccount')));
       expect(find.text('Your shelf is empty'), findsOneWidget);
       await goToProfile(tester);
-      expect(find.text('Welcome, Sam.'), findsOneWidget);
+      expect(find.text('Sam Reader'), findsOneWidget);
       expect(find.text('Verify your email'), findsNothing);
       expect(repository.verificationEmails, 0);
       expect(tester.takeException(), isNull);

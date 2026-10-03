@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import '../../../../core/utils/date_format.dart';
 import '../../domain/models/forum_post.dart';
 import '../../../../app/app_colors.dart';
 
-String formatForumDate(int ms) => DateTime.fromMillisecondsSinceEpoch(
-  ms,
-).toLocal().toString().split(' ').first;
+String formatForumDate(int ms) => formatDateMs(ms);
 
 class ForumPostTile extends StatelessWidget {
   const ForumPostTile({super.key, required this.post, required this.onTap});

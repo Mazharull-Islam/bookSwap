@@ -94,6 +94,45 @@ class Registration {
   }
 }
 
+/// The fields a member can change after registration. Email, consent and the
+/// distance preference are deliberately not editable here.
+class ProfileUpdate {
+  ProfileUpdate({
+    required this.firstName,
+    required this.lastName,
+    required this.gender,
+    required this.mobile,
+    required this.address,
+    required List<String> preferences,
+    required this.favoriteBook,
+  }) : preferences = List.unmodifiable(preferences);
+  final String firstName, lastName, gender, mobile, address, favoriteBook;
+  final List<String> preferences;
+
+  String? validate() =>
+      requiredText(firstName, 'first name') ??
+      requiredText(lastName, 'last name') ??
+      (!genders.contains(gender) ? 'Choose a gender option.' : null) ??
+      validateMobile(mobile) ??
+      requiredText(address, 'area and city') ??
+      (favoriteBook.trim().length > 200
+          ? 'Use at most 200 characters for your favorite book.'
+          : null) ??
+      (preferences.isEmpty || preferences.any((p) => !bookGenres.contains(p))
+          ? 'Choose at least one book preference.'
+          : null);
+
+  Map<String, dynamic> toMap() => {
+    'firstName': firstName.trim(),
+    'lastName': lastName.trim(),
+    'gender': gender,
+    'mobile': mobile.trim(),
+    'address': address.trim(),
+    'preferences': preferences,
+    'favoriteBook': favoriteBook.trim(),
+  };
+}
+
 class ReaderProfile {
   ReaderProfile.fromMap(Map<String, dynamic> data)
     : firstName = data['firstName'] as String,

@@ -3,16 +3,92 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/providers/current_user_provider.dart';
 import '../../../../app/app_colors.dart';
 import '../../../../core/services/public_profile_service.dart';
+import '../../../../core/utils/date_format.dart';
+import '../../../../core/utils/friendly_error.dart';
 import '../../../../shared/widgets/primary_button.dart';
 import '../../../authentication/presentation/providers/auth_providers.dart';
 import '../../../blocking/presentation/providers/block_providers.dart';
 import '../../domain/models/borrow_request.dart';
+import '../../domain/repositories/request_repository.dart';
 import '../providers/request_providers.dart';
 import '../widgets/request_card.dart';
 
-String _formatDate(int ms) => DateTime.fromMillisecondsSinceEpoch(
-  ms,
-).toLocal().toString().split(' ').first;
+Future<bool> _confirm(
+  BuildContext context, {
+  required String title,
+  required String message,
+  required String confirmLabel,
+}) async {
+  final scheme = Theme.of(context).colorScheme;
+  return await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: scheme.error,
+                foregroundColor: scheme.onError,
+              ),
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(confirmLabel),
+            ),
+          ],
+        ),
+      ) ??
+      false;
+}
+
+void _showError(BuildContext context, Object error, String fallback) {
+  if (!context.mounted) return;
+  final message = error is RequestValidationFailure
+      ? error.message
+      : friendlyError(error, fallback: fallback);
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+}
+
+/// "Return by Oct 17, 2026 · due in 5 days" — overdue is in the words as well
+/// as the colour.
+class _ReturnLine extends StatelessWidget {
+  const _ReturnLine(this.request);
+  final BorrowRequest request;
+
+  @override
+  Widget build(BuildContext context) {
+    final ms = request.expectedReturnDateMs!;
+    final overdue = isOverdue(request);
+    return Text(
+      'Return by ${formatDateMs(ms)} · '
+      '${dueText(DateTime.fromMillisecondsSinceEpoch(ms).toLocal())}',
+      style: TextStyle(
+        color: overdue ? context.colors.danger : context.colors.textMuted,
+        fontWeight: overdue ? FontWeight.w600 : FontWeight.normal,
+      ),
+    );
+  }
+}
+
+/// Side by side when they fit, stacked full-width when they don't (large
+/// text, narrow screens).
+class _ActionPair extends StatelessWidget {
+  const _ActionPair({required this.secondary, required this.primary});
+  final Widget secondary;
+  final Widget primary;
+
+  @override
+  Widget build(BuildContext context) => OverflowBar(
+    alignment: MainAxisAlignment.end,
+    overflowAlignment: OverflowBarAlignment.end,
+    spacing: 8,
+    overflowSpacing: 8,
+    children: [secondary, primary],
+  );
+}
 
 class RequestsPage extends StatelessWidget {
   const RequestsPage({super.key});
@@ -78,9 +154,7 @@ class _IncomingTab extends ConsumerWidget {
       );
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(e.toString())));
+        _showError(context, e, 'Could not accept this request.');
       }
     }
   }
@@ -88,11 +162,43 @@ class _IncomingTab extends ConsumerWidget {
   Future<void> _decline(WidgetRef ref, BorrowRequest request) =>
       ref.read(declineBorrowRequestProvider)(request.id);
 
+  Future<void> _confirmDecline(
+    BuildContext context,
+    WidgetRef ref,
+    BorrowRequest request,
+  ) async {
+    final ok = await _confirm(
+      context,
+      title: 'Decline this request?',
+      message:
+          'The member will be told you declined, and "${request.bookTitle}" '
+          "stays on your shelf. This can't be undone.",
+      confirmLabel: 'Decline request',
+    );
+    if (!ok) return;
+    try {
+      await _decline(ref, request);
+    } catch (e) {
+      if (context.mounted) {
+        _showError(context, e, 'Could not decline this request.');
+      }
+    }
+  }
+
   Future<void> _markReturned(
     BuildContext context,
     WidgetRef ref,
     BorrowRequest request,
   ) async {
+    final ok = await _confirm(
+      context,
+      title: 'Mark as returned?',
+      message:
+          'Confirm you have "${request.bookTitle}" back. It becomes available '
+          "again and the loan moves to History. This can't be undone.",
+      confirmLabel: 'Mark as returned',
+    );
+    if (!ok) return;
     try {
       await ref.read(markLoanReturnedProvider)(
         request.id,
@@ -100,18 +206,40 @@ class _IncomingTab extends ConsumerWidget {
       );
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not mark as returned: $e')),
-        );
+        _showError(context, e, 'Could not mark this loan as returned.');
       }
     }
   }
 
   Future<void> _resolveExtension(
+    BuildContext context,
     WidgetRef ref,
     BorrowRequest request, {
     required bool approve,
-  }) => ref.read(resolveLoanExtensionProvider)(request.id, approve: approve);
+  }) async {
+    if (!approve) {
+      final ok = await _confirm(
+        context,
+        title: 'Decline this extension?',
+        message:
+            'The return date stays '
+            '${formatDateMs(request.expectedReturnDateMs!)}. This can\'t be '
+            'undone.',
+        confirmLabel: 'Decline extension',
+      );
+      if (!ok) return;
+    }
+    try {
+      await ref.read(resolveLoanExtensionProvider)(
+        request.id,
+        approve: approve,
+      );
+    } catch (e) {
+      if (context.mounted) {
+        _showError(context, e, 'Could not update this extension.');
+      }
+    }
+  }
 
   Future<void> _block(
     BuildContext context,
@@ -186,22 +314,15 @@ class _IncomingTab extends ConsumerWidget {
               otherPartyId: request.borrowerId,
               onBlock: () => _block(context, ref, request),
               footer: switch (request.status) {
-                RequestStatus.pending => Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => _decline(ref, request),
-                        child: const Text('Decline'),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: PrimaryButton(
-                        label: 'Accept',
-                        onPressed: () => _accept(context, ref, request),
-                      ),
-                    ),
-                  ],
+                RequestStatus.pending => _ActionPair(
+                  secondary: OutlinedButton(
+                    onPressed: () => _confirmDecline(context, ref, request),
+                    child: const Text('Decline request'),
+                  ),
+                  primary: PrimaryButton(
+                    label: 'Accept request',
+                    onPressed: () => _accept(context, ref, request),
+                  ),
                 ),
                 RequestStatus.accepted => Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -213,52 +334,36 @@ class _IncomingTab extends ConsumerWidget {
                       style: TextStyle(color: context.colors.textMuted),
                     ),
                     if (request.expectedReturnDateMs != null)
-                      Text(
-                        'Return by: ${_formatDate(request.expectedReturnDateMs!)}'
-                        '${isOverdue(request) ? ' (overdue)' : ''}',
-                        style: TextStyle(
-                          color: isOverdue(request)
-                              ? context.colors.danger
-                              : context.colors.textMuted,
-                          fontWeight: isOverdue(request)
-                              ? FontWeight.w600
-                              : FontWeight.normal,
-                        ),
-                      ),
+                      _ReturnLine(request),
                     if (request.proposedReturnDateMs != null) ...[
                       const SizedBox(height: 8),
                       Text(
-                        'Extension requested: ${_formatDate(request.proposedReturnDateMs!)}',
+                        'Extension requested until ${formatDateMs(request.proposedReturnDateMs!)}',
                         style: TextStyle(
                           color: context.colors.pending,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                       const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton(
-                              onPressed: () => _resolveExtension(
-                                ref,
-                                request,
-                                approve: false,
-                              ),
-                              child: const Text('Decline'),
-                            ),
+                      _ActionPair(
+                        secondary: OutlinedButton(
+                          onPressed: () => _resolveExtension(
+                            context,
+                            ref,
+                            request,
+                            approve: false,
                           ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: PrimaryButton(
-                              label: 'Approve',
-                              onPressed: () => _resolveExtension(
-                                ref,
-                                request,
-                                approve: true,
-                              ),
-                            ),
+                          child: const Text('Decline extension'),
+                        ),
+                        primary: PrimaryButton(
+                          label: 'Approve extension',
+                          onPressed: () => _resolveExtension(
+                            context,
+                            ref,
+                            request,
+                            approve: true,
                           ),
-                        ],
+                        ),
                       ),
                     ],
                     const SizedBox(height: 8),
@@ -359,18 +464,7 @@ class _OutgoingTab extends ConsumerWidget {
                       style: TextStyle(color: context.colors.textMuted),
                     ),
                     if (request.expectedReturnDateMs != null)
-                      Text(
-                        'Return by: ${_formatDate(request.expectedReturnDateMs!)}'
-                        '${isOverdue(request) ? ' (overdue)' : ''}',
-                        style: TextStyle(
-                          color: isOverdue(request)
-                              ? context.colors.danger
-                              : context.colors.textMuted,
-                          fontWeight: isOverdue(request)
-                              ? FontWeight.w600
-                              : FontWeight.normal,
-                        ),
-                      ),
+                      _ReturnLine(request),
                     if (request.borrowerContact == null) ...[
                       const SizedBox(height: 8),
                       SizedBox(
@@ -384,8 +478,8 @@ class _OutgoingTab extends ConsumerWidget {
                     const SizedBox(height: 8),
                     if (request.proposedReturnDateMs != null)
                       Text(
-                        'Extension requested: awaiting approval '
-                        '(until ${_formatDate(request.proposedReturnDateMs!)})',
+                        'Extension requested until ${formatDateMs(request.proposedReturnDateMs!)}'
+                        ' — awaiting approval',
                         style: TextStyle(
                           color: context.colors.pending,
                           fontWeight: FontWeight.w600,
@@ -446,7 +540,7 @@ class _HistoryTab extends ConsumerWidget {
               ? loan.request.borrowerId
               : loan.request.lenderId,
           footer: Text(
-            '${loan.lent ? 'Lent' : 'Borrowed'} · Returned ${_formatDate(loan.request.returnedAt!)}',
+            '${loan.lent ? 'Lent' : 'Borrowed'} · Returned ${formatDateMs(loan.request.returnedAt!)}',
             style: TextStyle(color: context.colors.textMuted),
           ),
         );

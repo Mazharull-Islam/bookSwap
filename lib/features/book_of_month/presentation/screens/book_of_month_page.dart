@@ -18,6 +18,8 @@ import '../../domain/period.dart';
 import '../providers/book_of_month_providers.dart';
 import '../widgets/nomination_tile.dart';
 import '../../../../shared/widgets/section_heading.dart';
+import '../../../../core/utils/friendly_error.dart';
+import '../../domain/repositories/book_of_month_repository.dart';
 
 class BookOfMonthPage extends ConsumerStatefulWidget {
   const BookOfMonthPage({super.key});
@@ -108,11 +110,21 @@ class _BookOfMonthPageState extends ConsumerState<BookOfMonthPage> {
         workKey: suggestion.workKey,
         genre: suggestion.genres.isEmpty ? null : suggestion.genres.join(', '),
       );
-    } catch (e) {
+    } on BookOfMonthValidationFailure catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Could not nominate: $e')));
+        ).showSnackBar(SnackBar(content: Text(e.message)));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              friendlyError(e, fallback: 'Could not nominate that book.'),
+            ),
+          ),
+        );
       }
     }
   }
@@ -124,11 +136,19 @@ class _BookOfMonthPageState extends ConsumerState<BookOfMonthPage> {
         userId: ref.read(currentUserProvider).id,
         matchKey: nomination.matchKey,
       );
-    } catch (e) {
+    } on BookOfMonthValidationFailure catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Could not vote: $e')));
+        ).showSnackBar(SnackBar(content: Text(e.message)));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(friendlyError(e, fallback: 'Could not save your vote.')),
+          ),
+        );
       }
     }
   }

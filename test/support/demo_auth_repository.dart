@@ -124,4 +124,27 @@ class DemoAuthRepository implements AuthRepository {
 
   @override
   Future<void> updateMaxDistance(double? km) async {}
+
+  ProfileUpdate? lastProfileUpdate;
+
+  @override
+  Future<void> updateProfile(ProfileUpdate update) async {
+    final error = update.validate();
+    if (error != null) throw AuthFailure(error);
+    final user = currentUser!;
+    lastProfileUpdate = update;
+    final saved = AuthUser(
+      id: user.id,
+      email: user.email,
+      name: update.firstName.trim(),
+      profile: ReaderProfile.fromMap({
+        ...user.profile!.toMap(),
+        ...update.toMap(),
+      }),
+      emailVerified: user.emailVerified,
+      usesGoogle: user.usesGoogle,
+    );
+    _users[user.email] = saved;
+    currentUser = saved;
+  }
 }

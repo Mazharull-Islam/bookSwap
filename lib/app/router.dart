@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../features/authentication/domain/models/auth_user.dart';
 import '../features/authentication/presentation/providers/auth_providers.dart';
+import '../features/authentication/presentation/screens/edit_profile_page.dart';
 import '../features/authentication/presentation/screens/login_page.dart';
 import '../features/authentication/presentation/screens/profile_page.dart';
 import '../features/authentication/presentation/screens/register_page.dart';
@@ -53,7 +54,7 @@ String? _redirectFor(_AuthStage stage, String location) {
       return location == '/verify' ? null : '/verify';
     case _AuthStage.authenticated:
       return location.startsWith('/shelf') ||
-              location == '/profile' ||
+              location.startsWith('/profile') ||
               location == '/more' ||
               location == '/discover' ||
               location == '/wishlist' ||
@@ -145,6 +146,12 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/profile',
             builder: (context, state) => const ProfilePage(),
+            routes: [
+              GoRoute(
+                path: 'edit',
+                builder: (context, state) => const EditProfilePage(),
+              ),
+            ],
           ),
         ],
       ),

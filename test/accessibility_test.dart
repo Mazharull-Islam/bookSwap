@@ -26,6 +26,7 @@ const _routes = {
   'Book of the Month': '/book-of-month',
   'Leaderboard': '/leaderboard',
   'Profile': '/profile',
+  'Edit profile': '/profile/edit',
 };
 
 void main() {
@@ -55,7 +56,9 @@ void main() {
   for (final entry in _routes.entries) {
     testWidgets('${entry.key}: tap targets and labels', (tester) async {
       final handle = tester.ensureSemantics();
-      phone(tester);
+      // Tall viewport: a control clipped by the screen edge reports a clipped
+      // size, which isn't a real tap-target problem.
+      phone(tester, height: 2000);
       await signInWithFixtures(tester);
       await openRoute(tester, entry.value);
       expect(smallTapTargets(tester), isEmpty);

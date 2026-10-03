@@ -18,6 +18,10 @@ abstract interface class AuthRepository {
 
   /// Null clears the preference (no distance limit).
   Future<void> updateMaxDistance(double? km);
+
+  /// Validates, then saves the editable profile fields (and the public
+  /// display name other members see).
+  Future<void> updateProfile(ProfileUpdate update);
 }
 
 String? validateEmail(String? input) {

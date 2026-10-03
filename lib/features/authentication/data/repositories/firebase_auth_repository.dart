@@ -270,4 +270,19 @@ class FirebaseAuthRepository implements AuthRepository {
       _store.collection('profiles').doc(user.uid).update({'maxDistanceKm': km}),
     );
   });
+
+  @override
+  Future<void> updateProfile(ProfileUpdate update) => _request(() async {
+    final error = update.validate();
+    if (error != null) throw AuthFailure(error);
+    final user = _auth.currentUser;
+    if (user == null) throw const AuthFailure('Please sign in again.');
+    final batch = _store.batch();
+    batch.update(_store.collection('profiles').doc(user.uid), update.toMap());
+    // Merge-set: accounts that predate public_profiles get the doc created.
+    batch.set(_store.collection('public_profiles').doc(user.uid), {
+      'firstName': update.firstName.trim(),
+    }, SetOptions(merge: true));
+    await _network(batch.commit());
+  });
 }
