@@ -143,6 +143,40 @@ service cloud.firestore {
     // See BorrowRequest/FirestoreRequestRepository for the write choreography
     // this enforces: only the lender may accept/decline, only the borrower
     // may publish their own contact, and only after acceptance.
+    // Public reviews (SRS §3.8). One review per returned loan, written only
+    // by that loan's borrower; the document id is the request id, which is
+    // how this rule can check the loan with a single get().
+    function returnedLoanBorrowedByMe(requestId) {
+      let loan = get(/databases/$(database)/documents/requests/$(requestId)).data;
+      return loan.borrowerId == request.auth.uid
+        && loan.status == 'accepted'
+        && loan.get('returnedAt', null) != null;
+    }
+    function validReviewContent(data) {
+      return data.rating is int && data.rating >= 1 && data.rating <= 5
+        && text(data.text, 0, 500)
+        && data.updatedAtMs is int;
+    }
+    match /book_reviews/{reviewId} {
+      allow read: if member();
+      allow create: if member()
+        && request.resource.data.keys().hasOnly(['id', 'requestId', 'reviewerId', 'reviewerName', 'bookId', 'bookTitle', 'matchKey', 'rating', 'text', 'createdAtMs', 'updatedAtMs'])
+        && request.resource.data.keys().hasAll(['id', 'requestId', 'reviewerId', 'reviewerName', 'bookId', 'bookTitle', 'matchKey', 'rating', 'text', 'createdAtMs', 'updatedAtMs'])
+        && request.resource.data.id == reviewId
+        && request.resource.data.requestId == reviewId
+        && request.resource.data.reviewerId == request.auth.uid
+        && text(request.resource.data.reviewerName, 1, 100)
+        && text(request.resource.data.bookTitle, 1, 300)
+        && text(request.resource.data.matchKey, 1, 400)
+        && request.resource.data.createdAtMs is int
+        && validReviewContent(request.resource.data)
+        && returnedLoanBorrowedByMe(reviewId);
+      allow update: if member()
+        && resource.data.reviewerId == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['rating', 'text', 'updatedAtMs'])
+        && validReviewContent(request.resource.data);
+      allow delete: if member() && resource.data.reviewerId == request.auth.uid;
+    }
     match /requests/{requestId} {
       allow read: if member()
         && (resource.data.borrowerId == request.auth.uid

@@ -15,6 +15,7 @@ import '../../../location/domain/owner_distance.dart';
 import '../../../location/presentation/providers/location_providers.dart';
 import '../../domain/book_group.dart';
 import '../../../../shared/widgets/section_heading.dart';
+import '../../../reviews/presentation/widgets/reviews_section.dart';
 
 Future<void> showBookGroupDetailDialog(BuildContext context, BookGroup group) {
   return showDialog(
@@ -138,6 +139,11 @@ class _BookGroupDetailDialogState
                             ownerLocation: profiles[listing.ownerId],
                           ),
                         ),
+                      ),
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ReviewsSection(matchKey: group.key),
                       ),
                     ],
                   ),

@@ -12,6 +12,7 @@ import '../../domain/models/borrow_request.dart';
 import '../../domain/repositories/request_repository.dart';
 import '../providers/request_providers.dart';
 import '../widgets/request_card.dart';
+import '../../../reviews/presentation/widgets/review_loan_action.dart';
 
 Future<bool> _confirm(
   BuildContext context, {
@@ -539,9 +540,19 @@ class _HistoryTab extends ConsumerWidget {
           otherPartyId: loan.lent
               ? loan.request.borrowerId
               : loan.request.lenderId,
-          footer: Text(
-            '${loan.lent ? 'Lent' : 'Borrowed'} · Returned ${formatDateMs(loan.request.returnedAt!)}',
-            style: TextStyle(color: context.colors.textMuted),
+          footer: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '${loan.lent ? 'Lent' : 'Borrowed'} · Returned ${formatDateMs(loan.request.returnedAt!)}',
+                style: TextStyle(color: context.colors.textMuted),
+              ),
+              // Only the borrower reviews a book, and only once it's back.
+              if (!loan.lent) ...[
+                const SizedBox(height: 8),
+                ReviewLoanAction(request: loan.request),
+              ],
+            ],
           ),
         );
       },

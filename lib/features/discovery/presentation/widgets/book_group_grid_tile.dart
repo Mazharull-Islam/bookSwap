@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/app_colors.dart';
 import '../../../books/presentation/widgets/book_cover_image.dart';
+import '../../../reviews/presentation/providers/review_providers.dart';
+import '../../../reviews/presentation/widgets/rating_badge.dart';
 import '../../domain/book_group.dart';
 
-class BookGroupGridTile extends StatelessWidget {
+class BookGroupGridTile extends ConsumerWidget {
   const BookGroupGridTile({
     super.key,
     required this.group,
@@ -13,8 +16,9 @@ class BookGroupGridTile extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final book = group.representative;
+    final summary = ref.watch(ratingSummariesProvider)[group.key];
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -73,6 +77,7 @@ class BookGroupGridTile extends StatelessWidget {
                       color: context.colors.textMuted,
                     ),
                   ),
+                  RatingBadge(summary: summary),
                 ],
               ),
             ),

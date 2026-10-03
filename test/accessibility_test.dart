@@ -127,6 +127,18 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('review dialog', (tester) async {
+      final handle = tester.ensureSemantics();
+      phone(tester, height: 2000);
+      await signInWithFixtures(tester);
+      await openRoute(tester, '/requests');
+      await tapVisible(tester, find.text('History'));
+      await tapVisible(tester, find.byKey(const Key('rate-out-3')));
+      expect(find.byTooltip('3 stars'), findsOneWidget);
+      await checkGuidelines(tester);
+      handle.dispose();
+    });
+
     testWidgets('reading entry dialog with interactive stars', (tester) async {
       final handle = tester.ensureSemantics();
       phone(tester);
