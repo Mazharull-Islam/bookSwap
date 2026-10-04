@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../app/app_colors.dart';
 import 'section_heading.dart';
+import 'primary_button.dart';
 
 /// Search-row companion: a tune icon that shows how many filters are on.
 class FilterButton extends StatelessWidget {
@@ -57,9 +58,9 @@ class FilterSheetFrame extends StatelessWidget {
         const SizedBox(height: 12),
         SizedBox(
           width: double.infinity,
-          child: FilledButton(
+          child: PrimaryButton(
+            label: 'Done',
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Done'),
           ),
         ),
       ],

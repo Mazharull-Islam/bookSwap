@@ -17,6 +17,7 @@ import '../widgets/return_dialog.dart';
 import '../widgets/condition_line.dart';
 import '../../../../shared/widgets/feedback.dart';
 import '../../../../shared/widgets/empty_state.dart';
+import '../../../../shared/widgets/secondary_button.dart';
 
 void _showError(BuildContext context, Object error, String fallback) {
   if (!context.mounted) return;
@@ -268,9 +269,9 @@ class _IncomingTab extends ConsumerWidget {
               onBlock: () => _block(context, ref, request),
               footer: switch (request.status) {
                 RequestStatus.pending => _ActionPair(
-                  secondary: OutlinedButton(
+                  secondary: SecondaryButton(
+                    label: 'Decline request',
                     onPressed: () => _confirmDecline(context, ref, request),
-                    child: const Text('Decline request'),
                   ),
                   primary: PrimaryButton(
                     label: 'Accept request',
@@ -300,14 +301,14 @@ class _IncomingTab extends ConsumerWidget {
                       ),
                       const SizedBox(height: 8),
                       _ActionPair(
-                        secondary: OutlinedButton(
+                        secondary: SecondaryButton(
+                          label: 'Decline extension',
                           onPressed: () => _resolveExtension(
                             context,
                             ref,
                             request,
                             approve: false,
                           ),
-                          child: const Text('Decline extension'),
                         ),
                         primary: PrimaryButton(
                           label: 'Approve extension',
@@ -323,9 +324,9 @@ class _IncomingTab extends ConsumerWidget {
                     const SizedBox(height: 8),
                     SizedBox(
                       width: double.infinity,
-                      child: OutlinedButton(
+                      child: SecondaryButton(
+                        label: 'Mark as returned',
                         onPressed: () => _markReturned(context, ref, request),
-                        child: const Text('Mark as returned'),
                       ),
                     ),
                   ],
@@ -422,9 +423,9 @@ class _OutgoingTab extends ConsumerWidget {
                       const SizedBox(height: 8),
                       SizedBox(
                         width: double.infinity,
-                        child: OutlinedButton(
+                        child: SecondaryButton(
+                          label: 'Share my contact',
                           onPressed: () => _shareContact(ref, request),
-                          child: const Text('Share my contact'),
                         ),
                       ),
                     ],
@@ -441,10 +442,10 @@ class _OutgoingTab extends ConsumerWidget {
                     else
                       SizedBox(
                         width: double.infinity,
-                        child: OutlinedButton(
+                        child: SecondaryButton(
+                          label: 'Request extension',
                           onPressed: () =>
                               _requestExtension(context, ref, request),
-                          child: const Text('Request extension'),
                         ),
                       ),
                   ],

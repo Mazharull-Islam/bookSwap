@@ -22,6 +22,7 @@ import '../../domain/repositories/book_of_month_repository.dart';
 import '../../../../shared/genre_normalizer.dart';
 import '../../../../shared/domain/match_key.dart';
 import '../../../../shared/widgets/feedback.dart';
+import '../../../../shared/widgets/secondary_button.dart';
 
 class BookOfMonthPage extends ConsumerStatefulWidget {
   const BookOfMonthPage({super.key});
@@ -260,9 +261,9 @@ class _BookOfMonthPageState extends ConsumerState<BookOfMonthPage> {
           if (period?.discussionPostId != null)
             Padding(
               padding: const EdgeInsets.only(bottom: 12),
-              child: OutlinedButton.icon(
-                icon: const Icon(Icons.forum_outlined),
-                label: const Text('Open this month\'s discussion'),
+              child: SecondaryButton(
+                label: 'Open this month\'s discussion',
+                icon: Icons.forum_outlined,
                 onPressed: () => _openDiscussion(period!.discussionPostId!),
               ),
             ),

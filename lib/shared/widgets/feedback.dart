@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'primary_button.dart';
 
 /// A brief message at the bottom of the screen ("Profile updated.").
 void showMessage(BuildContext context, String message) => ScaffoldMessenger.of(
@@ -16,7 +17,6 @@ Future<bool> showConfirmDialog(
   required String confirmLabel,
   bool destructive = false,
 }) async {
-  final scheme = Theme.of(context).colorScheme;
   return await showDialog<bool>(
         context: context,
         builder: (context) => AlertDialog(
@@ -27,15 +27,10 @@ Future<bool> showConfirmDialog(
               onPressed: () => Navigator.of(context).pop(false),
               child: const Text('Cancel'),
             ),
-            FilledButton(
-              style: destructive
-                  ? FilledButton.styleFrom(
-                      backgroundColor: scheme.error,
-                      foregroundColor: scheme.onError,
-                    )
-                  : null,
+            PrimaryButton(
+              label: confirmLabel,
+              destructive: destructive,
               onPressed: () => Navigator.of(context).pop(true),
-              child: Text(confirmLabel),
             ),
           ],
         ),

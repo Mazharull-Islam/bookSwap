@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/providers/current_user_provider.dart';
 import '../../../../app/app_colors.dart';
 import '../providers/block_providers.dart';
+import '../../../../shared/widgets/secondary_button.dart';
 
 class BlockedUsersPage extends ConsumerWidget {
   const BlockedUsersPage({super.key});
@@ -67,12 +68,12 @@ class BlockedUsersPage extends ConsumerWidget {
                 child: ListTile(
                   leading: const Icon(Icons.person_off_outlined),
                   title: Text(entry.blockedName),
-                  trailing: OutlinedButton(
+                  trailing: SecondaryButton(
+                    label: 'Unblock',
                     onPressed: () => ref.read(unblockUserProvider)(
                       ref.read(currentUserProvider).id,
                       entry.blockedId,
                     ),
-                    child: const Text('Unblock'),
                   ),
                 ),
               );

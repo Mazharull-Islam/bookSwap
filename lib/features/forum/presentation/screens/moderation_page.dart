@@ -10,6 +10,8 @@ import '../providers/forum_providers.dart';
 import '../widgets/forum_post_tile.dart' show formatForumDate;
 import '../widgets/report_dialog.dart';
 import '../../../../shared/widgets/feedback.dart';
+import '../../../../shared/widgets/primary_button.dart';
+import '../../../../shared/widgets/secondary_button.dart';
 
 /// Moderators only (the More page doesn't link here for anyone else, and the
 /// rules refuse non-moderators regardless).
@@ -140,14 +142,14 @@ class _ReportedCard extends ConsumerWidget {
                         context.push('/forum/post/${target.postId}'),
                     child: Text(target.isReply ? 'Open thread' : 'Open post'),
                   ),
-                OutlinedButton(
+                SecondaryButton(
+                  label: gone ? 'Clear' : 'Dismiss reports',
                   onPressed: () => _dismiss(context, ref),
-                  child: Text(gone ? 'Clear' : 'Dismiss reports'),
                 ),
                 if (!gone)
-                  FilledButton(
+                  PrimaryButton(
+                    label: 'Remove',
                     onPressed: () => _remove(context, ref),
-                    child: const Text('Remove'),
                   ),
               ],
             ),

@@ -19,6 +19,7 @@ import '../../../books/domain/book_genres.dart';
 import '../../../../shared/widgets/book_status.dart';
 import '../../../../shared/widgets/feedback.dart';
 import '../../../../shared/widgets/status_chip.dart';
+import '../../../../shared/widgets/secondary_button.dart';
 
 Future<void> showBookGroupDetailDialog(BuildContext context, BookGroup group) {
   return showDialog(
@@ -203,10 +204,7 @@ class _BookGroupDetailDialogState
             SizedBox(
               width: double.infinity,
               child: sent
-                  ? const OutlinedButton(
-                      onPressed: null,
-                      child: Text('Requested ✓'),
-                    )
+                  ? SecondaryButton(label: 'Requested ✓', onPressed: null)
                   : PrimaryButton(
                       label: 'Request to borrow',
                       onPressed: () => _request(listing),

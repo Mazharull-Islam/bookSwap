@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import '../../../../core/utils/isbn.dart';
+import '../../../../shared/widgets/primary_button.dart';
 
 /// Opens the scanner and returns the ISBN-13 it read, or null if cancelled.
 /// A provider so tests can swap in a fake scan (there's no camera there).
@@ -158,9 +159,9 @@ class _CameraProblem extends StatelessWidget {
               style: const TextStyle(color: Colors.white, fontSize: 16),
             ),
             const SizedBox(height: 24),
-            FilledButton(
+            PrimaryButton(
+              label: 'Go back',
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Go back'),
             ),
           ],
         ),

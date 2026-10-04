@@ -14,6 +14,7 @@ import '../../features/authentication/domain/entities/registration.dart';
 import '../../features/authentication/presentation/providers/auth_providers.dart';
 import '../../features/authentication/presentation/providers/profile_photo_providers.dart';
 import '../../shared/widgets/feedback.dart';
+import '../../shared/widgets/secondary_button.dart';
 
 class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
@@ -68,12 +69,12 @@ class ProfilePage extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  OutlinedButton(
+                  SecondaryButton(
+                    label: 'Sign out',
                     onPressed: () async {
                       await ref.read(authControllerProvider.notifier).signOut();
                       if (context.mounted) context.go('/login');
                     },
-                    child: const Text('Sign out'),
                   ),
                 ],
               ),

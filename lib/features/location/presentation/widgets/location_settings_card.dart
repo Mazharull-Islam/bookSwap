@@ -10,6 +10,7 @@ import '../providers/location_providers.dart';
 import '../screens/location_picker_page.dart';
 import '../../../../shared/widgets/section_heading.dart';
 import '../../../../shared/widgets/feedback.dart';
+import '../../../../shared/widgets/secondary_button.dart';
 
 const _distanceOptions = [1.0, 5.0, 10.0, 25.0, 50.0, 100.0];
 
@@ -114,19 +115,12 @@ class _LocationSettingsCardState extends ConsumerState<LocationSettingsCard> {
                 ),
               ),
               const SizedBox(width: 8),
-              OutlinedButton(
-                onPressed: _settingLocation ? null : _setLocation,
-                child: _settingLocation
-                    ? const SizedBox(
-                        height: 16,
-                        width: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : Text(
-                        location != null && location.hasLocation
-                            ? 'Update'
-                            : 'Set area',
-                      ),
+              SecondaryButton(
+                label: location != null && location.hasLocation
+                    ? 'Update'
+                    : 'Set area',
+                onPressed: _setLocation,
+                loading: _settingLocation,
               ),
             ],
           ),

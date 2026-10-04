@@ -3,6 +3,7 @@ import '../../../../shared/widgets/primary_button.dart';
 import '../../../../shared/widgets/book_cover_image.dart';
 import '../../domain/entities/book_of_month_nomination.dart';
 import '../../../../app/app_colors.dart';
+import '../../../../shared/widgets/secondary_button.dart';
 
 class NominationTile extends StatelessWidget {
   const NominationTile({
@@ -79,7 +80,7 @@ class NominationTile extends StatelessWidget {
         ),
         const SizedBox(width: 8),
         isMyVote
-            ? const OutlinedButton(onPressed: null, child: Text('Voted ✓'))
+            ? SecondaryButton(label: 'Voted ✓', onPressed: null)
             : PrimaryButton(label: 'Vote', onPressed: onVote),
       ],
     ),

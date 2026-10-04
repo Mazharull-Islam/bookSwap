@@ -8,6 +8,7 @@ import '../../domain/loan_condition.dart';
 import '../../domain/entities/borrow_request.dart';
 import '../../domain/repositories/request_repository.dart';
 import '../providers/request_providers.dart';
+import '../../../../shared/widgets/secondary_button.dart';
 
 /// "Condition when lent: Good", or once returned "Good → Fair", with the
 /// worse-than-lent case spelled out in words as well as colour.
@@ -89,11 +90,11 @@ class BorrowerNoteSection extends ConsumerWidget {
           if (viewerIsBorrower)
             Align(
               alignment: Alignment.centerLeft,
-              child: OutlinedButton.icon(
-                key: Key('add-note-${request.id}'),
+              child: SecondaryButton(
+                buttonKey: Key('add-note-${request.id}'),
+                label: note == null ? 'Add a note' : 'Edit note',
+                icon: Icons.edit_note,
                 onPressed: () => showBorrowerNoteDialog(context, request),
-                icon: const Icon(Icons.edit_note),
-                label: Text(note == null ? 'Add a note' : 'Edit note'),
               ),
             ),
         ],

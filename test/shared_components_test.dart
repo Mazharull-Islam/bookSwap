@@ -6,6 +6,8 @@ import 'package:bookswap_login/app/app_colors.dart';
 import 'package:bookswap_login/app/theme.dart';
 import 'package:bookswap_login/shared/widgets/empty_state.dart';
 import 'package:bookswap_login/shared/widgets/feedback.dart';
+import 'package:bookswap_login/shared/widgets/primary_button.dart';
+import 'package:bookswap_login/shared/widgets/secondary_button.dart';
 import 'package:bookswap_login/shared/widgets/status_chip.dart';
 
 Widget host(Widget child) => MaterialApp(
@@ -233,6 +235,154 @@ void main() {
     });
   });
 
+  group('PrimaryButton', () {
+    testWidgets('shows its label and calls onPressed', (tester) async {
+      var taps = 0;
+      await tester.pumpWidget(
+        host(PrimaryButton(label: 'Save', onPressed: () => taps++)),
+      );
+      await tester.tap(find.text('Save'));
+      expect(taps, 1);
+    });
+
+    testWidgets('with no handler it is disabled', (tester) async {
+      await tester.pumpWidget(
+        host(const PrimaryButton(label: 'Save', onPressed: null)),
+      );
+      expect(
+        tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
+        isNull,
+      );
+    });
+
+    testWidgets('loading swaps the label for a spinner and ignores taps', (
+      tester,
+    ) async {
+      var taps = 0;
+      await tester.pumpWidget(
+        host(
+          PrimaryButton(label: 'Save', onPressed: () => taps++, loading: true),
+        ),
+      );
+      expect(find.text('Save'), findsNothing);
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      await tester.tap(find.byType(FilledButton), warnIfMissed: false);
+      expect(taps, 0);
+    });
+
+    testWidgets('destructive uses the error colour, normal does not', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        host(
+          Column(
+            children: [
+              PrimaryButton(label: 'Normal', onPressed: () {}),
+              PrimaryButton(
+                label: 'Danger',
+                onPressed: () {},
+                destructive: true,
+              ),
+            ],
+          ),
+        ),
+      );
+      final error = Theme.of(
+        tester.element(find.text('Normal')),
+      ).colorScheme.error;
+      final normal = tester.widget<FilledButton>(
+        find.widgetWithText(FilledButton, 'Normal'),
+      );
+      final danger = tester.widget<FilledButton>(
+        find.widgetWithText(FilledButton, 'Danger'),
+      );
+      expect(normal.style, isNull);
+      expect(danger.style?.backgroundColor?.resolve({}), error);
+    });
+
+    testWidgets('the key lands on the button', (tester) async {
+      await tester.pumpWidget(
+        host(
+          PrimaryButton(
+            buttonKey: const Key('go'),
+            label: 'Go',
+            onPressed: () {},
+          ),
+        ),
+      );
+      expect(tester.widget(find.byKey(const Key('go'))), isA<FilledButton>());
+    });
+  });
+
+  group('SecondaryButton', () {
+    testWidgets('is an outlined button with its label', (tester) async {
+      var taps = 0;
+      await tester.pumpWidget(
+        host(SecondaryButton(label: 'Cancel it', onPressed: () => taps++)),
+      );
+      expect(find.byType(OutlinedButton), findsOneWidget);
+      await tester.tap(find.text('Cancel it'));
+      expect(taps, 1);
+    });
+
+    testWidgets('an icon sits beside the label', (tester) async {
+      await tester.pumpWidget(
+        host(
+          SecondaryButton(
+            label: 'Scan',
+            icon: Icons.qr_code_scanner,
+            onPressed: () {},
+          ),
+        ),
+      );
+      expect(find.byIcon(Icons.qr_code_scanner), findsOneWidget);
+      expect(find.text('Scan'), findsOneWidget);
+    });
+
+    testWidgets('with no handler it is disabled', (tester) async {
+      await tester.pumpWidget(
+        host(const SecondaryButton(label: 'Voted', onPressed: null)),
+      );
+      expect(
+        tester.widget<OutlinedButton>(find.byType(OutlinedButton)).onPressed,
+        isNull,
+      );
+    });
+
+    testWidgets('loading shows a spinner and ignores taps', (tester) async {
+      var taps = 0;
+      await tester.pumpWidget(
+        host(
+          SecondaryButton(
+            label: 'Update',
+            onPressed: () => taps++,
+            loading: true,
+          ),
+        ),
+      );
+      expect(find.text('Update'), findsNothing);
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      await tester.tap(find.byType(OutlinedButton), warnIfMissed: false);
+      expect(taps, 0);
+    });
+
+    testWidgets('the key lands on the button', (tester) async {
+      await tester.pumpWidget(
+        host(
+          SecondaryButton(
+            buttonKey: const Key('rate'),
+            label: 'Rate',
+            onPressed: () {},
+          ),
+        ),
+      );
+      expect(
+        tester.widget(find.byKey(const Key('rate'))),
+        isA<OutlinedButton>(),
+      );
+    });
+  });
+
   group('conventions', () {
     List<String> filesContaining(
       Pattern pattern, {
@@ -264,6 +414,23 @@ void main() {
         isEmpty,
       );
     });
+
+    test(
+      'buttons are PrimaryButton or SecondaryButton, not raw Material ones',
+      () {
+        expect(
+          filesContaining(
+            RegExp(r'\b(OutlinedButton|FilledButton|ElevatedButton)\b'),
+            except: {
+              'lib/shared/widgets/primary_button.dart',
+              'lib/shared/widgets/secondary_button.dart',
+              'lib/app/theme.dart',
+            },
+          ),
+          isEmpty,
+        );
+      },
+    );
 
     test('there is one empty-state widget, not private copies', () {
       expect(

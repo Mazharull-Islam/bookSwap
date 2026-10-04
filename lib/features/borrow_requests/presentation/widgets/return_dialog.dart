@@ -4,6 +4,7 @@ import '../../../../shared/widgets/filter_widgets.dart';
 import '../../../books/domain/entities/book.dart';
 import '../../domain/loan_condition.dart';
 import '../../domain/entities/borrow_request.dart';
+import '../../../../shared/widgets/primary_button.dart';
 
 /// Asks the lender to confirm the return and record the book's condition.
 /// Resolves to the chosen condition, or null if cancelled.
@@ -28,7 +29,6 @@ class _ReturnDialogState extends State<_ReturnDialog> {
   Widget build(BuildContext context) {
     final out = widget.request.conditionOut;
     final worse = conditionWorsened(out, _condition);
-    final scheme = Theme.of(context).colorScheme;
     return AlertDialog(
       title: const Text('Mark as returned?'),
       content: SingleChildScrollView(
@@ -83,13 +83,9 @@ class _ReturnDialogState extends State<_ReturnDialog> {
           onPressed: () => Navigator.of(context).pop(),
           child: const Text('Cancel'),
         ),
-        FilledButton(
-          style: FilledButton.styleFrom(
-            backgroundColor: scheme.primary,
-            foregroundColor: scheme.onPrimary,
-          ),
+        PrimaryButton(
+          label: 'Mark as returned',
           onPressed: () => Navigator.of(context).pop(_condition),
-          child: const Text('Mark as returned'),
         ),
       ],
     );

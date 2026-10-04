@@ -19,6 +19,7 @@ import '../../../../core/services/book_enrichment_service.dart';
 import '../../../../shared/genre_normalizer.dart';
 import '../../domain/book_genres.dart';
 import '../../../../shared/widgets/feedback.dart';
+import '../../../../shared/widgets/secondary_button.dart';
 
 class AddBookPage extends ConsumerStatefulWidget {
   const AddBookPage({super.key, this.existing});
@@ -336,17 +337,17 @@ class _AddBookPageState extends ConsumerState<AddBookPage> {
                   runSpacing: 8,
                   children: [
                     if (!kIsWeb)
-                      OutlinedButton.icon(
-                        key: const Key('scanIsbn'),
+                      SecondaryButton(
+                        buttonKey: const Key('scanIsbn'),
+                        label: 'Scan barcode',
+                        icon: Icons.qr_code_scanner,
                         onPressed: _saving || _lookingUp ? null : _scanBarcode,
-                        icon: const Icon(Icons.qr_code_scanner),
-                        label: const Text('Scan barcode'),
                       ),
-                    OutlinedButton.icon(
-                      key: const Key('typeIsbn'),
+                    SecondaryButton(
+                      buttonKey: const Key('typeIsbn'),
+                      label: 'Type an ISBN',
+                      icon: Icons.dialpad,
                       onPressed: _saving || _lookingUp ? null : _typeIsbn,
-                      icon: const Icon(Icons.dialpad),
-                      label: const Text('Type an ISBN'),
                     ),
                   ],
                 ),
@@ -535,7 +536,7 @@ class _IsbnDialogState extends State<_IsbnDialog> {
         onPressed: () => Navigator.of(context).pop(),
         child: const Text('Cancel'),
       ),
-      FilledButton(onPressed: _submit, child: const Text('Find book')),
+      PrimaryButton(label: 'Find book', onPressed: _submit),
     ],
   );
 }

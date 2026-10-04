@@ -13,6 +13,7 @@ import '../providers/reading_providers.dart';
 import 'reading_goal_dialog.dart';
 import '../../../../shared/widgets/section_heading.dart';
 import '../../../../shared/widgets/feedback.dart';
+import '../../../../shared/widgets/secondary_button.dart';
 
 class ReadingStatsTab extends ConsumerWidget {
   const ReadingStatsTab({super.key});
@@ -75,9 +76,9 @@ class ReadingStatsTab extends ConsumerWidget {
         const SizedBox(height: 20),
         SizedBox(
           width: double.infinity,
-          child: OutlinedButton.icon(
-            icon: const Icon(Icons.ios_share),
-            label: const Text('Copy shareable summary'),
+          child: SecondaryButton(
+            label: 'Copy shareable summary',
+            icon: Icons.ios_share,
             onPressed: () => _copySummary(
               context,
               totalRead: totalRead,

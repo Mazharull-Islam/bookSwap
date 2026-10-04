@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/forum_report.dart';
 import '../../../../shared/widgets/feedback.dart';
+import '../../../../shared/widgets/primary_button.dart';
 
 /// Asks why the member is reporting. Returns null if they cancel.
 Future<ForumReportReason?> showReportDialog(
@@ -53,11 +54,11 @@ class _ReportDialogState extends State<_ReportDialog> {
         onPressed: () => Navigator.of(context).pop(),
         child: const Text('Cancel'),
       ),
-      FilledButton(
+      PrimaryButton(
+        label: 'Report',
         onPressed: _reason == null
             ? null
             : () => Navigator.of(context).pop(_reason),
-        child: const Text('Report'),
       ),
     ],
   );

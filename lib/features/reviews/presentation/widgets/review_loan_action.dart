@@ -7,6 +7,7 @@ import '../../domain/entities/book_review.dart';
 import '../providers/review_providers.dart';
 import 'review_dialog.dart';
 import '../../../../shared/domain/match_key.dart';
+import '../../../../shared/widgets/secondary_button.dart';
 
 /// Shown on a returned loan you borrowed: rate it, or see/edit what you said.
 class ReviewLoanAction extends ConsumerWidget {
@@ -44,11 +45,11 @@ class ReviewLoanAction extends ConsumerWidget {
     if (existing == null) {
       return Align(
         alignment: Alignment.centerLeft,
-        child: OutlinedButton.icon(
-          key: Key('rate-${request.id}'),
+        child: SecondaryButton(
+          buttonKey: Key('rate-${request.id}'),
+          label: 'Rate this book',
+          icon: Icons.star_border,
           onPressed: () => _open(context, ref, null),
-          icon: const Icon(Icons.star_border),
-          label: const Text('Rate this book'),
         ),
       );
     }
