@@ -23,6 +23,14 @@ class _DiscoveryPageState extends ConsumerState<DiscoveryPage> {
   final _query = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    // The query lives in a provider, so it outlasts this page; show it again
+    // if the member comes back to Discover mid-search.
+    _query.text = ref.read(discoverySearchQueryProvider);
+  }
+
+  @override
   void dispose() {
     _query.dispose();
     super.dispose();
@@ -31,6 +39,7 @@ class _DiscoveryPageState extends ConsumerState<DiscoveryPage> {
   @override
   Widget build(BuildContext context) {
     final results = ref.watch(discoveryResultsProvider);
+    final query = ref.watch(discoverySearchQueryProvider);
     final filter = ref.watch(discoveryFilterProvider);
     final viewMode = ref.watch(discoveryViewModeProvider);
     final isGrid = viewMode == ShelfViewMode.grid;
@@ -65,7 +74,7 @@ class _DiscoveryPageState extends ConsumerState<DiscoveryPage> {
                     label: 'Search for a book',
                     hint: 'Try a title or author...',
                     prefixIcon: Icons.search,
-                    suffixIcon: _query.text.isEmpty
+                    suffixIcon: query.isEmpty
                         ? null
                         : IconButton(
                             tooltip: 'Clear search',
@@ -78,13 +87,11 @@ class _DiscoveryPageState extends ConsumerState<DiscoveryPage> {
                                       )
                                       .state =
                                   '';
-                              setState(() {});
                             },
                           ),
                     onChanged: (value) {
                       ref.read(discoverySearchQueryProvider.notifier).state =
                           value;
-                      setState(() {});
                     },
                   ),
                 ),
@@ -105,7 +112,7 @@ class _DiscoveryPageState extends ConsumerState<DiscoveryPage> {
                 builder: (context) {
                   if (results.isEmpty) {
                     final narrowed =
-                        _query.text.trim().isNotEmpty || filter.activeCount > 0;
+                        query.trim().isNotEmpty || filter.activeCount > 0;
                     return _Hint(
                       icon: Icons.menu_book_outlined,
                       text: narrowed

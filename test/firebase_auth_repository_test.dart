@@ -141,7 +141,8 @@ void main() {
       final saved = (await store.collection('profiles').doc(user.id).get())
           .data()!;
       expect(saved.containsKey('password'), isFalse);
-      expect(saved['acceptedTermsAt'], isA<Timestamp>());
+      expect(saved.keys, isNot(contains('acceptedTermsAt')));
+      expect(saved.keys, isNot(contains('acceptedTermsVersion')));
       expect((await repo.refreshSession()).isMember, isFalse);
       await repo.signOut();
       expect(auth.currentUser, isNull);

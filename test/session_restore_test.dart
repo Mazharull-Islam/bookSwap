@@ -27,6 +27,8 @@ class _ReloadFailsUser extends MockUser {
 Map<String, dynamic> _profileDoc() => {
   ...ReaderProfile(details()).toMap(),
   'email': 'sam@example.com',
+  // Profiles saved before the Terms were removed still carry these.
+  'acceptedTermsVersion': '1.1',
   'acceptedTermsAt': Timestamp.now(),
 };
 

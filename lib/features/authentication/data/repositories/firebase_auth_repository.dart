@@ -105,13 +105,9 @@ class FirebaseAuthRepository implements AuthRepository {
   }) {
     ReaderProfile? profile;
     if (data != null) {
-      profile = ReaderProfile.fromMap({
-        ...data,
-        'acceptedTermsAt': (data['acceptedTermsAt'] as Timestamp)
-            .toDate()
-            .toUtc()
-            .toIso8601String(),
-      });
+      // Profiles created before the Terms were removed still carry
+      // acceptedTerms* fields; they are simply ignored.
+      profile = ReaderProfile.fromMap(data);
     }
     return AuthUser(
       id: user.uid,
@@ -291,7 +287,6 @@ class FirebaseAuthRepository implements AuthRepository {
           transaction.set(profile, {
             ...ReaderProfile(registration).toMap(),
             'email': user!.email!.toLowerCase(),
-            'acceptedTermsAt': FieldValue.serverTimestamp(),
           });
           transaction.set(publicProfile, {
             'firstName': registration.firstName.trim(),

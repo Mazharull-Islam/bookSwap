@@ -35,7 +35,6 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   };
   String _gender = 'Prefer not to say';
   List<String> _preferences = [];
-  bool _accepted = false;
 
   @override
   void initState() {
@@ -95,7 +94,6 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
             address: value('address'),
             preferences: _preferences,
             favoriteBook: value('favoriteBook'),
-            acceptedTerms: _accepted,
           ),
         );
   }
@@ -369,45 +367,6 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                   ),
                 ],
                 const SizedBox(height: 20),
-                FormField<bool>(
-                  initialValue: false,
-                  validator: (v) => v == true
-                      ? null
-                      : 'Accept the Terms & Conditions to continue.',
-                  builder: (field) => Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      CheckboxListTile(
-                        key: const Key('termsConsent'),
-                        contentPadding: EdgeInsets.zero,
-                        controlAffinity: ListTileControlAffinity.leading,
-                        value: field.value,
-                        title: const Text(
-                          'I have read and agree to the Terms & Conditions.',
-                        ),
-                        onChanged: loading
-                            ? null
-                            : (v) {
-                                _accepted = v ?? false;
-                                field.didChange(_accepted);
-                              },
-                      ),
-                      TextButton(
-                        onPressed: loading
-                            ? null
-                            : () => context.push('/terms'),
-                        child: const Text('Read Terms & Conditions →'),
-                      ),
-                      if (field.hasError)
-                        Text(
-                          field.errorText!,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.error,
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
                 if (loading && _usingGoogle)
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 12),

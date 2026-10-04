@@ -136,7 +136,7 @@ void main() {
   });
 
   testWidgets(
-    'Mobile registration preserves form across terms and requires consent',
+    'Mobile registration keeps the form after a validation error and completes',
     (tester) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1;
@@ -166,27 +166,13 @@ void main() {
       await tapVisible(tester, find.byKey(const Key('createAccount')));
       expect(find.text('Passwords do not match.'), findsOneWidget);
       expect(
-        find.text('Accept the Terms & Conditions to continue.'),
-        findsOneWidget,
-      );
-      await enter('confirmPassword', 'Reading123');
-      await tapVisible(tester, find.text('Read Terms & Conditions →'));
-      expect(find.text('Terms & Conditions'), findsOneWidget);
-      await tapVisible(tester, find.text('Back to BookSwap'));
-      expect(
         tester
             .widget<TextFormField>(find.byKey(const Key('firstName')))
             .controller!
             .text,
         'Sam',
       );
-      expect(
-        tester
-            .widget<CheckboxListTile>(find.byKey(const Key('termsConsent')))
-            .value,
-        isFalse,
-      );
-      await tapVisible(tester, find.byKey(const Key('termsConsent')));
+      await enter('confirmPassword', 'Reading123');
       await tapVisible(tester, find.byKey(const Key('createAccount')));
       expect(find.text('Verify your email'), findsOneWidget);
       expect(find.text('Sam Reader'), findsNothing);
@@ -248,7 +234,6 @@ void main() {
         await tester.enterText(find.byKey(Key(entry.key)), entry.value);
       }
       await tapVisible(tester, find.widgetWithText(FilterChip, 'Fiction'));
-      await tapVisible(tester, find.byKey(const Key('termsConsent')));
       await tapVisible(tester, find.byKey(const Key('createAccount')));
       expect(find.text('Your shelf is empty'), findsOneWidget);
       await goToProfile(tester);

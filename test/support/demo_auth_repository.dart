@@ -22,7 +22,6 @@ class DemoAuthRepository implements AuthRepository {
           address: 'Gazipur',
           preferences: ['Fiction'],
           favoriteBook: '',
-          acceptedTerms: true,
         ),
       ),
     );

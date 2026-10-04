@@ -42,7 +42,9 @@ service cloud.firestore {
       return value is string && value.size() >= min && value.size() <= max;
     }
     function validProfile(data) {
-      return data.keys().hasAll(['email', 'firstName', 'lastName', 'gender', 'mobile', 'address', 'preferences', 'favoriteBook', 'acceptedTermsVersion', 'acceptedTermsAt', 'maxDistanceKm'])
+      return data.keys().hasAll(['email', 'firstName', 'lastName', 'gender', 'mobile', 'address', 'preferences', 'favoriteBook', 'maxDistanceKm'])
+        // The two acceptedTerms* keys are no longer written or required; they
+        // stay allowed so a not-yet-updated app can still register.
         && data.keys().hasOnly(['email', 'firstName', 'lastName', 'gender', 'mobile', 'address', 'preferences', 'favoriteBook', 'acceptedTermsVersion', 'acceptedTermsAt', 'maxDistanceKm'])
         && data.email == request.auth.token.email.lower()
         && text(data.firstName, 1, 100) && data.firstName.matches('.*[^ ].*')
@@ -53,24 +55,20 @@ service cloud.firestore {
         && data.preferences is list && data.preferences.size() > 0 && data.preferences.size() <= 12
         && data.preferences.hasOnly(['Fiction', 'Mystery', 'Fantasy', 'Science fiction', 'Romance', 'History', 'Biography', 'Self-development', 'Science & technology', 'Academic', 'Poetry', 'Other'])
         && text(data.favoriteBook, 0, 200)
-        && data.acceptedTermsVersion == '1.1'
-        && data.acceptedTermsAt == request.time
         && (data.maxDistanceKm == null || (data.maxDistanceKm is number && data.maxDistanceKm > 0));
     }
     match /profiles/{uid} {
       // Pending accounts can finish registration and read only their own profile.
       allow get: if owns(uid);
       allow create: if owns(uid) && validProfile(request.resource.data);
-      // Deliberately not validProfile() here — its acceptedTermsAt ==
-      // request.time check is create-only (request.time is now, not the
-      // original creation time an update would be leaving unchanged).
-      // affectedKeys().hasOnly(['maxDistanceKm']) already guarantees every
-      // other field, including acceptedTermsAt, is untouched by this write.
+      // Deliberately not validProfile() here: affectedKeys().hasOnly(
+      // ['maxDistanceKm']) already guarantees every other field is untouched
+      // by this write.
       allow update: if owns(uid)
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['maxDistanceKm'])
         && (request.resource.data.maxDistanceKm == null || (request.resource.data.maxDistanceKm is number && request.resource.data.maxDistanceKm > 0));
-      // Member-editable fields only (Profile → Edit); email, consent and
-      // the distance preference stay untouchable by this rule.
+      // Member-editable fields only (Profile → Edit); email and the distance
+      // preference stay untouchable by this rule.
       allow update: if owns(uid)
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['firstName', 'lastName', 'gender', 'mobile', 'address', 'preferences', 'favoriteBook'])
         && validProfileEdit(request.resource.data);

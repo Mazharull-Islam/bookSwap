@@ -1,6 +1,5 @@
 import '../repositories/auth_repository.dart';
 
-const termsVersion = '1.1';
 const bookGenres = [
   'Fiction',
   'Mystery',
@@ -63,7 +62,6 @@ class Registration {
     required this.address,
     required List<String> preferences,
     required this.favoriteBook,
-    required this.acceptedTerms,
   }) : preferences = List.unmodifiable(preferences);
   final String firstName,
       lastName,
@@ -74,7 +72,6 @@ class Registration {
       address,
       favoriteBook;
   final List<String> preferences;
-  final bool acceptedTerms;
 
   String? validate({bool requirePassword = true}) {
     return requiredText(firstName, 'first name') ??
@@ -89,8 +86,7 @@ class Registration {
             : null) ??
         (preferences.isEmpty || preferences.any((p) => !bookGenres.contains(p))
             ? 'Choose at least one book preference.'
-            : null) ??
-        (!acceptedTerms ? 'Accept the Terms & Conditions to continue.' : null);
+            : null);
   }
 }
 
@@ -142,10 +138,6 @@ class ReaderProfile {
       address = data['address'] as String,
       preferences = List<String>.unmodifiable(data['preferences'] as List),
       favoriteBook = data['favoriteBook'] as String,
-      acceptedTermsVersion = data['acceptedTermsVersion'] as String,
-      acceptedTermsAt = DateTime.parse(
-        data['acceptedTermsAt'] as String,
-      ).toUtc(),
       maxDistanceKm = (data['maxDistanceKm'] as num?)?.toDouble();
 
   Map<String, dynamic> toMap() => {
@@ -156,8 +148,6 @@ class ReaderProfile {
     'address': address,
     'preferences': preferences,
     'favoriteBook': favoriteBook,
-    'acceptedTermsVersion': acceptedTermsVersion,
-    'acceptedTermsAt': acceptedTermsAt.toIso8601String(),
     'maxDistanceKm': maxDistanceKm,
   };
 
@@ -169,13 +159,9 @@ class ReaderProfile {
       address = data.address.trim(),
       preferences = List.unmodifiable(data.preferences),
       favoriteBook = data.favoriteBook.trim(),
-      acceptedTermsVersion = termsVersion,
-      acceptedTermsAt = DateTime.now().toUtc(),
       maxDistanceKm = null;
   final String firstName, lastName, gender, mobile, address, favoriteBook;
   final List<String> preferences;
-  final String acceptedTermsVersion;
-  final DateTime acceptedTermsAt;
 
   /// Null means "no distance preference set" — Discovery then shows
   /// everything regardless of distance (SRS §3.1's "configure a maximum

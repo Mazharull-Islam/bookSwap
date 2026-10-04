@@ -25,9 +25,15 @@ class MyShelfPage extends ConsumerStatefulWidget {
 class _MyShelfPageState extends ConsumerState<MyShelfPage> {
   final _query = TextEditingController();
 
+  /// The search text, as a notifier of its own: it only changes when the text
+  /// does (not on cursor moves), and lets just the field and the list rebuild
+  /// per keystroke instead of the whole page.
+  final _text = ValueNotifier<String>('');
+
   @override
   void dispose() {
     _query.dispose();
+    _text.dispose();
     super.dispose();
   }
 
@@ -107,22 +113,25 @@ class _MyShelfPageState extends ConsumerState<MyShelfPage> {
             child: Row(
               children: [
                 Expanded(
-                  child: AppTextField(
-                    controller: _query,
-                    label: 'Search your shelf',
-                    hint: 'Try a title or author...',
-                    prefixIcon: Icons.search,
-                    suffixIcon: _query.text.isEmpty
-                        ? null
-                        : IconButton(
-                            tooltip: 'Clear search',
-                            icon: const Icon(Icons.clear),
-                            onPressed: () {
-                              _query.clear();
-                              setState(() {});
-                            },
-                          ),
-                    onChanged: (_) => setState(() {}),
+                  child: ValueListenableBuilder<String>(
+                    valueListenable: _text,
+                    builder: (context, text, _) => AppTextField(
+                      controller: _query,
+                      label: 'Search your shelf',
+                      hint: 'Try a title or author...',
+                      prefixIcon: Icons.search,
+                      suffixIcon: text.isEmpty
+                          ? null
+                          : IconButton(
+                              tooltip: 'Clear search',
+                              icon: const Icon(Icons.clear),
+                              onPressed: () {
+                                _query.clear();
+                                _text.value = '';
+                              },
+                            ),
+                      onChanged: (value) => _text.value = value,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -139,65 +148,69 @@ class _MyShelfPageState extends ConsumerState<MyShelfPage> {
           Expanded(
             child: RefreshIndicator(
               onRefresh: () => _refresh(ref),
-              child: shelf.when(
-                loading: () =>
-                    const _ScrollableCenter(child: CircularProgressIndicator()),
-                error: (error, _) => _ScrollableCenter(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Text(
-                      'Could not load your shelf. Please try again.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.error,
+              child: ValueListenableBuilder<String>(
+                valueListenable: _text,
+                builder: (context, text, _) => shelf.when(
+                  loading: () => const _ScrollableCenter(
+                    child: CircularProgressIndicator(),
+                  ),
+                  error: (error, _) => _ScrollableCenter(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Text(
+                        'Could not load your shelf. Please try again.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
                       ),
                     ),
                   ),
+                  data: (allBooks) {
+                    final books = _filtered(allBooks, text, filter);
+                    if (books.isEmpty) {
+                      return _ScrollableCenter(
+                        child: allBooks.isEmpty
+                            ? const _EmptyShelf()
+                            : const _NoSearchResults(),
+                      );
+                    }
+                    return isGrid
+                        ? GridView.builder(
+                            padding: const EdgeInsets.all(12),
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            gridDelegate:
+                                const SliverGridDelegateWithMaxCrossAxisExtent(
+                                  maxCrossAxisExtent: 180,
+                                  childAspectRatio: 0.62,
+                                  crossAxisSpacing: 12,
+                                  mainAxisSpacing: 12,
+                                ),
+                            itemCount: books.length,
+                            itemBuilder: (context, index) {
+                              final book = books[index];
+                              return BookGridTile(
+                                book: book,
+                                onTap: () => _openDetail(context, book),
+                                onDelete: () => _delete(ref, context, book),
+                              );
+                            },
+                          )
+                        : ListView.builder(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            itemCount: books.length,
+                            itemBuilder: (context, index) {
+                              final book = books[index];
+                              return BookListTile(
+                                book: book,
+                                onTap: () => _openDetail(context, book),
+                                onDelete: () => _delete(ref, context, book),
+                              );
+                            },
+                          );
+                  },
                 ),
-                data: (allBooks) {
-                  final books = _filtered(allBooks, _query.text, filter);
-                  if (books.isEmpty) {
-                    return _ScrollableCenter(
-                      child: allBooks.isEmpty
-                          ? const _EmptyShelf()
-                          : const _NoSearchResults(),
-                    );
-                  }
-                  return isGrid
-                      ? GridView.builder(
-                          padding: const EdgeInsets.all(12),
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          gridDelegate:
-                              const SliverGridDelegateWithMaxCrossAxisExtent(
-                                maxCrossAxisExtent: 180,
-                                childAspectRatio: 0.62,
-                                crossAxisSpacing: 12,
-                                mainAxisSpacing: 12,
-                              ),
-                          itemCount: books.length,
-                          itemBuilder: (context, index) {
-                            final book = books[index];
-                            return BookGridTile(
-                              book: book,
-                              onTap: () => _openDetail(context, book),
-                              onDelete: () => _delete(ref, context, book),
-                            );
-                          },
-                        )
-                      : ListView.builder(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          itemCount: books.length,
-                          itemBuilder: (context, index) {
-                            final book = books[index];
-                            return BookListTile(
-                              book: book,
-                              onTap: () => _openDetail(context, book),
-                              onDelete: () => _delete(ref, context, book),
-                            );
-                          },
-                        );
-                },
               ),
             ),
           ),

@@ -86,11 +86,6 @@ class WelcomePage extends ConsumerWidget {
                             Flexible(child: Text('More stories. Fewer miles.')),
                           ],
                         ),
-                        const SizedBox(height: 8),
-                        TextButton(
-                          onPressed: () => context.push('/terms'),
-                          child: const Text('Terms & Conditions'),
-                        ),
                       ],
                     ),
                   ),

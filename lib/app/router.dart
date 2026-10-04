@@ -7,7 +7,6 @@ import '../features/authentication/presentation/screens/edit_profile_page.dart';
 import '../features/authentication/presentation/screens/login_page.dart';
 import '../features/authentication/presentation/screens/profile_page.dart';
 import '../features/authentication/presentation/screens/register_page.dart';
-import '../features/authentication/presentation/screens/terms_page.dart';
 import '../features/authentication/presentation/screens/verification_page.dart';
 import '../features/authentication/presentation/screens/welcome_page.dart';
 import '../features/blocking/presentation/screens/blocked_users_page.dart';
@@ -43,7 +42,6 @@ _AuthStage _stageOf(AsyncValue<AuthUser?> state) {
 }
 
 String? _redirectFor(_AuthStage stage, String location) {
-  if (location == '/terms') return null;
   switch (stage) {
     case _AuthStage.loading:
       return null;
@@ -98,7 +96,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/verify',
         builder: (context, state) => const VerificationPage(),
       ),
-      GoRoute(path: '/terms', builder: (context, state) => const TermsPage()),
       GoRoute(
         path: '/shelf/add',
         builder: (context, state) =>

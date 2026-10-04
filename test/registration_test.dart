@@ -5,7 +5,6 @@ import 'package:bookswap_login/features/authentication/domain/models/registratio
 import 'package:bookswap_login/features/authentication/domain/repositories/auth_repository.dart';
 
 Registration details({
-  bool accepted = true,
   String email = 'sam@example.com',
   List<String> preferences = const ['Fiction'],
 }) => Registration(
@@ -18,34 +17,21 @@ Registration details({
   address: 'Gazipur',
   preferences: preferences,
   favoriteBook: 'The Hobbit',
-  acceptedTerms: accepted,
 );
 
 void main() {
-  test(
-    'Registration records profile and consent, then supports sign-in',
-    () async {
-      final repo = DemoAuthRepository();
-      final user = await Register(repo)(details());
-      expect(user.profile!.preferences, ['Fiction']);
-      expect(user.profile!.acceptedTermsVersion, termsVersion);
-      expect(user.profile!.acceptedTermsAt.isUtc, isTrue);
-      expect(user.isMember, isFalse);
-      expect(repo.verificationEmails, 1);
-      repo.verifyEmail(user.email);
-      await repo.signOut();
-      expect(
-        (await SignIn(repo)(' SAM@EXAMPLE.COM ', 'Reading123')).id,
-        user.id,
-      );
-    },
-  );
-  test('Missing consent and empty preferences are rejected before saving', () {
+  test('Registration records the profile, then supports sign-in', () async {
+    final repo = DemoAuthRepository();
+    final user = await Register(repo)(details());
+    expect(user.profile!.preferences, ['Fiction']);
+    expect(user.isMember, isFalse);
+    expect(repo.verificationEmails, 1);
+    repo.verifyEmail(user.email);
+    await repo.signOut();
+    expect((await SignIn(repo)(' SAM@EXAMPLE.COM ', 'Reading123')).id, user.id);
+  });
+  test('Empty preferences are rejected before saving', () {
     final register = Register(DemoAuthRepository());
-    expect(
-      () => register(details(accepted: false)),
-      throwsA(isA<AuthFailure>()),
-    );
     expect(
       () => register(details(preferences: [])),
       throwsA(isA<AuthFailure>()),
