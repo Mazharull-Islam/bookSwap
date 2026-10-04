@@ -5,6 +5,7 @@ import '../../data/repositories/hive_book_repository.dart';
 import '../../domain/entities/book.dart';
 import '../../domain/repositories/book_repository.dart';
 import '../../domain/shelf_filter.dart';
+import '../../../../shared/widgets/view_mode.dart';
 
 final bookRepositoryProvider = Provider<BookRepository>(
   (ref) => HiveBookRepository(),
@@ -25,11 +26,7 @@ final removeBookFromShelfProvider = Provider(
   (ref) => RemoveBookFromShelf(ref.watch(bookRepositoryProvider)),
 );
 
-enum ShelfViewMode { list, grid }
-
-final shelfViewModeProvider = StateProvider<ShelfViewMode>(
-  (ref) => ShelfViewMode.list,
-);
+final shelfViewModeProvider = StateProvider<ViewMode>((ref) => ViewMode.grid);
 
 final shelfFilterProvider = StateProvider<ShelfFilter>(
   (ref) => const ShelfFilter(),

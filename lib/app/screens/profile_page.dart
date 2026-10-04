@@ -15,6 +15,7 @@ import '../../features/authentication/presentation/providers/auth_providers.dart
 import '../../features/authentication/presentation/providers/profile_photo_providers.dart';
 import '../../shared/widgets/feedback.dart';
 import '../../shared/widgets/secondary_button.dart';
+import '../../shared/widgets/back_to_more_button.dart';
 
 class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
@@ -25,13 +26,7 @@ class ProfilePage extends ConsumerWidget {
     final profile = user?.profile;
     return Scaffold(
       appBar: AppBar(
-        // go_router's go() replaces the location, so there's no stack for
-        // an automatic back arrow; this returns to the More menu.
-        leading: IconButton(
-          tooltip: 'Back',
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/more'),
-        ),
+        leading: const BackToMoreButton(),
         title: const Text('Profile'),
       ),
       body: SafeArea(

@@ -12,6 +12,7 @@ import '../widgets/report_dialog.dart';
 import '../../../../shared/widgets/feedback.dart';
 import '../../../../shared/widgets/primary_button.dart';
 import '../../../../shared/widgets/secondary_button.dart';
+import '../../../../shared/widgets/back_to_more_button.dart';
 
 /// Moderators only (the More page doesn't link here for anyone else, and the
 /// rules refuse non-moderators regardless).
@@ -23,7 +24,10 @@ class ModerationPage extends ConsumerWidget {
     final moderator = ref.watch(isModeratorProvider).valueOrNull ?? false;
     final reports = ref.watch(reportedTargetsProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Moderation')),
+      appBar: AppBar(
+        leading: const BackToMoreButton(),
+        title: const Text('Moderation'),
+      ),
       body: !moderator
           ? const Center(child: Text('Moderators only.'))
           : reports.when(

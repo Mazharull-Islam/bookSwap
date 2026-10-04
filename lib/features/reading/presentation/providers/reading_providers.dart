@@ -5,6 +5,7 @@ import '../../data/repositories/hive_reading_repository.dart';
 import '../../domain/entities/reading_entry.dart';
 import '../../domain/reading_filter.dart';
 import '../../domain/repositories/reading_repository.dart';
+import '../../../../shared/widgets/view_mode.dart';
 
 final readingRepositoryProvider = Provider<ReadingRepository>(
   (ref) => HiveReadingRepository(),
@@ -28,3 +29,6 @@ final removeReadingEntryProvider = Provider(
 final readingFilterProvider = StateProvider<ReadingFilter>(
   (ref) => const ReadingFilter(),
 );
+
+/// Grid or list for the reading lists; grid by default.
+final readingViewModeProvider = StateProvider<ViewMode>((ref) => ViewMode.grid);

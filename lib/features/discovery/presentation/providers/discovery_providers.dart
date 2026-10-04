@@ -7,6 +7,7 @@ import '../../../location/domain/owner_distance.dart';
 import '../../../location/presentation/providers/location_providers.dart';
 import '../../domain/book_group.dart';
 import '../../domain/discovery_filter.dart';
+import '../../../../shared/widgets/view_mode.dart';
 
 final allBooksProvider = StreamProvider<List<Book>>(
   (ref) => ref.watch(bookRepositoryProvider).watchAll(),
@@ -69,8 +70,8 @@ final discoveryResultsProvider = Provider<List<BookGroup>>((ref) {
   );
 });
 
-/// Independent of shelfViewModeProvider — toggling grid/list here shouldn't
-/// affect My Shelf's view mode or vice versa.
-final discoveryViewModeProvider = StateProvider<ShelfViewMode>(
-  (ref) => ShelfViewMode.list,
+/// Independent of the other screens' view modes — toggling grid/list here
+/// shouldn't affect My Shelf or the wishlist.
+final discoveryViewModeProvider = StateProvider<ViewMode>(
+  (ref) => ViewMode.grid,
 );

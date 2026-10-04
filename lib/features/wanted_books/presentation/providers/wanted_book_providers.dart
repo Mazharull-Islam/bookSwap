@@ -9,6 +9,7 @@ import '../../data/repositories/firestore_wanted_book_repository.dart';
 import '../../domain/entities/wanted_book.dart';
 import '../../domain/mutual_match.dart';
 import '../../domain/repositories/wanted_book_repository.dart';
+import '../../../../shared/widgets/view_mode.dart';
 
 final wantedBookRepositoryProvider = Provider<WantedBookRepository>(
   (ref) => FirestoreWantedBookRepository(FirebaseFirestore.instance),
@@ -53,3 +54,8 @@ final mutualMatchesProvider = Provider<List<MutualMatch>>((ref) {
     allWanted: wanted,
   ).where((m) => !requestedBookIds.contains(m.theirBook.id)).toList();
 });
+
+/// Grid or list for the wishlist; grid by default.
+final wishlistViewModeProvider = StateProvider<ViewMode>(
+  (ref) => ViewMode.grid,
+);

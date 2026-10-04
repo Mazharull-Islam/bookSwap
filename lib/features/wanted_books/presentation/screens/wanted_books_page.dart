@@ -21,6 +21,9 @@ import '../../../../shared/widgets/section_heading.dart';
 import '../../../../shared/domain/match_key.dart';
 import '../../../../shared/widgets/feedback.dart';
 import '../../../../shared/widgets/inline_spinner.dart';
+import '../../../../shared/widgets/view_mode.dart';
+import '../../../../shared/widgets/cover_grid.dart';
+import '../widgets/wanted_book_grid_tile.dart';
 
 class WantedBooksPage extends ConsumerStatefulWidget {
   const WantedBooksPage({super.key});
@@ -142,8 +145,19 @@ class _WantedBooksPageState extends ConsumerState<WantedBooksPage> {
   Widget build(BuildContext context) {
     final wanted = ref.watch(myWantedBooksProvider);
     final matches = ref.watch(mutualMatchesProvider);
+    final viewMode = ref.watch(wishlistViewModeProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Wishlist')),
+      appBar: AppBar(
+        title: const Text('Wishlist'),
+        actions: [
+          ViewModeButton(
+            mode: viewMode,
+            onChanged: (mode) =>
+                ref.read(wishlistViewModeProvider.notifier).state = mode,
+          ),
+          const SizedBox(width: 4),
+        ],
+      ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(16),
@@ -233,6 +247,21 @@ class _WantedBooksPageState extends ConsumerState<WantedBooksPage> {
                         "we'll flag it if a match works out both ways.",
                         style: TextStyle(color: context.colors.textMuted),
                       ),
+                    )
+                  : viewMode == ViewMode.grid
+                  ? GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate: coverGridDelegate,
+                      itemCount: items.length,
+                      itemBuilder: (context, index) {
+                        final w = items[index];
+                        return WantedBookGridTile(
+                          wanted: w,
+                          onRemove: () =>
+                              ref.read(removeWantedBookProvider)(w.id),
+                        );
+                      },
                     )
                   : Column(
                       children: items

@@ -26,6 +26,10 @@ import '../../../../shared/domain/match_key.dart';
 import '../../../../shared/widgets/feedback.dart';
 import '../../../../shared/widgets/empty_state.dart';
 import '../../../../shared/widgets/inline_spinner.dart';
+import '../../../../shared/widgets/view_mode.dart';
+import '../../../../shared/widgets/cover_grid.dart';
+import '../widgets/reading_entry_grid_tile.dart';
+import '../../../../shared/widgets/back_to_more_button.dart';
 
 class ReadingPage extends ConsumerStatefulWidget {
   const ReadingPage({super.key});
@@ -147,7 +151,16 @@ class _ReadingPageState extends ConsumerState<ReadingPage> {
       child: Builder(
         builder: (context) => Scaffold(
           appBar: AppBar(
+            leading: const BackToMoreButton(),
             title: const Text('My Reading'),
+            actions: [
+              ViewModeButton(
+                mode: ref.watch(readingViewModeProvider),
+                onChanged: (mode) =>
+                    ref.read(readingViewModeProvider.notifier).state = mode,
+              ),
+              const SizedBox(width: 4),
+            ],
             bottom: const TabBar(
               tabs: [
                 Tab(text: 'To read'),
@@ -304,6 +317,20 @@ class _ReadingList extends ConsumerWidget {
               ReadingStatus.reading => 'Nothing marked as currently reading.',
               ReadingStatus.read =>
                 'Books you finish and rate will show up here.',
+            },
+          );
+        }
+        if (ref.watch(readingViewModeProvider) == ViewMode.grid) {
+          return GridView.builder(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+            gridDelegate: coverGridDelegate,
+            itemCount: filtered.length,
+            itemBuilder: (context, index) {
+              final entry = filtered[index];
+              return ReadingEntryGridTile(
+                entry: entry,
+                onTap: () => showReadingEntryDialog(context, entry),
+              );
             },
           );
         }

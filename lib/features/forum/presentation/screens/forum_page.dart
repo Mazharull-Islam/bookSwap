@@ -5,6 +5,7 @@ import '../providers/forum_providers.dart';
 import '../widgets/create_post_dialog.dart';
 import '../widgets/forum_post_tile.dart';
 import '../../../../shared/widgets/empty_state.dart';
+import '../../../../shared/widgets/back_to_more_button.dart';
 
 class ForumPage extends ConsumerWidget {
   const ForumPage({super.key});
@@ -13,7 +14,10 @@ class ForumPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final posts = ref.watch(forumFeedProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Forum')),
+      appBar: AppBar(
+        leading: const BackToMoreButton(),
+        title: const Text('Forum'),
+      ),
       body: posts.isEmpty
           ? const EmptyState(
               icon: Icons.forum_outlined,

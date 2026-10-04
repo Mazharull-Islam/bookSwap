@@ -14,6 +14,8 @@ import '../widgets/book_list_tile.dart';
 import '../widgets/shelf_filter_sheet.dart';
 import '../../../../shared/widgets/empty_state.dart';
 import '../../../../shared/widgets/feedback.dart';
+import '../../../../shared/widgets/view_mode.dart';
+import '../../../../shared/widgets/cover_grid.dart';
 
 class MyShelfPage extends ConsumerStatefulWidget {
   const MyShelfPage({super.key});
@@ -79,18 +81,15 @@ class _MyShelfPageState extends ConsumerState<MyShelfPage> {
     final shelf = ref.watch(myShelfProvider);
     final filter = ref.watch(shelfFilterProvider);
     final viewMode = ref.watch(shelfViewModeProvider);
-    final isGrid = viewMode == ShelfViewMode.grid;
+    final isGrid = viewMode == ViewMode.grid;
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Shelf'),
         actions: [
-          IconButton(
-            tooltip: isGrid ? 'Switch to list view' : 'Switch to grid view',
-            icon: Icon(
-              isGrid ? Icons.view_list_outlined : Icons.grid_view_outlined,
-            ),
-            onPressed: () => ref.read(shelfViewModeProvider.notifier).state =
-                isGrid ? ShelfViewMode.list : ShelfViewMode.grid,
+          ViewModeButton(
+            mode: viewMode,
+            onChanged: (mode) =>
+                ref.read(shelfViewModeProvider.notifier).state = mode,
           ),
           const SizedBox(width: 4),
         ],
@@ -177,13 +176,7 @@ class _MyShelfPageState extends ConsumerState<MyShelfPage> {
                         ? GridView.builder(
                             padding: const EdgeInsets.all(12),
                             physics: const AlwaysScrollableScrollPhysics(),
-                            gridDelegate:
-                                const SliverGridDelegateWithMaxCrossAxisExtent(
-                                  maxCrossAxisExtent: 180,
-                                  childAspectRatio: 0.62,
-                                  crossAxisSpacing: 12,
-                                  mainAxisSpacing: 12,
-                                ),
+                            gridDelegate: coverGridDelegate,
                             itemCount: books.length,
                             itemBuilder: (context, index) {
                               final book = books[index];

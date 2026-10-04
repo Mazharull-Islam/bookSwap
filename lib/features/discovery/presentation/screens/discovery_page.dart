@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../../../../shared/widgets/filter_widgets.dart';
-import '../../../books/presentation/providers/book_providers.dart';
 import '../providers/discovery_providers.dart';
 import '../widgets/book_group_detail_dialog.dart';
 import '../widgets/book_group_grid_tile.dart';
@@ -10,6 +9,8 @@ import '../widgets/book_group_tile.dart';
 import '../widgets/discovery_filter_sheet.dart';
 import '../widgets/recommended_strip.dart';
 import '../../../../shared/widgets/empty_state.dart';
+import '../../../../shared/widgets/view_mode.dart';
+import '../../../../shared/widgets/cover_grid.dart';
 
 class DiscoveryPage extends ConsumerStatefulWidget {
   const DiscoveryPage({super.key, this.banner});
@@ -45,20 +46,15 @@ class _DiscoveryPageState extends ConsumerState<DiscoveryPage> {
     final query = ref.watch(discoverySearchQueryProvider);
     final filter = ref.watch(discoveryFilterProvider);
     final viewMode = ref.watch(discoveryViewModeProvider);
-    final isGrid = viewMode == ShelfViewMode.grid;
+    final isGrid = viewMode == ViewMode.grid;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Discover'),
         actions: [
-          IconButton(
-            tooltip: isGrid ? 'Switch to list view' : 'Switch to grid view',
-            icon: Icon(
-              isGrid ? Icons.view_list_outlined : Icons.grid_view_outlined,
-            ),
-            onPressed: () =>
-                ref.read(discoveryViewModeProvider.notifier).state = isGrid
-                ? ShelfViewMode.list
-                : ShelfViewMode.grid,
+          ViewModeButton(
+            mode: viewMode,
+            onChanged: (mode) =>
+                ref.read(discoveryViewModeProvider.notifier).state = mode,
           ),
           const SizedBox(width: 4),
         ],
@@ -126,13 +122,7 @@ class _DiscoveryPageState extends ConsumerState<DiscoveryPage> {
                   return isGrid
                       ? GridView.builder(
                           padding: const EdgeInsets.only(top: 4),
-                          gridDelegate:
-                              const SliverGridDelegateWithMaxCrossAxisExtent(
-                                maxCrossAxisExtent: 180,
-                                childAspectRatio: 0.62,
-                                crossAxisSpacing: 12,
-                                mainAxisSpacing: 12,
-                              ),
+                          gridDelegate: coverGridDelegate,
                           itemCount: results.length,
                           itemBuilder: (context, index) {
                             final group = results[index];
