@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/borrow_requests/domain/models/borrow_request.dart';
+import '../../features/borrow_requests/presentation/providers/reminder_providers.dart';
 import '../../features/borrow_requests/presentation/providers/request_providers.dart';
 import '../../features/reputation/presentation/widgets/badge_notification_watcher.dart';
 import '../../features/wanted_books/presentation/providers/wanted_book_providers.dart';
@@ -43,6 +44,7 @@ class AppShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(bookSyncControllerProvider);
+    ref.watch(loanReminderSyncProvider);
     final pendingRequests =
         ref
             .watch(incomingRequestsProvider)

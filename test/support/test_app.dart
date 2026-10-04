@@ -23,6 +23,8 @@ import 'package:bookswap_login/features/books/presentation/providers/book_provid
 import 'package:bookswap_login/features/borrow_requests/domain/models/borrow_request.dart';
 import 'package:bookswap_login/features/borrow_requests/presentation/providers/request_providers.dart';
 import 'package:bookswap_login/features/discovery/presentation/providers/discovery_providers.dart';
+import 'package:bookswap_login/features/borrow_requests/presentation/providers/reminder_providers.dart';
+import 'fake_reminder_gateway.dart';
 import 'package:bookswap_login/features/forum/domain/models/forum_post.dart';
 import 'package:bookswap_login/features/forum/domain/models/forum_reply.dart';
 import 'package:bookswap_login/features/forum/domain/models/forum_report.dart';
@@ -380,6 +382,8 @@ Widget testApp([
     // No Firebase app exists under flutter_test, so every Firestore-backed
     // provider the signed-in shell touches gets a safe stream.
     ...firestoreFixtureOverrides(),
+    // No real notification plugin under flutter_test.
+    reminderGatewayProvider.overrideWithValue(FakeReminderGateway()),
     seenBadgesRepositoryProvider.overrideWithValue(InMemorySeenBadges()),
     googleBooksServiceProvider.overrideWithValue(FakeGoogleBooks()),
     // Skip the periodic 2-minute sync timer entirely.
