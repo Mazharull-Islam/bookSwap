@@ -26,6 +26,10 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>BookSwap uses the camera to scan a book's barcode (ISBN) when you add it.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>BookSwap uses your approximate location to show how far away other members' books are. Your precise location is never shared with other members.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

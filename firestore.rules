@@ -1,0 +1,607 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function owns(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+    function member() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && exists(/databases/$(database)/documents/profiles/$(request.auth.uid));
+    }
+    // Moderators are added by hand in the Firebase console (a doc at
+    // moderators/{uid}); no client write can create one.
+    function moderator() {
+      return member()
+        && exists(/databases/$(database)/documents/moderators/$(request.auth.uid));
+    }
+    match /moderators/{uid} {
+      allow get: if owns(uid);
+      allow list, write: if false;
+    }
+    // One doc per member per reported post/reply. Readable only by moderators.
+    function validForumReport(data, reportId) {
+      return data.keys().hasAll(['id', 'postId', 'replyId', 'targetKey', 'reporterId', 'reason', 'createdAtMs'])
+        && data.keys().hasOnly(['id', 'postId', 'replyId', 'targetKey', 'reporterId', 'reason', 'createdAtMs'])
+        && data.id == reportId
+        && data.reporterId == request.auth.uid
+        && text(data.postId, 1, 200)
+        && text(data.replyId, 0, 200)
+        && data.targetKey == (data.replyId == '' ? data.postId : data.postId + '_' + data.replyId)
+        && reportId == data.targetKey + '_' + request.auth.uid
+        && data.reason in ['spam', 'abuse', 'offTopic', 'other']
+        && data.createdAtMs is number;
+    }
+    match /forum_reports/{reportId} {
+      allow read: if moderator();
+      allow create: if member() && validForumReport(request.resource.data, reportId);
+      allow update: if false;
+      allow delete: if moderator();
+    }
+    function text(value, min, max) {
+      return value is string && value.size() >= min && value.size() <= max;
+    }
+    function validProfile(data) {
+      return data.keys().hasAll(['email', 'firstName', 'lastName', 'gender', 'mobile', 'address', 'preferences', 'favoriteBook', 'maxDistanceKm'])
+        // The two acceptedTerms* keys are no longer written or required; they
+        // stay allowed so a not-yet-updated app can still register.
+        && data.keys().hasOnly(['email', 'firstName', 'lastName', 'gender', 'mobile', 'address', 'preferences', 'favoriteBook', 'acceptedTermsVersion', 'acceptedTermsAt', 'maxDistanceKm'])
+        && data.email == request.auth.token.email.lower()
+        && text(data.firstName, 1, 100) && data.firstName.matches('.*[^ ].*')
+        && text(data.lastName, 1, 100) && data.lastName.matches('.*[^ ].*')
+        && data.gender in ['Woman', 'Man', 'Non-binary', 'Self-described / other', 'Prefer not to say']
+        && text(data.mobile, 10, 32) && data.mobile.matches('[+]?([ ()-]*[0-9]){10,15}[ ()-]*')
+        && text(data.address, 1, 200) && data.address.matches('.*[^ ].*')
+        && data.preferences is list && data.preferences.size() > 0 && data.preferences.size() <= 12
+        && data.preferences.hasOnly(['Fiction', 'Mystery', 'Fantasy', 'Science fiction', 'Romance', 'History', 'Biography', 'Self-development', 'Science & technology', 'Academic', 'Poetry', 'Other'])
+        && text(data.favoriteBook, 0, 200)
+        && (data.maxDistanceKm == null || (data.maxDistanceKm is number && data.maxDistanceKm > 0));
+    }
+    match /profiles/{uid} {
+      // Pending accounts can finish registration and read only their own profile.
+      allow get: if owns(uid);
+      allow create: if owns(uid) && validProfile(request.resource.data);
+      // Deliberately not validProfile() here: affectedKeys().hasOnly(
+      // ['maxDistanceKm']) already guarantees every other field is untouched
+      // by this write.
+      allow update: if owns(uid)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['maxDistanceKm'])
+        && (request.resource.data.maxDistanceKm == null || (request.resource.data.maxDistanceKm is number && request.resource.data.maxDistanceKm > 0));
+      // Member-editable fields only (Profile → Edit); email and the distance
+      // preference stay untouchable by this rule.
+      allow update: if owns(uid)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['firstName', 'lastName', 'gender', 'mobile', 'address', 'preferences', 'favoriteBook'])
+        && validProfileEdit(request.resource.data);
+      allow list, delete: if false;
+    }
+    function validProfileEdit(data) {
+      return text(data.firstName, 1, 100) && data.firstName.matches('.*[^ ].*')
+        && text(data.lastName, 1, 100) && data.lastName.matches('.*[^ ].*')
+        && data.gender in ['Woman', 'Man', 'Non-binary', 'Self-described / other', 'Prefer not to say']
+        && text(data.mobile, 10, 32) && data.mobile.matches('[+]?([ ()-]*[0-9]){10,15}[ ()-]*')
+        && text(data.address, 1, 200) && data.address.matches('.*[^ ].*')
+        && data.preferences is list && data.preferences.size() > 0 && data.preferences.size() <= 12
+        && data.preferences.hasOnly(['Fiction', 'Mystery', 'Fantasy', 'Science fiction', 'Romance', 'History', 'Biography', 'Self-development', 'Science & technology', 'Academic', 'Poetry', 'Other'])
+        && text(data.favoriteBook, 0, 200);
+    }
+    function validPublicProfile(data) {
+      return data.keys().hasAll(['firstName'])
+        && data.keys().hasOnly(['firstName', 'latitude', 'longitude'])
+        && text(data.firstName, 1, 100)
+        && (!('latitude' in data) || (data.latitude is number && data.latitude >= -90 && data.latitude <= 90))
+        && (!('longitude' in data) || (data.longitude is number && data.longitude >= -180 && data.longitude <= 180));
+    }
+    // Deliberately separate from /profiles: this is the only piece of another
+    // member's identity anyone can read before a borrow request is accepted —
+    // no contact info (mobile/email/address) ever lives here. `list` is
+    // enabled (unlike most member-private collections) specifically so
+    // Discovery can compute distance to every listing's owner client-side
+    // (SRS §3.1/§3.3) — there's no backend function to do that privately.
+    // latitude/longitude are rounded to ~1km precision before they're ever
+    // written (see roundCoordinate()), the deliberate privacy trim this
+    // relies on instead of true server-side distance-only computation.
+    match /public_profiles/{uid} {
+      allow get: if member();
+      allow list: if member();
+      allow create: if owns(uid) && validPublicProfile(request.resource.data);
+      allow update: if owns(uid)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['latitude', 'longitude'])
+        && request.resource.data.latitude is number && request.resource.data.latitude >= -90 && request.resource.data.latitude <= 90
+        && request.resource.data.longitude is number && request.resource.data.longitude >= -180 && request.resource.data.longitude <= 180;
+      // Display name kept in step with the private profile (Profile → Edit).
+      allow update: if owns(uid)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['firstName'])
+        && text(request.resource.data.firstName, 1, 100) && request.resource.data.firstName.matches('.*[^ ].*');
+      // Profile photo: only a Cloudinary image from this app's own account
+      // (cloud o9we0m6d), or '' to remove it — so a profile can't be pointed
+      // at an arbitrary outside image.
+      allow update: if owns(uid)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['photoUrl'])
+        && request.resource.data.photoUrl is string
+        && request.resource.data.photoUrl.size() <= 300
+        && (request.resource.data.photoUrl == ''
+            || request.resource.data.photoUrl.matches('https://res[.]cloudinary[.]com/o9we0m6d/image/upload/[^ ]+'));
+      allow delete: if false;
+    }
+    function validBook(data, bookId) {
+      return data.keys().hasAll(['id', 'ownerId', 'title', 'author', 'genre', 'condition', 'estimatedValue', 'description', 'coverPhotoUrl', 'isbn', 'workKey', 'status', 'updatedAtMs'])
+        && data.keys().hasOnly(['id', 'ownerId', 'title', 'author', 'genre', 'condition', 'estimatedValue', 'description', 'coverPhotoUrl', 'isbn', 'workKey', 'status', 'updatedAtMs'])
+        && data.id == bookId
+        && data.ownerId == request.auth.uid
+        && text(data.title, 1, 300) && data.title.matches('.*[^ ].*')
+        && text(data.author, 0, 300)
+        && text(data.genre, 0, 300)
+        && text(data.condition, 1, 50)
+        && data.estimatedValue is number && data.estimatedValue >= 0
+        && text(data.description, 0, 2000)
+        && (data.coverPhotoUrl == null || data.coverPhotoUrl is string)
+        && (data.isbn == null || data.isbn is string)
+        && (data.workKey == null || data.workKey is string)
+        && data.status in ['available', 'requested', 'lent', 'returned']
+        && data.updatedAtMs is number;
+    }
+    // Membership is derived from a validated profile AND a verified Firebase token.
+    // Use member() for future member-only collections as well.
+    match /books/{bookId} {
+      allow read: if member();
+      allow create, update: if member() && validBook(request.resource.data, bookId);
+      allow delete: if member() && resource.data.ownerId == request.auth.uid;
+    }
+    // Only the fields a request can never sensibly be without are in hasAll;
+    // every field that started out optional (or was added to the schema
+    // after some documents already existed) is checked via .get(field, null)
+    // instead of dot access or hasAll. A partial .update() only patches the
+    // keys it names — on a document that predates a later field, the merged
+    // request.resource.data can still be missing that key entirely, and
+    // dot-accessing (or requiring via hasAll) a genuinely missing map key is
+    // a rules evaluation error, which denies the whole write.
+    function validRequest(data, requestId) {
+      return data.keys().hasAll(['id', 'bookId', 'bookTitle', 'borrowerId', 'lenderId', 'status', 'requestedAt'])
+        && data.keys().hasOnly(['id', 'bookId', 'bookTitle', 'bookCoverUrl', 'borrowerId', 'lenderId', 'status', 'requestedAt', 'respondedAt', 'expectedReturnDateMs', 'borrowerContact', 'lenderContact', 'returnedAt', 'proposedReturnDateMs', 'conditionOut', 'conditionIn', 'borrowerNote'])
+        && data.id == requestId
+        && text(data.bookId, 1, 200)
+        && text(data.bookTitle, 1, 300)
+        && (data.get('bookCoverUrl', null) == null || data.get('bookCoverUrl', null) is string)
+        && text(data.borrowerId, 1, 200)
+        && text(data.lenderId, 1, 200)
+        && data.borrowerId != data.lenderId
+        && data.status in ['pending', 'accepted', 'declined']
+        && data.requestedAt is number
+        && (data.get('respondedAt', null) == null || data.get('respondedAt', null) is number)
+        && (data.get('expectedReturnDateMs', null) == null || data.get('expectedReturnDateMs', null) is number)
+        && (data.get('borrowerContact', null) == null || text(data.get('borrowerContact', null), 1, 32))
+        && (data.get('lenderContact', null) == null || text(data.get('lenderContact', null), 1, 32))
+        && (data.get('returnedAt', null) == null || data.get('returnedAt', null) is number)
+        && (data.get('proposedReturnDateMs', null) == null || data.get('proposedReturnDateMs', null) is number)
+        // Condition history (SRS §3.5).
+        && (data.get('conditionOut', null) == null || data.get('conditionOut', null) in ['New', 'Like new', 'Good', 'Fair', 'Worn'])
+        && (data.get('conditionIn', null) == null || data.get('conditionIn', null) in ['New', 'Like new', 'Good', 'Fair', 'Worn'])
+        && (data.get('borrowerNote', null) == null || text(data.get('borrowerNote', null), 1, 300));
+    }
+    // Contact fields (borrowerContact/lenderContact) are deliberately absent
+    // until each party explicitly reveals theirs — never both at creation.
+    // See BorrowRequest/FirestoreRequestRepository for the write choreography
+    // this enforces: only the lender may accept/decline, only the borrower
+    // may publish their own contact, and only after acceptance.
+    // My Reading sync: a member's own reading list and goal, private to them.
+    // Entries are never hard-deleted by the app (removal sets deletedAtMs) so
+    // it can propagate to the member's other devices.
+    function validReadingEntry(data, entryId) {
+      return data.keys().hasAll(['id', 'userId', 'title', 'status', 'updatedAtMs'])
+        && data.keys().hasOnly(['id', 'userId', 'title', 'author', 'genre', 'publishedYear', 'description', 'coverUrl', 'workKey', 'status', 'rating', 'review', 'updatedAtMs', 'deletedAtMs'])
+        && data.id == entryId
+        && data.userId == request.auth.uid
+        && text(data.title, 1, 300)
+        && text(data.get('author', ''), 0, 300)
+        && text(data.get('genre', ''), 0, 1000)
+        && text(data.get('description', ''), 0, 5000)
+        && text(data.get('review', ''), 0, 2000)
+        && (data.get('publishedYear', null) == null || data.get('publishedYear', null) is string)
+        && (data.get('coverUrl', null) == null || data.get('coverUrl', null) is string)
+        && (data.get('workKey', null) == null || data.get('workKey', null) is string)
+        && data.status in ['planToRead', 'reading', 'read']
+        && (data.get('rating', null) == null || (data.get('rating', null) is int && data.get('rating', null) >= 1 && data.get('rating', null) <= 5))
+        && data.updatedAtMs is number
+        && (data.get('deletedAtMs', null) == null || data.get('deletedAtMs', null) is number);
+    }
+    match /reading_entries/{entryId} {
+      allow read: if member() && resource.data.userId == request.auth.uid;
+      allow create: if member() && validReadingEntry(request.resource.data, entryId);
+      allow update: if member()
+        && resource.data.userId == request.auth.uid
+        && validReadingEntry(request.resource.data, entryId);
+      allow delete: if member() && resource.data.userId == request.auth.uid;
+    }
+    function validReadingGoal(data, uid) {
+      return data.keys().hasAll(['userId', 'targetCount', 'startedAtMs', 'periodDays'])
+        && data.keys().hasOnly(['userId', 'targetCount', 'startedAtMs', 'periodDays', 'updatedAtMs', 'deletedAtMs'])
+        && data.userId == uid
+        && data.targetCount is int && data.targetCount >= 1 && data.targetCount <= 10000
+        && data.startedAtMs is number
+        && data.periodDays is int && data.periodDays >= 1 && data.periodDays <= 3660
+        && (data.get('updatedAtMs', null) == null || data.get('updatedAtMs', null) is number)
+        && (data.get('deletedAtMs', null) == null || data.get('deletedAtMs', null) is number);
+    }
+    match /reading_goals/{uid} {
+      allow read: if member() && owns(uid);
+      allow create, update: if member() && owns(uid) && validReadingGoal(request.resource.data, uid);
+      allow delete: if member() && owns(uid);
+    }
+    // Public reviews (SRS §3.8). One review per returned loan, written only
+    // by that loan's borrower; the document id is the request id, which is
+    // how this rule can check the loan with a single get().
+    function returnedLoanBorrowedByMe(requestId) {
+      let loan = get(/databases/$(database)/documents/requests/$(requestId)).data;
+      return loan.borrowerId == request.auth.uid
+        && loan.status == 'accepted'
+        && loan.get('returnedAt', null) != null;
+    }
+    function validReviewContent(data) {
+      return data.rating is int && data.rating >= 1 && data.rating <= 5
+        && text(data.text, 0, 500)
+        && data.updatedAtMs is int;
+    }
+    match /book_reviews/{reviewId} {
+      allow read: if member();
+      allow create: if member()
+        && request.resource.data.keys().hasOnly(['id', 'requestId', 'reviewerId', 'reviewerName', 'bookId', 'bookTitle', 'matchKey', 'rating', 'text', 'createdAtMs', 'updatedAtMs'])
+        && request.resource.data.keys().hasAll(['id', 'requestId', 'reviewerId', 'reviewerName', 'bookId', 'bookTitle', 'matchKey', 'rating', 'text', 'createdAtMs', 'updatedAtMs'])
+        && request.resource.data.id == reviewId
+        && request.resource.data.requestId == reviewId
+        && request.resource.data.reviewerId == request.auth.uid
+        && text(request.resource.data.reviewerName, 1, 100)
+        && text(request.resource.data.bookTitle, 1, 300)
+        && text(request.resource.data.matchKey, 1, 400)
+        && request.resource.data.createdAtMs is int
+        && validReviewContent(request.resource.data)
+        && returnedLoanBorrowedByMe(reviewId);
+      allow update: if member()
+        && resource.data.reviewerId == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['rating', 'text', 'updatedAtMs'])
+        && validReviewContent(request.resource.data);
+      allow delete: if member() && resource.data.reviewerId == request.auth.uid;
+    }
+    match /requests/{requestId} {
+      allow read: if member()
+        && (resource.data.borrowerId == request.auth.uid
+            || resource.data.lenderId == request.auth.uid);
+      allow create: if member()
+        && validRequest(request.resource.data, requestId)
+        && request.resource.data.borrowerId == request.auth.uid
+        && request.resource.data.status == 'pending'
+        && request.resource.data.respondedAt == null
+        && request.resource.data.expectedReturnDateMs == null
+        && request.resource.data.borrowerContact == null
+        && request.resource.data.lenderContact == null
+        && request.resource.data.returnedAt == null
+        && request.resource.data.proposedReturnDateMs == null
+        // SRS §3.4: prevent a blocked user from sending new requests to the
+        // user who blocked them. exists() works without a read grant on
+        // /blocks, which is what makes this enforceable without exposing
+        // the borrower's own read access to the lender's block list.
+        && !exists(/databases/$(database)/documents/blocks/$(request.resource.data.lenderId + '_' + request.resource.data.borrowerId));
+      allow update: if member() && validRequest(request.resource.data, requestId) && (
+        (resource.data.lenderId == request.auth.uid
+          && resource.data.status == 'pending'
+          && request.resource.data.borrowerId == resource.data.borrowerId
+          && request.resource.data.lenderId == resource.data.lenderId
+          && request.resource.data.bookId == resource.data.bookId
+          && request.resource.data.status in ['accepted', 'declined']
+          && request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(['status', 'respondedAt', 'expectedReturnDateMs', 'lenderContact', 'conditionOut']))
+        ||
+        (resource.data.borrowerId == request.auth.uid
+          && resource.data.status == 'accepted'
+          && request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(['borrowerContact']))
+        ||
+        // Loan Lifecycle (SRS §3.5): lender-only, marks an active loan as
+        // returned. Trimmed from the spec's "either party" — only the
+        // lender's client can write the corresponding book status change
+        // (books/{bookId} rules require ownerId == auth.uid), so having the
+        // borrower separately flag a return here would just be inert state
+        // with no matching book-status effect.
+        (resource.data.lenderId == request.auth.uid
+          && resource.data.status == 'accepted'
+          && resource.data.get('returnedAt', null) == null
+          && request.resource.data.status == 'accepted'
+          && request.resource.data.returnedAt is number
+          && request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(['returnedAt', 'conditionIn']))
+        ||
+        // The borrower can explain a return once it's recorded (typically
+        // one flagged as worse). Only the note changes.
+        (resource.data.borrowerId == request.auth.uid
+          && resource.data.status == 'accepted'
+          && resource.data.get('returnedAt', null) != null
+          && resource.data.get('conditionIn', null) != null
+          && request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(['borrowerNote']))
+        ||
+        // Loan extensions (SRS §3.5): borrower proposes a new return date on
+        // an active loan (one pending proposal at a time)...
+        // resource.data.get(...) rather than dot access: a request document
+        // written before these fields existed in the schema has no such key
+        // at all, and dot-accessing a genuinely missing map key is a rules
+        // evaluation error (denies the whole request), not just falsy.
+        (resource.data.borrowerId == request.auth.uid
+          && resource.data.status == 'accepted'
+          && resource.data.get('returnedAt', null) == null
+          && resource.data.get('proposedReturnDateMs', null) == null
+          && request.resource.data.proposedReturnDateMs is number
+          && request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(['proposedReturnDateMs']))
+        ||
+        // ...and the lender either approves it (moving the proposal into
+        // expectedReturnDateMs) or declines it (clearing it, return date
+        // untouched) — both just clear proposedReturnDateMs, so the two
+        // outcomes are distinguished by whether expectedReturnDateMs moved.
+        (resource.data.lenderId == request.auth.uid
+          && resource.data.status == 'accepted'
+          && resource.data.get('proposedReturnDateMs', null) != null
+          && request.resource.data.proposedReturnDateMs == null
+          && (
+            (request.resource.data.expectedReturnDateMs == resource.data.expectedReturnDateMs
+              && request.resource.data.diff(resource.data).affectedKeys()
+                   .hasOnly(['proposedReturnDateMs']))
+            ||
+            (request.resource.data.expectedReturnDateMs == resource.data.proposedReturnDateMs
+              && request.resource.data.diff(resource.data).affectedKeys()
+                   .hasOnly(['proposedReturnDateMs', 'expectedReturnDateMs']))
+          ))
+      );
+      allow delete: if false;
+    }
+    function validWantedBook(data, wantedId) {
+      return data.keys().hasAll(['id', 'userId', 'title', 'author', 'coverUrl', 'workKey', 'matchKey', 'addedAtMs'])
+        && data.keys().hasOnly(['id', 'userId', 'title', 'author', 'coverUrl', 'workKey', 'matchKey', 'addedAtMs'])
+        && data.id == wantedId
+        && data.userId == request.auth.uid
+        && text(data.title, 1, 300)
+        && text(data.author, 0, 300)
+        && (data.coverUrl == null || data.coverUrl is string)
+        && (data.workKey == null || data.workKey is string)
+        && text(data.matchKey, 1, 300)
+        && data.addedAtMs is number;
+    }
+    // Member-readable like /books: every wishlist entry is visible to every
+    // member, deliberately, because mutual-swap detection (SRS §3.5) runs
+    // entirely on-device from these two collections — there's no backend
+    // function to do the matching centrally. A wanted title carries none of
+    // the contact/location sensitivity that gates /requests.
+    match /wanted_books/{wantedId} {
+      allow read: if member();
+      allow create: if member() && validWantedBook(request.resource.data, wantedId);
+      allow update: if false;
+      allow delete: if member() && resource.data.userId == request.auth.uid;
+    }
+    function validBlock(data, blockId) {
+      return data.keys().hasAll(['id', 'blockerId', 'blockedId', 'blockedName', 'createdAtMs'])
+        && data.keys().hasOnly(['id', 'blockerId', 'blockedId', 'blockedName', 'createdAtMs'])
+        && data.id == blockId
+        && data.id == data.blockerId + '_' + data.blockedId
+        && data.blockerId == request.auth.uid
+        && text(data.blockedId, 1, 200)
+        && data.blockerId != data.blockedId
+        && text(data.blockedName, 1, 200)
+        && data.createdAtMs is number;
+    }
+    // Deliberately NOT member-readable like /books or /wanted_books — who
+    // you've blocked is private to you. The doc id is the composite
+    // '{blockerId}_{blockedId}' precisely so /requests' create rule can do a
+    // targeted exists() check (below) without needing read access here:
+    // exists() evaluates independently of read rules.
+    match /blocks/{blockId} {
+      allow read: if member() && resource.data.blockerId == request.auth.uid;
+      allow create: if member() && validBlock(request.resource.data, blockId);
+      allow update: if false;
+      allow delete: if member() && resource.data.blockerId == request.auth.uid;
+    }
+    // Validates shape/types only — NOT authorId, since likes/reports/reply
+    // counts are legitimately written by members other than the author.
+    // Ownership of the create is checked separately, only in `allow create`.
+    function validForumPost(data, postId) {
+      return data.keys().hasAll(['id', 'authorId', 'authorName', 'title', 'body', 'genre', 'createdAtMs', 'likedBy', 'reportedBy', 'replyCount'])
+        && data.keys().hasOnly(['id', 'authorId', 'authorName', 'title', 'body', 'genre', 'createdAtMs', 'likedBy', 'reportedBy', 'replyCount'])
+        && data.id == postId
+        && text(data.authorId, 1, 200)
+        && text(data.authorName, 1, 200)
+        && text(data.title, 1, 300)
+        && text(data.body, 1, 4000)
+        && (data.genre == null || text(data.genre, 1, 300))
+        && data.createdAtMs is number
+        && data.likedBy is list
+        && data.reportedBy is list
+        && data.replyCount is int && data.replyCount >= 0;
+    }
+    // A pure array-add-of-self diff: exactly [uid] was added to `before`,
+    // nothing else changed. Used for both likedBy and reportedBy adds.
+    function addedSelf(before, after) {
+      return !(request.auth.uid in before)
+        && request.auth.uid in after
+        && after.size() == before.size() + 1
+        && after.hasAll(before);
+    }
+    // The inverse — exactly [uid] was removed, nothing else changed. Used
+    // for unliking (there's no "un-report").
+    function removedSelf(before, after) {
+      return request.auth.uid in before
+        && !(request.auth.uid in after)
+        && after.size() == before.size() - 1
+        && before.hasAll(after);
+    }
+    match /forum_posts/{postId} {
+      allow read: if member();
+      allow create: if member()
+        && validForumPost(request.resource.data, postId)
+        && request.resource.data.authorId == request.auth.uid
+        && request.resource.data.likedBy.size() == 0
+        && request.resource.data.reportedBy.size() == 0
+        && request.resource.data.replyCount == 0;
+      allow update: if member() && validForumPost(request.resource.data, postId) && (
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likedBy'])
+          && (addedSelf(resource.data.likedBy, request.resource.data.likedBy)
+              || removedSelf(resource.data.likedBy, request.resource.data.likedBy)))
+        ||
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reportedBy'])
+          && resource.data.authorId != request.auth.uid
+          && addedSelf(resource.data.reportedBy, request.resource.data.reportedBy))
+        ||
+        // A moderator dismissing the reports restores the post.
+        (moderator()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reportedBy'])
+          && request.resource.data.reportedBy.size() == 0)
+        ||
+        // Bumped alongside a reply create (see /replies below) — any member
+        // may do this, not just the post's author. Dropped by one alongside a
+        // reply delete.
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['replyCount'])
+          && (request.resource.data.replyCount == resource.data.replyCount + 1
+              || request.resource.data.replyCount == resource.data.replyCount - 1))
+      );
+      allow delete: if member()
+        && (resource.data.authorId == request.auth.uid || moderator());
+      // postId is a parameter, not inherited from the enclosing match block —
+      // a rules function only ever sees what's explicitly passed to it, the
+      // same lesson learned earlier with validBook/bookId. Leaving it out
+      // here made data.postId == postId compare against an undefined
+      // variable, so it always evaluated false and denied every reply.
+      function validForumReply(data, postId, replyId) {
+        return data.keys().hasAll(['id', 'postId', 'authorId', 'authorName', 'body', 'createdAtMs', 'likedBy', 'reportedBy'])
+          && data.keys().hasOnly(['id', 'postId', 'authorId', 'authorName', 'body', 'createdAtMs', 'likedBy', 'reportedBy'])
+          && data.id == replyId
+          && data.postId == postId
+          && text(data.authorId, 1, 200)
+          && text(data.authorName, 1, 200)
+          && text(data.body, 1, 2000)
+          && data.createdAtMs is number
+          && data.likedBy is list
+          && data.reportedBy is list;
+      }
+      match /replies/{replyId} {
+        allow read: if member();
+        allow create: if member()
+          && validForumReply(request.resource.data, postId, replyId)
+          && request.resource.data.authorId == request.auth.uid
+          && request.resource.data.likedBy.size() == 0
+          && request.resource.data.reportedBy.size() == 0
+          // SRS §3.7: reuses the existing block mechanism to stop someone
+          // the post's author has blocked from replying to it.
+          && !exists(/databases/$(database)/documents/blocks/$(get(/databases/$(database)/documents/forum_posts/$(postId)).data.authorId + '_' + request.auth.uid));
+        allow update: if member() && validForumReply(request.resource.data, postId, replyId) && (
+          (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likedBy'])
+            && (addedSelf(resource.data.likedBy, request.resource.data.likedBy)
+                || removedSelf(resource.data.likedBy, request.resource.data.likedBy)))
+          ||
+          (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reportedBy'])
+            && resource.data.authorId != request.auth.uid
+            && addedSelf(resource.data.reportedBy, request.resource.data.reportedBy))
+          ||
+          (moderator()
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reportedBy'])
+            && request.resource.data.reportedBy.size() == 0)
+        );
+        allow delete: if member()
+          && (resource.data.authorId == request.auth.uid || moderator());
+      }
+    }
+    // Book of the Month (SRS §3.10). A "period" is just a calendar month
+    // ("2026-09") — nothing server-side starts or closes one; the current
+    // month is always open, anything else is implicitly frozen the moment
+    // it's no longer current. See lib/features/book_of_month/domain/period.dart.
+    // matchKey (often an Open Library workKey like "/works/OL12345W") can
+    // contain '/', so unlike /blocks or /book_of_month_votes this doc's id
+    // is auto-generated, not a composite of its fields — a '/' inside a
+    // Firestore document id breaks path parsing. Dedup is a client-side
+    // query, not an id equality check.
+    function validBomNomination(data, nomId) {
+      return data.keys().hasAll(['id', 'periodId', 'matchKey', 'title', 'author', 'coverUrl', 'workKey', 'genre', 'nominatedBy', 'nominatedByName', 'nominatedAtMs'])
+        && data.keys().hasOnly(['id', 'periodId', 'matchKey', 'title', 'author', 'coverUrl', 'workKey', 'genre', 'nominatedBy', 'nominatedByName', 'nominatedAtMs'])
+        && data.id == nomId
+        && text(data.periodId, 7, 7)
+        && text(data.matchKey, 1, 300)
+        && text(data.title, 1, 300)
+        && text(data.author, 0, 300)
+        && (data.coverUrl == null || data.coverUrl is string)
+        && (data.workKey == null || data.workKey is string)
+        && (data.genre == null || text(data.genre, 1, 300))
+        && data.nominatedBy == request.auth.uid
+        && text(data.nominatedByName, 1, 200)
+        && data.nominatedAtMs is number;
+    }
+    // Immutable once created — a duplicate nomination of the same book in
+    // the same period is a client-side no-op (checked before writing), not
+    // a server-enforced merge, so there's nothing to ever update here.
+    match /book_of_month_nominations/{nomId} {
+      allow read: if member();
+      allow create: if member() && validBomNomination(request.resource.data, nomId);
+      allow update, delete: if false;
+    }
+    function validBomVote(data, voteId) {
+      return data.keys().hasAll(['id', 'periodId', 'userId', 'matchKey', 'votedAtMs'])
+        && data.keys().hasOnly(['id', 'periodId', 'userId', 'matchKey', 'votedAtMs'])
+        && data.id == voteId
+        && data.id == data.periodId + '_' + data.userId
+        && text(data.periodId, 7, 7)
+        && data.userId == request.auth.uid
+        && text(data.matchKey, 1, 300)
+        && data.votedAtMs is number;
+    }
+    // create AND update both just validate the same full-document shape —
+    // "changing your vote" is a plain overwrite of your own periodId_userId
+    // doc, not a diffed field update, so there's no separate merge logic
+    // needed the way likes/reports have.
+    match /book_of_month_votes/{voteId} {
+      allow read: if member();
+      allow create, update: if member() && validBomVote(request.resource.data, voteId);
+      allow delete: if false;
+    }
+    function validBomPeriod(data, periodId) {
+      return data.keys().hasAll(['id', 'discussionPostId'])
+        && data.keys().hasOnly(['id', 'discussionPostId'])
+        && data.id == periodId
+        && (data.discussionPostId == null || text(data.discussionPostId, 1, 200));
+    }
+    // A lightweight index of "periods that have ever had a nomination" (no
+    // distinct-value queries in Firestore) plus the period's one Forum
+    // thread, set at most once (null -> a value) so a late racing caller
+    // can't clobber whichever thread got created first.
+    match /book_of_month_periods/{periodId} {
+      allow read: if member();
+      allow create: if member()
+        && validBomPeriod(request.resource.data, periodId)
+        && request.resource.data.discussionPostId == null;
+      allow update: if member()
+        && validBomPeriod(request.resource.data, periodId)
+        && resource.data.discussionPostId == null
+        && request.resource.data.discussionPostId is string
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['discussionPostId']);
+      allow delete: if false;
+    }
+    // Reading Leaderboard (SRS §3.11). One doc per "I marked a book Read"
+    // event — deliberately minimal (no title, rating, or review) so the
+    // leaderboard can aggregate reader/author counts without exposing a
+    // user's actual reading list. Auto-generated doc id, unlike
+    // book_of_month_nominations there's no composite key derived from a
+    // workKey here, so no slash-in-id risk.
+    function validReadingActivity(data, docId) {
+      return data.keys().hasAll(['id', 'userId', 'userName', 'author', 'genre', 'periodId', 'markedReadAtMs'])
+        && data.keys().hasOnly(['id', 'userId', 'userName', 'author', 'genre', 'periodId', 'markedReadAtMs'])
+        && data.id == docId
+        && data.userId == request.auth.uid
+        && text(data.userName, 1, 200)
+        && text(data.author, 0, 300)
+        && (data.genre == null || text(data.genre, 1, 300))
+        && text(data.periodId, 7, 7)
+        && data.markedReadAtMs is number;
+    }
+    match /reading_activity/{docId} {
+      allow read: if member();
+      allow create: if member() && validReadingActivity(request.resource.data, docId);
+      allow update, delete: if false;
+    }
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,73 @@
+import 'package:flutter/material.dart';
+import '../../../../app/app_colors.dart';
+import '../../domain/models/book.dart';
+import 'book_cover_image.dart';
+
+String bookStatusLabel(BookStatus status) => switch (status) {
+  BookStatus.available => 'Available',
+  BookStatus.requested => 'Requested',
+  BookStatus.lent => 'Lent out',
+  BookStatus.returned => 'Returned',
+};
+
+Color bookStatusColor(BookStatus status) => switch (status) {
+  BookStatus.available => StatusFills.accepted,
+  BookStatus.requested => StatusFills.pending,
+  BookStatus.lent => StatusFills.lent,
+  BookStatus.returned => StatusFills.returned,
+};
+
+List<String> bookGenreList(String genre) => genre.trim().isEmpty
+    ? const []
+    : genre.split(',').map((g) => g.trim()).where((g) => g.isNotEmpty).toList();
+
+class BookListTile extends StatelessWidget {
+  const BookListTile({
+    super.key,
+    required this.book,
+    required this.onTap,
+    required this.onDelete,
+  });
+  final Book book;
+  final VoidCallback onTap;
+  final VoidCallback onDelete;
+
+  @override
+  Widget build(BuildContext context) => Card(
+    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+    child: ListTile(
+      onTap: onTap,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      leading: BookCoverImage(url: book.coverPhotoUrl, width: 48, height: 64),
+      title: Text(book.title, maxLines: 1, overflow: TextOverflow.ellipsis),
+      subtitle: Text(
+        '${book.author} · ${book.genre}',
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Chip(
+            label: Text(
+              bookStatusLabel(book.status),
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+            backgroundColor: bookStatusColor(book.status),
+            padding: EdgeInsets.zero,
+            visualDensity: VisualDensity.compact,
+          ),
+          IconButton(
+            tooltip: 'Remove ${book.title}',
+            icon: const Icon(Icons.delete_outline),
+            onPressed: onDelete,
+          ),
+        ],
+      ),
+    ),
+  );
+}
