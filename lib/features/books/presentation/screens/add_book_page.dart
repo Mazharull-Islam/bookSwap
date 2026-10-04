@@ -8,7 +8,7 @@ import '../../../../core/services/open_library_service.dart';
 import '../../../../core/utils/isbn.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../../../../shared/widgets/primary_button.dart';
-import '../../domain/models/book.dart';
+import '../../domain/entities/book.dart';
 import '../../domain/repositories/book_repository.dart';
 import '../providers/book_providers.dart';
 import '../widgets/book_suggestion_tile.dart';
@@ -17,7 +17,7 @@ import '../widgets/selected_book_card.dart';
 import '../../../../app/app_colors.dart';
 import '../../../../core/services/book_enrichment_service.dart';
 import '../../../../shared/genre_normalizer.dart';
-import '../widgets/book_list_tile.dart' show bookGenreList;
+import '../../domain/book_genres.dart';
 
 class AddBookPage extends ConsumerStatefulWidget {
   const AddBookPage({super.key, this.existing});

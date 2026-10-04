@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../features/borrow_requests/domain/models/borrow_request.dart';
+import '../../features/borrow_requests/domain/entities/borrow_request.dart';
 import '../../features/borrow_requests/presentation/providers/reminder_providers.dart';
 import '../../features/borrow_requests/presentation/providers/request_providers.dart';
 import '../../features/reputation/presentation/widgets/badge_notification_watcher.dart';

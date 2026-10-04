@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import '../../../../app/app_colors.dart';
 import '../../../../shared/widgets/primary_button.dart';
 import '../../../../shared/widgets/secondary_button.dart';
-import '../../domain/models/book.dart';
+import '../../domain/entities/book.dart';
 import 'book_cover_image.dart';
-import 'book_list_tile.dart';
 import 'genre_pill_list.dart';
 import '../../../../shared/widgets/section_heading.dart';
 import '../../../borrow_requests/presentation/widgets/condition_history.dart';
+import '../../domain/book_genres.dart';
 
 Future<void> showBookDetailDialog(
   BuildContext context, {

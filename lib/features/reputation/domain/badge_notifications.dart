@@ -1,4 +1,4 @@
-import 'models/achievement_badge.dart';
+import 'entities/achievement_badge.dart';
 
 class BadgeNotificationPlan {
   const BadgeNotificationPlan({required this.announce, required this.store});

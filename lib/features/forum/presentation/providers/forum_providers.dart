@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/providers/current_user_provider.dart';
 import '../../application/use_cases/forum_use_cases.dart';
 import '../../data/repositories/firestore_forum_repository.dart';
-import '../../domain/models/forum_post.dart';
-import '../../domain/models/forum_reply.dart';
-import '../../domain/models/forum_report.dart';
+import '../../domain/entities/forum_post.dart';
+import '../../domain/entities/forum_reply.dart';
+import '../../domain/entities/forum_report.dart';
 import '../../domain/repositories/forum_repository.dart';
 
 final forumRepositoryProvider = Provider<ForumRepository>(

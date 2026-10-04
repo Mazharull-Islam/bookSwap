@@ -1,4 +1,4 @@
-import '../../../core/services/public_profile_service.dart';
+import '../../../shared/entities/public_profile.dart';
 import '../../../core/utils/distance_calculator.dart';
 
 /// Null when either party's location is unknown — callers treat that as

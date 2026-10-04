@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/utils/date_format.dart';
-import '../../domain/models/forum_post.dart';
+import '../../domain/entities/forum_post.dart';
 import '../../../../app/app_colors.dart';
 import '../../../../shared/widgets/member_avatar.dart';
 

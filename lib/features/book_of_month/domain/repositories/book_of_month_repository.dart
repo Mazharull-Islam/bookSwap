@@ -1,6 +1,6 @@
-import '../models/book_of_month_nomination.dart';
-import '../models/book_of_month_period.dart';
-import '../models/book_of_month_vote.dart';
+import '../entities/book_of_month_nomination.dart';
+import '../entities/book_of_month_period.dart';
+import '../entities/book_of_month_vote.dart';
 
 class BookOfMonthValidationFailure implements Exception {
   const BookOfMonthValidationFailure(this.message);

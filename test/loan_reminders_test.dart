@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:bookswap_login/core/services/reminder_gateway.dart';
 import 'package:bookswap_login/features/borrow_requests/domain/loan_reminders.dart';
-import 'package:bookswap_login/features/borrow_requests/domain/models/borrow_request.dart';
+import 'package:bookswap_login/features/borrow_requests/domain/entities/borrow_request.dart';
 import 'package:bookswap_login/features/borrow_requests/presentation/providers/reminder_providers.dart';
 import 'package:bookswap_login/features/borrow_requests/presentation/providers/request_providers.dart';
 import 'support/fake_reminder_gateway.dart';

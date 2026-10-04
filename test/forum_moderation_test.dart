@@ -5,12 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:bookswap_login/features/forum/data/repositories/firestore_forum_repository.dart';
-import 'package:bookswap_login/features/forum/domain/models/forum_post.dart';
-import 'package:bookswap_login/features/forum/domain/models/forum_reply.dart';
-import 'package:bookswap_login/features/forum/domain/models/forum_report.dart';
+import 'package:bookswap_login/features/forum/domain/entities/forum_post.dart';
+import 'package:bookswap_login/features/forum/domain/entities/forum_reply.dart';
+import 'package:bookswap_login/features/forum/domain/entities/forum_report.dart';
 import 'package:bookswap_login/features/forum/domain/repositories/forum_repository.dart';
 import 'package:bookswap_login/features/forum/presentation/providers/forum_providers.dart';
 import 'support/test_app.dart';
+import 'package:bookswap_login/features/forum/data/models/forum_report_dto.dart';
 
 ForumReport report(
   String postId, {
@@ -148,7 +149,7 @@ void main() {
         expect(saved.reportedBy, ['u1']);
         final reports = (await db.collection('forum_reports').get()).docs;
         expect(reports, hasLength(1));
-        final r = ForumReport.fromJson(reports.single.data());
+        final r = ForumReportDto.parse(reports.single.data());
         expect(r.reason, 'abuse');
         expect(r.postId, p.id);
         expect(r.isReply, isFalse);
@@ -166,7 +167,7 @@ void main() {
       );
       await repo.reportReply(p.id, r.id, 'u1', ForumReportReason.spam);
       final doc = (await db.collection('forum_reports').get()).docs.single;
-      expect(ForumReport.fromJson(doc.data()).targetKey, '${p.id}_${r.id}');
+      expect(ForumReportDto.parse(doc.data()).targetKey, '${p.id}_${r.id}');
       expect((await repo.fetchReply(p.id, r.id))!.reportedBy, ['u1']);
     });
 
@@ -343,7 +344,6 @@ void main() {
       await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
       await tester.pumpAndSettle();
       expect(repo.calls, ['deletePost post-1']);
-      // Back on the feed.
       expect(find.text('Forum'), findsWidgets);
     });
 

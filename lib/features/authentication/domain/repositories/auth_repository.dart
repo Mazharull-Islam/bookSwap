@@ -1,5 +1,5 @@
-import '../models/auth_user.dart';
-import '../models/registration.dart';
+import '../entities/auth_user.dart';
+import '../entities/registration.dart';
 
 class AuthFailure implements Exception {
   const AuthFailure(this.message);

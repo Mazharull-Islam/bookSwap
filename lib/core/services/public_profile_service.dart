@@ -1,30 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../shared/entities/public_profile.dart';
 
-/// The member-readable slice of another user's identity — a display name
-/// and an optional, deliberately coarse (~1km) location. Never contact
-/// details. See firestore.rules' public_profiles collection for the
-/// enforcement side of this.
-class PublicProfile {
-  const PublicProfile({
-    required this.uid,
-    this.firstName,
-    this.latitude,
-    this.longitude,
-    this.photoUrl,
-  });
+// The service hands out PublicProfile values, so its importers get the type too.
+export '../../shared/entities/public_profile.dart';
 
-  final String uid;
-  final String? firstName;
-  final double? latitude;
-  final double? longitude;
-
-  /// A Cloudinary image URL, or null/empty when the member has no photo.
-  final String? photoUrl;
-
-  bool get hasLocation => latitude != null && longitude != null;
-
-  factory PublicProfile.fromDoc(String uid, Map<String, dynamic>? data) =>
+/// How a [PublicProfile] is stored in the `public_profiles` document.
+abstract final class PublicProfileDto {
+  static PublicProfile parse(String uid, Map<String, dynamic>? data) =>
       PublicProfile(
         uid: uid,
         firstName: data?['firstName'] as String?,
@@ -58,7 +41,7 @@ class PublicProfileService {
   Stream<Map<String, PublicProfile>> watchAll() => _collection.snapshots().map(
     (s) => {
       for (final doc in s.docs)
-        doc.id: PublicProfile.fromDoc(doc.id, doc.data()),
+        doc.id: PublicProfileDto.parse(doc.id, doc.data()),
     },
   );
 

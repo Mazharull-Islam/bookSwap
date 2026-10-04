@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:bookswap_login/features/authentication/domain/models/auth_user.dart';
+import 'package:bookswap_login/features/authentication/domain/entities/auth_user.dart';
 import 'support/demo_auth_repository.dart';
 import 'support/test_app.dart';
 

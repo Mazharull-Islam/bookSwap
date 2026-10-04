@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/app_colors.dart';
-import '../../domain/models/achievement_badge.dart';
+import '../../domain/entities/achievement_badge.dart';
 import '../providers/reputation_providers.dart';
 import '../../../../shared/widgets/section_heading.dart';
 

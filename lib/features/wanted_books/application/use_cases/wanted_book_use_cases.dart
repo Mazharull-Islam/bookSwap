@@ -1,4 +1,4 @@
-import '../../domain/models/wanted_book.dart';
+import '../../domain/entities/wanted_book.dart';
 import '../../domain/repositories/wanted_book_repository.dart';
 
 class AddWantedBook {

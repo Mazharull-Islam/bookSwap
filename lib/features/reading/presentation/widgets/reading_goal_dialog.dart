@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/providers/current_user_provider.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../../../../shared/widgets/primary_button.dart';
-import '../../domain/models/reading_goal.dart';
+import '../../domain/entities/reading_goal.dart';
 import '../../domain/reading_stats.dart';
 import '../providers/reading_goal_providers.dart';
 

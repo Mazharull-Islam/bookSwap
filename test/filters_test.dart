@@ -1,10 +1,9 @@
-import 'package:flutter/material.dart' show RangeValues;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:bookswap_login/features/books/domain/models/book.dart';
+import 'package:bookswap_login/features/books/domain/entities/book.dart';
 import 'package:bookswap_login/features/books/domain/shelf_filter.dart';
 import 'package:bookswap_login/features/discovery/domain/book_group.dart';
 import 'package:bookswap_login/features/discovery/domain/discovery_filter.dart';
-import 'package:bookswap_login/features/reading/domain/models/reading_entry.dart';
+import 'package:bookswap_login/features/reading/domain/entities/reading_entry.dart';
 import 'package:bookswap_login/features/reading/domain/reading_filter.dart';
 import 'package:bookswap_login/shared/genre_filter.dart';
 
@@ -117,7 +116,7 @@ void main() {
       expect(
         bookPassesDiscoveryFilter(
           book('Y', value: 250),
-          const DiscoveryFilter(valueRange: RangeValues(100, 200)),
+          const DiscoveryFilter(valueRange: ValueRange(100, 200)),
         ),
         isFalse,
       );
@@ -126,7 +125,7 @@ void main() {
           book('Z', genre: 'Crime fiction', value: 150),
           const DiscoveryFilter(
             genres: {'Crime'},
-            valueRange: RangeValues(100, 200),
+            valueRange: ValueRange(100, 200),
           ),
         ),
         isTrue,
@@ -136,7 +135,7 @@ void main() {
     test('copyWith can clear nullable fields', () {
       final f = const DiscoveryFilter(
         maxDistanceKm: 5,
-        valueRange: RangeValues(1, 2),
+        valueRange: ValueRange(1, 2),
       ).copyWith(maxDistanceKm: null, valueRange: null);
       expect(f.maxDistanceKm, isNull);
       expect(f.valueRange, isNull);

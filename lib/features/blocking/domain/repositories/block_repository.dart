@@ -1,4 +1,4 @@
-import '../models/blocked_user.dart';
+import '../entities/blocked_user.dart';
 
 class BlockValidationFailure implements Exception {
   const BlockValidationFailure(this.message);

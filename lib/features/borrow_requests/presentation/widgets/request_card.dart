@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/utils/date_format.dart';
 import '../../../../shared/widgets/owner_label.dart';
 import '../../../books/presentation/widgets/book_cover_image.dart';
-import '../../domain/models/borrow_request.dart';
+import '../../domain/entities/borrow_request.dart';
 import '../../../../app/app_colors.dart';
 
 /// Active (accepted, not yet returned) and past its expected return date.

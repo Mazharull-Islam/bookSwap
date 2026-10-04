@@ -1,6 +1,6 @@
 import '../../../shared/genre_filter.dart';
-import '../../books/domain/models/book.dart';
-import '../../reading/domain/models/reading_entry.dart';
+import '../../books/domain/entities/book.dart';
+import '../../reading/domain/entities/reading_entry.dart';
 import '../../reviews/domain/rating_summary.dart';
 import 'book_group.dart';
 

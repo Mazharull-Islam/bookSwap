@@ -7,7 +7,7 @@ import '../../../../core/services/book_sync_service.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../../../../shared/widgets/filter_widgets.dart';
 import '../../../../shared/widgets/primary_button.dart';
-import '../../domain/models/book.dart';
+import '../../domain/entities/book.dart';
 import '../../domain/shelf_filter.dart';
 import '../providers/book_providers.dart';
 import '../widgets/book_detail_dialog.dart';

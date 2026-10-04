@@ -2,8 +2,9 @@ import 'dart:async';
 
 import 'package:hive_flutter/hive_flutter.dart';
 import '../../../../core/database/hive_service.dart';
-import '../../domain/models/book.dart';
+import '../../domain/entities/book.dart';
 import '../../domain/repositories/book_repository.dart';
+import '../models/book_dto.dart';
 
 /// Local-first storage for books, backed by Hive. Source of truth on-device
 /// between syncs — writes here resolve immediately, no network involved.
@@ -11,7 +12,7 @@ class HiveBookRepository implements BookRepository {
   Box<Map> get _box => HiveService.booksBox;
 
   Book _decode(dynamic raw) =>
-      Book.fromJson(Map<String, dynamic>.from(raw as Map));
+      BookDto.parse(Map<String, dynamic>.from(raw as Map));
 
   List<Book> _shelfFor(String ownerId) => _box.values
       .map(_decode)

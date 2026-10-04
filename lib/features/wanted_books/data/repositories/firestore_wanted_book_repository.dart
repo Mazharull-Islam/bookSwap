@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../domain/models/wanted_book.dart';
+import '../../domain/entities/wanted_book.dart';
 import '../../domain/repositories/wanted_book_repository.dart';
+import '../models/wanted_book_dto.dart';
 
 /// Live, cross-user data like requests and public profiles — deliberately
 /// bypasses Hive so a wishlist add/remove is immediately visible to the
@@ -12,7 +13,7 @@ class FirestoreWantedBookRepository implements WantedBookRepository {
   CollectionReference<Map<String, dynamic>> get _wanted =>
       _firestore.collection('wanted_books');
 
-  WantedBook _decode(Map<String, dynamic> json) => WantedBook.fromJson(json);
+  WantedBook _decode(Map<String, dynamic> json) => WantedBookDto.parse(json);
 
   List<WantedBook> _sorted(List<WantedBook> books) =>
       books..sort((a, b) => b.addedAtMs.compareTo(a.addedAtMs));
@@ -24,9 +25,9 @@ class FirestoreWantedBookRepository implements WantedBookRepository {
       .map((s) => _sorted(s.docs.map((d) => _decode(d.data())).toList()));
 
   @override
-  Stream<List<WantedBook>> watchAll() => _wanted
-      .snapshots()
-      .map((s) => _sorted(s.docs.map((d) => _decode(d.data())).toList()));
+  Stream<List<WantedBook>> watchAll() => _wanted.snapshots().map(
+    (s) => _sorted(s.docs.map((d) => _decode(d.data())).toList()),
+  );
 
   @override
   Future<WantedBook> add({

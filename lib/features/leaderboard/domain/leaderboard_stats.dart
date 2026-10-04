@@ -1,4 +1,4 @@
-import 'models/reading_activity.dart';
+import 'entities/reading_activity.dart';
 
 class ReaderRanking {
   const ReaderRanking({

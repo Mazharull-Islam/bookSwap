@@ -1,4 +1,4 @@
-import '../models/reading_goal.dart';
+import '../entities/reading_goal.dart';
 
 abstract interface class ReadingGoalRepository {
   Stream<ReadingGoal?> watchGoal(String userId);

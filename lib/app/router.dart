@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../features/authentication/domain/models/auth_user.dart';
+import '../features/authentication/domain/entities/auth_user.dart';
 import '../features/authentication/presentation/providers/auth_providers.dart';
 import '../features/authentication/presentation/screens/edit_profile_page.dart';
 import '../features/authentication/presentation/screens/login_page.dart';
@@ -11,7 +11,7 @@ import '../features/authentication/presentation/screens/verification_page.dart';
 import '../features/authentication/presentation/screens/welcome_page.dart';
 import '../features/blocking/presentation/screens/blocked_users_page.dart';
 import '../features/book_of_month/presentation/screens/book_of_month_page.dart';
-import '../features/books/domain/models/book.dart';
+import '../features/books/domain/entities/book.dart';
 import '../features/books/presentation/screens/add_book_page.dart';
 import '../features/books/presentation/screens/my_shelf_page.dart';
 import '../features/borrow_requests/presentation/screens/requests_page.dart';

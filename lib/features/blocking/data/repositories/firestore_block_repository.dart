@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../domain/models/blocked_user.dart';
+import '../../domain/entities/blocked_user.dart';
 import '../../domain/repositories/block_repository.dart';
+import '../models/blocked_user_dto.dart';
 
-/// Live, cross-user-relevant like requests/wanted_books — bypasses Hive.
-/// Deliberately NOT member-readable, unlike requests/wanted_books: only the
+/// Live data, so it bypasses Hive. Deliberately NOT member-readable: only the
 /// blocker can read their own block records (see firestore.rules). The
 /// /requests create rule still enforces the block via a targeted
 /// `exists()` check on the deterministic doc id, which needs no read grant.
@@ -20,7 +20,7 @@ class FirestoreBlockRepository implements BlockRepository {
       .snapshots()
       .map(
         (s) =>
-            (s.docs.map((d) => BlockedUser.fromJson(d.data())).toList()
+            (s.docs.map((d) => BlockedUserDto.parse(d.data())).toList()
               ..sort((a, b) => b.createdAtMs.compareTo(a.createdAtMs))),
       );
 

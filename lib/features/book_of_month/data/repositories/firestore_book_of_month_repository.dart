@@ -1,8 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../domain/models/book_of_month_nomination.dart';
-import '../../domain/models/book_of_month_period.dart';
-import '../../domain/models/book_of_month_vote.dart';
+import '../../domain/entities/book_of_month_nomination.dart';
+import '../../domain/entities/book_of_month_period.dart';
+import '../../domain/entities/book_of_month_vote.dart';
 import '../../domain/repositories/book_of_month_repository.dart';
+import '../models/book_of_month_nomination_dto.dart';
+import '../models/book_of_month_period_dto.dart';
+import '../models/book_of_month_vote_dto.dart';
 
 class FirestoreBookOfMonthRepository implements BookOfMonthRepository {
   FirestoreBookOfMonthRepository(this._firestore);
@@ -23,7 +26,7 @@ class FirestoreBookOfMonthRepository implements BookOfMonthRepository {
           .map(
             (s) =>
                 (s.docs
-                    .map((d) => BookOfMonthNomination.fromJson(d.data()))
+                    .map((d) => BookOfMonthNominationDto.parse(d.data()))
                     .toList()
                   ..sort((a, b) => a.nominatedAtMs.compareTo(b.nominatedAtMs))),
           );
@@ -33,7 +36,7 @@ class FirestoreBookOfMonthRepository implements BookOfMonthRepository {
       .where('periodId', isEqualTo: periodId)
       .snapshots()
       .map(
-        (s) => s.docs.map((d) => BookOfMonthVote.fromJson(d.data())).toList(),
+        (s) => s.docs.map((d) => BookOfMonthVoteDto.parse(d.data())).toList(),
       );
 
   @override
@@ -41,7 +44,7 @@ class FirestoreBookOfMonthRepository implements BookOfMonthRepository {
       .doc(periodId)
       .snapshots()
       .map(
-        (d) => d.data() == null ? null : BookOfMonthPeriod.fromJson(d.data()!),
+        (d) => d.data() == null ? null : BookOfMonthPeriodDto.parse(d.data()!),
       );
 
   @override
@@ -52,7 +55,7 @@ class FirestoreBookOfMonthRepository implements BookOfMonthRepository {
           .snapshots()
           .map(
             (s) => s.docs
-                .map((d) => BookOfMonthPeriod.fromJson(d.data()))
+                .map((d) => BookOfMonthPeriodDto.parse(d.data()))
                 .toList(),
           );
 

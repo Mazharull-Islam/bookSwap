@@ -1,4 +1,4 @@
-import 'models/book_review.dart';
+import 'entities/book_review.dart';
 
 class RatingSummary {
   const RatingSummary({required this.average, required this.count});

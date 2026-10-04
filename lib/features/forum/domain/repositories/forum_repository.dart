@@ -1,6 +1,6 @@
-import '../models/forum_post.dart';
-import '../models/forum_reply.dart';
-import '../models/forum_report.dart';
+import '../entities/forum_post.dart';
+import '../entities/forum_reply.dart';
+import '../entities/forum_report.dart';
 
 class ForumValidationFailure implements Exception {
   const ForumValidationFailure(this.message);
@@ -51,8 +51,6 @@ abstract interface class ForumRepository {
   /// Author removing their own post or reply (moderators use the same calls).
   Future<void> deletePost(String postId);
   Future<void> deleteReply(String postId, String replyId);
-
-  // --- Moderation ---------------------------------------------------------
 
   /// Whether [userId] is listed in `moderators`. Granted by hand in the
   /// Firebase console; the app can only read it.

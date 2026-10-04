@@ -1,4 +1,4 @@
-import '../../domain/models/reading_goal.dart';
+import '../../domain/entities/reading_goal.dart';
 import '../../domain/repositories/reading_goal_repository.dart';
 
 class SetReadingGoal {

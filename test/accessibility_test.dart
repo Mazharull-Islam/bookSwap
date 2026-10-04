@@ -3,12 +3,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:bookswap_login/features/reading/domain/models/reading_entry.dart';
+import 'package:bookswap_login/features/reading/domain/entities/reading_entry.dart';
 import 'package:bookswap_login/features/reading/presentation/providers/reading_providers.dart';
 import 'support/tap_targets.dart';
-import 'package:bookswap_login/features/forum/domain/models/forum_report.dart';
+import 'package:bookswap_login/features/forum/domain/entities/forum_report.dart';
 import 'package:bookswap_login/features/forum/presentation/providers/forum_providers.dart';
-import 'package:bookswap_login/features/books/domain/models/book.dart';
+import 'package:bookswap_login/features/books/domain/entities/book.dart';
 import 'package:bookswap_login/features/discovery/presentation/providers/discovery_providers.dart';
 import 'support/test_app.dart';
 

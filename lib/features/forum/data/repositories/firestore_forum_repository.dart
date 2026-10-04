@@ -1,10 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../domain/models/forum_post.dart';
-import '../../domain/models/forum_reply.dart';
-import '../../domain/models/forum_report.dart';
+import '../../domain/entities/forum_post.dart';
+import '../../domain/entities/forum_reply.dart';
+import '../../domain/entities/forum_report.dart';
 import '../../domain/repositories/forum_repository.dart';
+import '../models/forum_post_dto.dart';
+import '../models/forum_reply_dto.dart';
+import '../models/forum_report_dto.dart';
 
-/// Live, cross-user data like requests/wanted_books/blocks — bypasses Hive.
+/// Live, cross-user data, so it bypasses Hive.
 class FirestoreForumRepository implements ForumRepository {
   FirestoreForumRepository(this._firestore);
   final FirebaseFirestore _firestore;
@@ -18,7 +21,7 @@ class FirestoreForumRepository implements ForumRepository {
   @override
   Stream<List<ForumPost>> watchPosts() => _posts.snapshots().map(
     (s) =>
-        (s.docs.map((d) => ForumPost.fromJson(d.data())).toList()
+        (s.docs.map((d) => ForumPostDto.parse(d.data())).toList()
           ..sort((a, b) => b.createdAtMs.compareTo(a.createdAtMs))),
   );
 
@@ -26,13 +29,13 @@ class FirestoreForumRepository implements ForumRepository {
   Stream<ForumPost?> watchPost(String postId) => _posts
       .doc(postId)
       .snapshots()
-      .map((d) => d.data() == null ? null : ForumPost.fromJson(d.data()!));
+      .map((d) => d.data() == null ? null : ForumPostDto.parse(d.data()!));
 
   @override
   Stream<List<ForumReply>> watchReplies(String postId) =>
       _replies(postId).snapshots().map(
         (s) =>
-            (s.docs.map((d) => ForumReply.fromJson(d.data())).toList()
+            (s.docs.map((d) => ForumReplyDto.parse(d.data())).toList()
               ..sort((a, b) => a.createdAtMs.compareTo(b.createdAtMs))),
       );
 
@@ -183,19 +186,19 @@ class FirestoreForumRepository implements ForumRepository {
 
   @override
   Stream<List<ForumReport>> watchReports() => _reports.snapshots().map(
-    (s) => s.docs.map((d) => ForumReport.fromJson(d.data())).toList(),
+    (s) => s.docs.map((d) => ForumReportDto.parse(d.data())).toList(),
   );
 
   @override
   Future<ForumPost?> fetchPost(String postId) async {
     final d = await _posts.doc(postId).get();
-    return d.data() == null ? null : ForumPost.fromJson(d.data()!);
+    return d.data() == null ? null : ForumPostDto.parse(d.data()!);
   }
 
   @override
   Future<ForumReply?> fetchReply(String postId, String replyId) async {
     final d = await _replies(postId).doc(replyId).get();
-    return d.data() == null ? null : ForumReply.fromJson(d.data()!);
+    return d.data() == null ? null : ForumReplyDto.parse(d.data()!);
   }
 
   DocumentReference<Map<String, dynamic>> _targetRef(ReportedTarget t) =>

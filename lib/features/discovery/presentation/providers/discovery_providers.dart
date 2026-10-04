@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/providers/current_user_provider.dart';
 import '../../../../core/services/public_profile_service.dart';
-import '../../../books/domain/models/book.dart';
+import '../../../books/domain/entities/book.dart';
 import '../../../books/presentation/providers/book_providers.dart';
 import '../../../location/domain/owner_distance.dart';
 import '../../../location/presentation/providers/location_providers.dart';

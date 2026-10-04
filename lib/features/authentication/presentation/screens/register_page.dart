@@ -5,7 +5,7 @@ import '../../../../app/app_colors.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../../../../shared/widgets/primary_button.dart';
 import '../../../../shared/widgets/secondary_button.dart';
-import '../../domain/models/registration.dart';
+import '../../domain/entities/registration.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../providers/auth_providers.dart';
 import '../widgets/auth_page.dart';

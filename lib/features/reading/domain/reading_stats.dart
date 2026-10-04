@@ -1,7 +1,6 @@
-import '../../books/presentation/widgets/book_list_tile.dart'
-    show bookGenreList;
-import 'models/reading_entry.dart';
-import 'models/reading_goal.dart';
+import '../../books/domain/book_genres.dart';
+import 'entities/reading_entry.dart';
+import 'entities/reading_goal.dart';
 
 /// Books marked Read whose last update falls inside the goal's window. An
 /// approximation, not an exact "finished on" date — [ReadingEntry] doesn't

@@ -20,9 +20,8 @@ abstract final class HiveService {
 
   static Box<Map> get booksBox => Hive.box<Map>(booksBoxName);
 
-  /// Personal reading list (SRS §3.8/§3.9, trimmed) — purely local, no
-  /// cross-user coordination needed, so unlike requests/wanted_books this
-  /// stays local-first with no Firestore sync counterpart yet.
+  /// Personal reading list (SRS §3.8/§3.9, trimmed). Hive is the source of
+  /// truth; ReadingSyncService mirrors it to Firestore in the background.
   static Box<Map> get readingBox => Hive.box<Map>(readingBoxName);
 
   /// Keyed by userId — one goal per user (SRS §3.9).

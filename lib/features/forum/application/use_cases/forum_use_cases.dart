@@ -1,6 +1,6 @@
-import '../../domain/models/forum_post.dart';
-import '../../domain/models/forum_reply.dart';
-import '../../domain/models/forum_report.dart';
+import '../../domain/entities/forum_post.dart';
+import '../../domain/entities/forum_reply.dart';
+import '../../domain/entities/forum_report.dart';
 import '../../domain/repositories/forum_repository.dart';
 
 class CreateForumPost {

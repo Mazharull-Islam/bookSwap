@@ -2,8 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import '../../features/books/domain/models/book.dart';
+import '../../features/books/domain/entities/book.dart';
 import '../database/hive_service.dart';
+import '../../features/books/data/models/book_dto.dart';
 
 abstract interface class BookSyncService {
   Future<void> sync(String uid);
@@ -21,7 +22,7 @@ class FirestoreBookSyncService implements BookSyncService {
   CollectionReference<Map<String, dynamic>> get _remote =>
       _firestore.collection('books');
 
-  Book _decode(Map<String, dynamic> json) => Book.fromJson(json);
+  Book _decode(Map<String, dynamic> json) => BookDto.parse(json);
 
   @override
   Future<void> sync(String uid) async {

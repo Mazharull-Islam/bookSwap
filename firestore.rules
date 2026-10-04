@@ -178,11 +178,6 @@ service cloud.firestore {
         && (data.get('conditionIn', null) == null || data.get('conditionIn', null) in ['New', 'Like new', 'Good', 'Fair', 'Worn'])
         && (data.get('borrowerNote', null) == null || text(data.get('borrowerNote', null), 1, 300));
     }
-    // Contact fields (borrowerContact/lenderContact) are deliberately absent
-    // until each party explicitly reveals theirs — never both at creation.
-    // See BorrowRequest/FirestoreRequestRepository for the write choreography
-    // this enforces: only the lender may accept/decline, only the borrower
-    // may publish their own contact, and only after acceptance.
     // My Reading sync: a member's own reading list and goal, private to them.
     // Entries are never hard-deleted by the app (removal sets deletedAtMs) so
     // it can propagate to the member's other devices.
@@ -261,6 +256,11 @@ service cloud.firestore {
         && validReviewContent(request.resource.data);
       allow delete: if member() && resource.data.reviewerId == request.auth.uid;
     }
+    // Contact fields (borrowerContact/lenderContact) are deliberately absent
+    // until each party explicitly reveals theirs — never both at creation.
+    // See BorrowRequest/FirestoreRequestRepository for the write choreography
+    // this enforces: only the lender may accept/decline, only the borrower
+    // may publish their own contact, and only after acceptance.
     match /requests/{requestId} {
       allow read: if member()
         && (resource.data.borrowerId == request.auth.uid
@@ -461,11 +461,8 @@ service cloud.firestore {
       );
       allow delete: if member()
         && (resource.data.authorId == request.auth.uid || moderator());
-      // postId is a parameter, not inherited from the enclosing match block —
-      // a rules function only ever sees what's explicitly passed to it, the
-      // same lesson learned earlier with validBook/bookId. Leaving it out
-      // here made data.postId == postId compare against an undefined
-      // variable, so it always evaluated false and denied every reply.
+      // postId is passed in explicitly: a rules function only sees its own
+      // arguments, not the enclosing match variables.
       function validForumReply(data, postId, replyId) {
         return data.keys().hasAll(['id', 'postId', 'authorId', 'authorName', 'body', 'createdAtMs', 'likedBy', 'reportedBy'])
           && data.keys().hasOnly(['id', 'postId', 'authorId', 'authorName', 'body', 'createdAtMs', 'likedBy', 'reportedBy'])

@@ -8,7 +8,7 @@ import '../../../../core/utils/friendly_error.dart';
 import '../../../../shared/widgets/primary_button.dart';
 import '../../../authentication/presentation/providers/auth_providers.dart';
 import '../../../blocking/presentation/providers/block_providers.dart';
-import '../../domain/models/borrow_request.dart';
+import '../../domain/entities/borrow_request.dart';
 import '../../domain/repositories/request_repository.dart';
 import '../providers/request_providers.dart';
 import '../widgets/request_card.dart';

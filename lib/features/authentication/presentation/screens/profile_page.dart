@@ -10,7 +10,7 @@ import '../../../../shared/widgets/member_avatar.dart';
 import '../../../../shared/widgets/section_heading.dart';
 import '../../../location/presentation/widgets/location_settings_card.dart';
 import '../../../reputation/presentation/widgets/reputation_card.dart';
-import '../../domain/models/registration.dart';
+import '../../domain/entities/registration.dart';
 import '../providers/auth_providers.dart';
 import '../providers/profile_photo_providers.dart';
 

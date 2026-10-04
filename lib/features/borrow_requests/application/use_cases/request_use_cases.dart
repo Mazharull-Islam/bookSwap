@@ -1,6 +1,6 @@
-import '../../../books/domain/models/book.dart';
+import '../../../books/domain/entities/book.dart';
 import '../../../books/domain/repositories/book_repository.dart';
-import '../../domain/models/borrow_request.dart';
+import '../../domain/entities/borrow_request.dart';
 import '../../domain/repositories/request_repository.dart';
 
 class SendBorrowRequest {

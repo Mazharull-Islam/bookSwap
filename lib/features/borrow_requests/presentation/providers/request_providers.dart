@@ -4,7 +4,7 @@ import '../../../../app/providers/current_user_provider.dart';
 import '../../../books/presentation/providers/book_providers.dart';
 import '../../application/use_cases/request_use_cases.dart';
 import '../../data/repositories/firestore_request_repository.dart';
-import '../../domain/models/borrow_request.dart';
+import '../../domain/entities/borrow_request.dart';
 import '../../domain/repositories/request_repository.dart';
 
 final requestRepositoryProvider = Provider<RequestRepository>(

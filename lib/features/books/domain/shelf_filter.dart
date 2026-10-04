@@ -1,5 +1,5 @@
 import '../../../shared/genre_filter.dart';
-import 'models/book.dart';
+import 'entities/book.dart';
 
 enum ShelfSort { recent, title, author, value }
 

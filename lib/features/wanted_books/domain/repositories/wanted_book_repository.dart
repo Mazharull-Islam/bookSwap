@@ -1,4 +1,4 @@
-import '../models/wanted_book.dart';
+import '../entities/wanted_book.dart';
 
 class WantedBookValidationFailure implements Exception {
   const WantedBookValidationFailure(this.message);

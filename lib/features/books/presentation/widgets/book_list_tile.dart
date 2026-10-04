@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../app/app_colors.dart';
-import '../../domain/models/book.dart';
+import '../../domain/entities/book.dart';
 import 'book_cover_image.dart';
 
 String bookStatusLabel(BookStatus status) => switch (status) {
@@ -16,10 +16,6 @@ Color bookStatusColor(BookStatus status) => switch (status) {
   BookStatus.lent => StatusFills.lent,
   BookStatus.returned => StatusFills.returned,
 };
-
-List<String> bookGenreList(String genre) => genre.trim().isEmpty
-    ? const []
-    : genre.split(',').map((g) => g.trim()).where((g) => g.isNotEmpty).toList();
 
 class BookListTile extends StatelessWidget {
   const BookListTile({

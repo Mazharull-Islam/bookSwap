@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../../books/domain/models/book.dart';
-import '../../domain/models/borrow_request.dart';
+import '../../../books/domain/entities/book.dart';
+import '../../domain/entities/borrow_request.dart';
 import '../../domain/repositories/request_repository.dart';
+import '../models/borrow_request_dto.dart';
 
 class FirestoreRequestRepository implements RequestRepository {
   FirestoreRequestRepository(this._firestore);
@@ -11,7 +12,7 @@ class FirestoreRequestRepository implements RequestRepository {
       _firestore.collection('requests');
 
   BorrowRequest _decode(Map<String, dynamic> json) =>
-      BorrowRequest.fromJson(json);
+      BorrowRequestDto.parse(json);
 
   List<BorrowRequest> _sorted(List<BorrowRequest> requests) =>
       requests..sort((a, b) => b.requestedAt.compareTo(a.requestedAt));

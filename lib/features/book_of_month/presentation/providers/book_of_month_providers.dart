@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../forum/presentation/providers/forum_providers.dart';
 import '../../application/use_cases/book_of_month_use_cases.dart';
 import '../../data/repositories/firestore_book_of_month_repository.dart';
-import '../../domain/models/book_of_month_nomination.dart';
-import '../../domain/models/book_of_month_period.dart';
-import '../../domain/models/book_of_month_vote.dart';
+import '../../domain/entities/book_of_month_nomination.dart';
+import '../../domain/entities/book_of_month_period.dart';
+import '../../domain/entities/book_of_month_vote.dart';
 import '../../domain/period.dart';
 import '../../domain/repositories/book_of_month_repository.dart';
 

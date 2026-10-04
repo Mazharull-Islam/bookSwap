@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../shared/genre_filter.dart';
 import '../../../../shared/widgets/filter_widgets.dart';
-import '../../../books/domain/models/book.dart';
+import '../../../books/domain/entities/book.dart';
 import '../../../location/presentation/providers/location_providers.dart';
 import '../../domain/discovery_filter.dart';
 import '../providers/discovery_providers.dart';
@@ -32,7 +32,7 @@ class DiscoveryFilterSheet extends ConsumerWidget {
     final distanceIndex = distanceSteps
         .indexOf(effectiveDistance)
         .clamp(0, distanceSteps.length - 1);
-    final range = filter.valueRange ?? RangeValues(0, ceiling);
+    final range = filter.valueRange ?? ValueRange(0, ceiling);
 
     return FilterSheetFrame(
       onClear: () => update(const DiscoveryFilter()),
@@ -91,7 +91,9 @@ class DiscoveryFilterSheet extends ConsumerWidget {
             ),
             onChanged: (v) => update(
               filter.copyWith(
-                valueRange: v.start <= 0 && v.end >= ceiling ? null : v,
+                valueRange: v.start <= 0 && v.end >= ceiling
+                    ? null
+                    : ValueRange(v.start, v.end),
               ),
             ),
           ),

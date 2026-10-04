@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/providers/current_user_provider.dart';
 import '../../application/use_cases/review_use_cases.dart';
 import '../../data/repositories/firestore_review_repository.dart';
-import '../../domain/models/book_review.dart';
+import '../../domain/entities/book_review.dart';
 import '../../domain/rating_summary.dart';
 import '../../domain/repositories/review_repository.dart';
 

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../domain/models/forum_report.dart';
+import '../../domain/entities/forum_report.dart';
 
 /// Asks why the member is reporting. Returns null if they cancel.
 Future<ForumReportReason?> showReportDialog(

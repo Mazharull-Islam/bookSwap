@@ -1,5 +1,5 @@
-import 'package:bookswap_login/features/books/domain/models/book.dart';
-import 'package:bookswap_login/features/borrow_requests/domain/models/borrow_request.dart';
+import 'package:bookswap_login/features/books/domain/entities/book.dart';
+import 'package:bookswap_login/features/borrow_requests/domain/entities/borrow_request.dart';
 import 'package:bookswap_login/features/borrow_requests/domain/repositories/request_repository.dart';
 
 /// Records the writes the Requests screen makes. Reads come from the

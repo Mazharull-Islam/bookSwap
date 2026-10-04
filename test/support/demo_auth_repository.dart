@@ -1,6 +1,7 @@
-import 'package:bookswap_login/features/authentication/domain/models/auth_user.dart';
-import 'package:bookswap_login/features/authentication/domain/models/registration.dart';
+import 'package:bookswap_login/features/authentication/domain/entities/auth_user.dart';
+import 'package:bookswap_login/features/authentication/domain/entities/registration.dart';
 import 'package:bookswap_login/features/authentication/domain/repositories/auth_repository.dart';
+import 'package:bookswap_login/features/authentication/data/models/reader_profile_dto.dart';
 
 /// Prototype only: all accounts and credentials disappear on app restart.
 /// Do not enter real personal information or reuse a real password.
@@ -144,7 +145,7 @@ class DemoAuthRepository implements AuthRepository {
       id: user.id,
       email: user.email,
       name: update.firstName.trim(),
-      profile: ReaderProfile.fromMap({
+      profile: ReaderProfileDto.parse({
         ...user.profile!.toMap(),
         ...update.toMap(),
       }),

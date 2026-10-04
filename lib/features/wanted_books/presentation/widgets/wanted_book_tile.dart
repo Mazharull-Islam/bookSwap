@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import '../../../books/presentation/widgets/book_cover_image.dart';
-import '../../domain/models/wanted_book.dart';
+import '../../domain/entities/wanted_book.dart';
 
 class WantedBookTile extends StatelessWidget {
-  const WantedBookTile({super.key, required this.wanted, required this.onRemove});
+  const WantedBookTile({
+    super.key,
+    required this.wanted,
+    required this.onRemove,
+  });
 
   final WantedBook wanted;
   final VoidCallback onRemove;

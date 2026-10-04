@@ -1,5 +1,5 @@
-import '../../../books/domain/models/book.dart';
-import '../models/borrow_request.dart';
+import '../../../books/domain/entities/book.dart';
+import '../entities/borrow_request.dart';
 
 class RequestValidationFailure implements Exception {
   const RequestValidationFailure(this.message);

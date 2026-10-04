@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../shared/widgets/star_rating.dart';
-import '../../../borrow_requests/domain/models/borrow_request.dart';
+import '../../../borrow_requests/domain/entities/borrow_request.dart';
 import '../../../discovery/presentation/providers/discovery_providers.dart';
-import '../../domain/models/book_review.dart';
+import '../../domain/entities/book_review.dart';
 import '../providers/review_providers.dart';
 import 'review_dialog.dart';
 

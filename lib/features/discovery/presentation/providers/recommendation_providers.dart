@@ -7,7 +7,7 @@ import '../../../../core/database/hive_service.dart';
 import '../../../../core/services/public_profile_service.dart';
 import '../../../authentication/presentation/providers/auth_providers.dart';
 import '../../../blocking/presentation/providers/block_providers.dart';
-import '../../../books/domain/models/book.dart';
+import '../../../books/domain/entities/book.dart';
 import '../../../books/presentation/providers/book_providers.dart';
 import '../../../location/domain/owner_distance.dart';
 import '../../../location/presentation/providers/location_providers.dart';

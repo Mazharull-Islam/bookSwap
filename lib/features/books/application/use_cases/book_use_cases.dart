@@ -1,4 +1,4 @@
-import '../../domain/models/book.dart';
+import '../../domain/entities/book.dart';
 import '../../domain/repositories/book_repository.dart';
 
 class AddBookToShelf {

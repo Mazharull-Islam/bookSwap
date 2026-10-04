@@ -1,4 +1,4 @@
-import '../models/reading_entry.dart';
+import '../entities/reading_entry.dart';
 
 class ReadingValidationFailure implements Exception {
   const ReadingValidationFailure(this.message);

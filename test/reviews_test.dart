@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:bookswap_login/features/reviews/application/use_cases/review_use_cases.dart';
-import 'package:bookswap_login/features/reviews/domain/models/book_review.dart';
+import 'package:bookswap_login/features/reviews/domain/entities/book_review.dart';
 import 'package:bookswap_login/features/reviews/domain/rating_summary.dart';
 import 'package:bookswap_login/features/reviews/domain/repositories/review_repository.dart';
 import 'package:bookswap_login/features/reviews/presentation/providers/review_providers.dart';

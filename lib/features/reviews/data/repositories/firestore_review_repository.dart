@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../domain/models/book_review.dart';
+import '../../domain/entities/book_review.dart';
 import '../../domain/repositories/review_repository.dart';
+import '../models/book_review_dto.dart';
 
 class FirestoreReviewRepository implements ReviewRepository {
   FirestoreReviewRepository(this._firestore);
@@ -11,7 +12,7 @@ class FirestoreReviewRepository implements ReviewRepository {
 
   @override
   Stream<List<BookReview>> watchAll() => _reviews.snapshots().map(
-    (s) => s.docs.map((d) => BookReview.fromJson(d.data())).toList(),
+    (s) => s.docs.map((d) => BookReviewDto.parse(d.data())).toList(),
   );
 
   @override

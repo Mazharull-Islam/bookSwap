@@ -8,6 +8,7 @@ environment:
 dependencies:
   cached_network_image: ^4.0.4
   cloud_firestore: ^6.10.0
+  collection: ^1.19.1
   dio: ^5.7.0
   firebase_auth: ^6.7.0
   firebase_core: ^4.15.0

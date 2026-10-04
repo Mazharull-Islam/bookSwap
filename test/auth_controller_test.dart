@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:bookswap_login/features/authentication/domain/models/auth_user.dart';
+import 'package:bookswap_login/features/authentication/domain/entities/auth_user.dart';
 import 'package:bookswap_login/features/authentication/presentation/providers/auth_providers.dart';
 import 'support/demo_auth_repository.dart';
 import 'registration_test.dart' show details;

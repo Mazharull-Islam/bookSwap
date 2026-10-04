@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../shared/widgets/star_rating.dart';
 import '../../../books/presentation/widgets/book_cover_image.dart';
-import '../../domain/models/reading_entry.dart';
+import '../../domain/entities/reading_entry.dart';
 import 'reading_status.dart';
 
 class ReadingEntryTile extends StatelessWidget {

@@ -4,7 +4,7 @@ import '../../../book_of_month/domain/period.dart';
 import '../../application/use_cases/record_read_activity.dart';
 import '../../data/repositories/firestore_leaderboard_repository.dart';
 import '../../domain/leaderboard_stats.dart';
-import '../../domain/models/reading_activity.dart';
+import '../../domain/entities/reading_activity.dart';
 import '../../domain/repositories/leaderboard_repository.dart';
 
 final leaderboardRepositoryProvider = Provider<LeaderboardRepository>(

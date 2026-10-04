@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/providers/current_user_provider.dart';
-import '../../../borrow_requests/domain/models/borrow_request.dart';
+import '../../../borrow_requests/domain/entities/borrow_request.dart';
 import '../../../borrow_requests/presentation/providers/request_providers.dart';
 import '../../../discovery/presentation/providers/discovery_providers.dart';
 import '../../application/use_cases/wanted_book_use_cases.dart';
 import '../../data/repositories/firestore_wanted_book_repository.dart';
-import '../../domain/models/wanted_book.dart';
+import '../../domain/entities/wanted_book.dart';
 import '../../domain/mutual_match.dart';
 import '../../domain/repositories/wanted_book_repository.dart';
 
@@ -47,7 +47,9 @@ final mutualMatchesProvider = Provider<List<MutualMatch>>((ref) {
       .where((r) => r.status != RequestStatus.declined)
       .map((r) => r.bookId)
       .toSet();
-  return findMutualMatches(myId: myId, allBooks: books, allWanted: wanted)
-      .where((m) => !requestedBookIds.contains(m.theirBook.id))
-      .toList();
+  return findMutualMatches(
+    myId: myId,
+    allBooks: books,
+    allWanted: wanted,
+  ).where((m) => !requestedBookIds.contains(m.theirBook.id)).toList();
 });

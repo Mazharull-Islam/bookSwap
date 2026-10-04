@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../app/app_colors.dart';
-import '../../domain/models/achievement_badge.dart';
+import '../../domain/entities/achievement_badge.dart';
 
 /// Inserts a self-dismissing banner into the app's root overlay — works
 /// from anywhere (not tied to a Scaffold/ScaffoldMessenger), since a badge

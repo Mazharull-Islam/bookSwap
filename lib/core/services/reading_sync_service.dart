@@ -1,9 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../features/reading/domain/models/reading_entry.dart';
-import '../../features/reading/domain/models/reading_goal.dart';
+import '../../features/reading/domain/entities/reading_entry.dart';
 import '../database/hive_service.dart';
+import '../../features/reading/data/models/reading_entry_dto.dart';
+import '../../features/reading/data/models/reading_goal_dto.dart';
 
 abstract interface class ReadingSyncService {
   Future<void> sync(String uid);
@@ -60,14 +61,14 @@ class FirestoreReadingSyncService implements ReadingSyncService {
   }
 
   ReadingEntry _entry(dynamic raw) =>
-      ReadingEntry.fromJson(Map<String, dynamic>.from(raw as Map));
+      ReadingEntryDto.parse(Map<String, dynamic>.from(raw as Map));
 
   Future<void> syncEntries(String uid) async {
     final box = HiveService.readingBox;
     final snapshot = await _entries.where('userId', isEqualTo: uid).get();
     final remote = {
       for (final doc in snapshot.docs)
-        doc.id: ReadingEntry.fromJson(doc.data()),
+        doc.id: ReadingEntryDto.parse(doc.data()),
     };
 
     // Pull: take anything remote that's newer or missing here. A removed
@@ -106,11 +107,11 @@ class FirestoreReadingSyncService implements ReadingSyncService {
   Future<void> syncGoal(String uid) async {
     final box = HiveService.readingGoalsBox;
     final doc = await _goals.doc(uid).get();
-    final remote = doc.exists ? ReadingGoal.fromJson(doc.data()!) : null;
+    final remote = doc.exists ? ReadingGoalDto.parse(doc.data()!) : null;
     final raw = box.get(uid);
     final local = raw == null
         ? null
-        : ReadingGoal.fromJson(Map<String, dynamic>.from(raw));
+        : ReadingGoalDto.parse(Map<String, dynamic>.from(raw));
 
     if (remote != null &&
         (local == null || remote.updatedAtMs > local.updatedAtMs)) {

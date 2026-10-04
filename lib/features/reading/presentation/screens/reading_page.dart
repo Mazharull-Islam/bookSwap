@@ -7,13 +7,12 @@ import '../../../../app/app_colors.dart';
 import '../../../../core/services/open_library_service.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../../../../shared/widgets/filter_widgets.dart';
-import '../../../books/domain/models/book.dart';
-import '../../../books/presentation/widgets/book_list_tile.dart'
-    show bookGenreList;
+import '../../../books/domain/entities/book.dart';
+import '../../../books/domain/book_genres.dart';
 import '../../../books/presentation/widgets/book_suggestion_tile.dart';
 import '../../../discovery/domain/book_group.dart';
 import '../../../discovery/presentation/providers/discovery_providers.dart';
-import '../../domain/models/reading_entry.dart';
+import '../../domain/entities/reading_entry.dart';
 import '../../domain/reading_filter.dart';
 import '../../domain/repositories/reading_repository.dart';
 import '../providers/reading_providers.dart';

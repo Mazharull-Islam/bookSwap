@@ -4,11 +4,8 @@ const _earthRadiusKm = 6371.0;
 
 double _degToRad(double deg) => deg * pi / 180;
 
-/// Great-circle distance between two lat/lng points, in kilometres. Pure
-/// Dart, no platform dependency — matches the architecture's own
-/// "framework-independent business logic" principle, and is listed as its
-/// own named component (Haversine Formula) rather than bundled into the
-/// geolocator plugin's own distance helper.
+/// Great-circle distance between two lat/lng points, in kilometres (the
+/// haversine formula). Pure Dart, no platform dependency.
 double haversineKm({
   required double lat1,
   required double lng1,

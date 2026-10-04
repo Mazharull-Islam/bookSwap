@@ -1,6 +1,6 @@
 import '../../borrow_requests/domain/loan_condition.dart';
-import '../../borrow_requests/domain/models/borrow_request.dart';
-import 'models/achievement_badge.dart';
+import '../../borrow_requests/domain/entities/borrow_request.dart';
+import 'entities/achievement_badge.dart';
 
 bool _isCompleted(BorrowRequest r) =>
     r.status == RequestStatus.accepted && r.returnedAt != null;

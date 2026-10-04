@@ -7,8 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:bookswap_login/features/authentication/data/repositories/firebase_auth_repository.dart';
-import 'package:bookswap_login/features/authentication/domain/models/registration.dart';
+import 'package:bookswap_login/features/authentication/domain/entities/registration.dart';
 import 'support/test_app.dart';
+import 'package:bookswap_login/features/authentication/data/models/reader_profile_dto.dart';
 
 Map<String, dynamic> newProfile() => {
   'email': 'sam@example.com',
@@ -113,7 +114,7 @@ void main() {
     });
 
     test('and ignores them when saving a profile map', () {
-      final profile = ReaderProfile.fromMap({
+      final profile = ReaderProfileDto.parse({
         ...newProfile(),
         'acceptedTermsVersion': '1.1',
         'acceptedTermsAt': 'whatever',

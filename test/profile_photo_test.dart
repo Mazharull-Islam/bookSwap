@@ -342,14 +342,14 @@ void main() {
       final service = PublicProfileService(db);
       await service.updatePhoto('u1', photo);
       final doc = await db.collection('public_profiles').doc('u1').get();
-      expect(PublicProfile.fromDoc('u1', doc.data()).photoUrl, photo);
+      expect(PublicProfileDto.parse('u1', doc.data()).photoUrl, photo);
       await service.updatePhoto('u1', '');
       final cleared = await db.collection('public_profiles').doc('u1').get();
-      expect(PublicProfile.fromDoc('u1', cleared.data()).photoUrl, '');
+      expect(PublicProfileDto.parse('u1', cleared.data()).photoUrl, '');
     });
 
     test('a profile without a photo has none', () {
-      expect(PublicProfile.fromDoc('u1', {'firstName': 'A'}).photoUrl, isNull);
+      expect(PublicProfileDto.parse('u1', {'firstName': 'A'}).photoUrl, isNull);
     });
   });
 

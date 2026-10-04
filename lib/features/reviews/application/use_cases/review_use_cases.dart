@@ -1,4 +1,4 @@
-import '../../domain/models/book_review.dart';
+import '../../domain/entities/book_review.dart';
 import '../../domain/repositories/review_repository.dart';
 
 const maxReviewLength = 500;

@@ -1,6 +1,6 @@
-import '../../books/domain/models/book.dart';
+import '../../books/domain/entities/book.dart';
 import '../../discovery/domain/book_group.dart';
-import 'models/wanted_book.dart';
+import 'entities/wanted_book.dart';
 
 /// A mutual swap opportunity (SRS §3.5): I own [myBook], which [otherUserId]
 /// wants; [otherUserId] owns [theirBook], which I want.

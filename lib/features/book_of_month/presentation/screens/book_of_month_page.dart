@@ -6,14 +6,13 @@ import '../../../../app/providers/current_user_provider.dart';
 import '../../../../app/app_colors.dart';
 import '../../../../core/services/open_library_service.dart';
 import '../../../../shared/widgets/app_text_field.dart';
-import '../../../books/domain/models/book.dart';
-import '../../../books/presentation/widgets/book_list_tile.dart'
-    show bookGenreList;
+import '../../../books/domain/entities/book.dart';
+import '../../../books/domain/book_genres.dart';
 import '../../../books/presentation/widgets/book_suggestion_tile.dart';
 import '../../../discovery/domain/book_group.dart';
 import '../../../discovery/presentation/providers/discovery_providers.dart';
 import '../../../forum/presentation/screens/post_detail_page.dart';
-import '../../domain/models/book_of_month_nomination.dart';
+import '../../domain/entities/book_of_month_nomination.dart';
 import '../../domain/period.dart';
 import '../providers/book_of_month_providers.dart';
 import '../widgets/nomination_tile.dart';

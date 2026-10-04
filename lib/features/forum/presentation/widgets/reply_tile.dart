@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../domain/models/forum_reply.dart';
+import '../../domain/entities/forum_reply.dart';
 import 'forum_post_tile.dart' show formatForumDate;
 import 'like_button.dart';
 import '../../../../app/app_colors.dart';

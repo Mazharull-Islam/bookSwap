@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/providers/current_user_provider.dart';
 import '../../domain/badge_notifications.dart';
-import '../../domain/models/achievement_badge.dart';
+import '../../domain/entities/achievement_badge.dart';
 import '../providers/reputation_providers.dart';
 import 'badge_toast.dart';
 
@@ -16,9 +16,9 @@ class BadgeNotificationWatcher extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.listen<BadgeState>(badgeStateProvider, (previous, next) {
-      // The badge list is built from three separate data sources that arrive
-      // at different times on every launch and sign-in. Acting on a partial
-      // list is what made old badges look newly earned.
+      // The badge list is built from three data sources that arrive at
+      // different times; acting on a partial list would announce old badges
+      // as new.
       if (!next.ready) return;
       final userId = ref.read(currentUserProvider).id;
       if (userId == 'placeholder-user') return;

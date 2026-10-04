@@ -2,17 +2,17 @@ import 'dart:async';
 
 import 'package:hive_flutter/hive_flutter.dart';
 import '../../../../core/database/hive_service.dart';
-import '../../domain/models/reading_entry.dart';
+import '../../domain/entities/reading_entry.dart';
 import '../../domain/repositories/reading_repository.dart';
+import '../models/reading_entry_dto.dart';
 
-/// Local-first, like the shelf — a user's own reading list has no cross-user
-/// coordination need, so unlike requests/wanted_books this never touches
-/// Firestore.
+/// Local-first, like the shelf: reads and writes go to Hive, and
+/// ReadingSyncService mirrors them to Firestore in the background.
 class HiveReadingRepository implements ReadingRepository {
   Box<Map> get _box => HiveService.readingBox;
 
   ReadingEntry _decode(dynamic raw) =>
-      ReadingEntry.fromJson(Map<String, dynamic>.from(raw as Map));
+      ReadingEntryDto.parse(Map<String, dynamic>.from(raw as Map));
 
   List<ReadingEntry> _mineFor(String userId) => _box.values
       .map(_decode)

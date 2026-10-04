@@ -1,4 +1,4 @@
-import 'models/borrow_request.dart';
+import 'entities/borrow_request.dart';
 
 /// Local time of day the "due" reminders go out.
 const reminderHour = 9;

@@ -5,7 +5,7 @@ import '../../../../core/utils/friendly_error.dart';
 import '../../../../shared/widgets/primary_button.dart';
 import '../../application/use_cases/request_use_cases.dart';
 import '../../domain/loan_condition.dart';
-import '../../domain/models/borrow_request.dart';
+import '../../domain/entities/borrow_request.dart';
 import '../../domain/repositories/request_repository.dart';
 import '../providers/request_providers.dart';
 

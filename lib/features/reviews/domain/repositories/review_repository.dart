@@ -1,4 +1,4 @@
-import '../models/book_review.dart';
+import '../entities/book_review.dart';
 
 class ReviewValidationFailure implements Exception {
   const ReviewValidationFailure(this.message);

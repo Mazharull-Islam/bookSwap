@@ -107,6 +107,17 @@ void main() {
     expect(find.text('Accessible book'), findsNothing);
   });
 
+  testWidgets('Edit on a shelf book opens the edit form with that book', (
+    tester,
+  ) async {
+    await signIn(tester);
+    await tapVisible(tester, find.text(fixtureShelf.first.title));
+    await tapVisible(tester, find.text('Edit'));
+    expect(tester.takeException(), isNull);
+    expect(find.text('Edit book'), findsOneWidget);
+    expect(find.text(fixtureShelf.first.title), findsWidgets);
+  });
+
   testWidgets('an existing book can refresh its genres and synopsis', (
     tester,
   ) async {

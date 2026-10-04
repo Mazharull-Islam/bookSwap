@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../domain/models/reading_activity.dart';
+import '../../domain/entities/reading_activity.dart';
 import '../../domain/repositories/leaderboard_repository.dart';
+import '../models/reading_activity_dto.dart';
 
-/// Live, cross-user data like requests/wanted_books/blocks/forum/book_of_month
-/// — bypasses Hive.
+/// Live, cross-user data, so it bypasses Hive.
 class FirestoreLeaderboardRepository implements LeaderboardRepository {
   FirestoreLeaderboardRepository(this._firestore);
   final FirebaseFirestore _firestore;
@@ -16,7 +16,7 @@ class FirestoreLeaderboardRepository implements LeaderboardRepository {
       .where('periodId', isEqualTo: periodId)
       .snapshots()
       .map(
-        (s) => s.docs.map((d) => ReadingActivity.fromJson(d.data())).toList(),
+        (s) => s.docs.map((d) => ReadingActivityDto.parse(d.data())).toList(),
       );
 
   @override

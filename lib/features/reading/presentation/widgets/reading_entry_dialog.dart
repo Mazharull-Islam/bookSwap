@@ -6,11 +6,10 @@ import '../../../../shared/widgets/primary_button.dart';
 import '../../../../shared/widgets/star_rating.dart';
 import '../../../book_of_month/domain/period.dart';
 import '../../../books/presentation/widgets/book_cover_image.dart';
-import '../../../books/presentation/widgets/book_list_tile.dart'
-    show bookGenreList;
+import '../../../books/domain/book_genres.dart';
 import '../../../books/presentation/widgets/genre_pill_list.dart';
 import '../../../leaderboard/presentation/providers/leaderboard_providers.dart';
-import '../../domain/models/reading_entry.dart';
+import '../../domain/entities/reading_entry.dart';
 import '../providers/reading_providers.dart';
 import 'reading_status.dart';
 import '../../../../app/app_colors.dart';

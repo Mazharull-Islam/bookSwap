@@ -5,9 +5,10 @@ import 'package:firebase_auth/firebase_auth.dart' as firebase;
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-import '../../domain/models/auth_user.dart';
-import '../../domain/models/registration.dart';
+import '../../domain/entities/auth_user.dart';
+import '../../domain/entities/registration.dart';
 import '../../domain/repositories/auth_repository.dart';
+import '../models/reader_profile_dto.dart';
 
 class FirebaseAuthRepository implements AuthRepository {
   FirebaseAuthRepository({
@@ -107,7 +108,7 @@ class FirebaseAuthRepository implements AuthRepository {
     if (data != null) {
       // Profiles created before the Terms were removed still carry
       // acceptedTerms* fields; they are simply ignored.
-      profile = ReaderProfile.fromMap(data);
+      profile = ReaderProfileDto.parse(data);
     }
     return AuthUser(
       id: user.uid,

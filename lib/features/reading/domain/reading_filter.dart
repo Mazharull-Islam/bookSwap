@@ -1,5 +1,5 @@
 import '../../../shared/genre_filter.dart';
-import 'models/reading_entry.dart';
+import 'entities/reading_entry.dart';
 
 enum ReadingSort { recent, title, rating }
 

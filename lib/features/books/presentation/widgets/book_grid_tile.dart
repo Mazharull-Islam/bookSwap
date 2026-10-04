@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../domain/models/book.dart';
+import '../../domain/entities/book.dart';
 import 'book_cover_image.dart';
 import 'book_list_tile.dart';
 import '../../../../app/app_colors.dart';

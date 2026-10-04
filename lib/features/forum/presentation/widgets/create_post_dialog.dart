@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/providers/current_user_provider.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../../../../shared/widgets/primary_button.dart';
-import '../../../books/domain/models/book.dart' show bookGenreOptions;
+import '../../../books/domain/entities/book.dart' show bookGenreOptions;
 import '../../../../app/app_colors.dart';
 import '../providers/forum_providers.dart';
 

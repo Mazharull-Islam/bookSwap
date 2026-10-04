@@ -1,6 +1,5 @@
-import 'package:flutter/material.dart' show RangeValues;
 import '../../../shared/genre_filter.dart';
-import '../../books/domain/models/book.dart';
+import '../../books/domain/entities/book.dart';
 import 'book_group.dart';
 
 enum DiscoverySort { title, nearest, value }
@@ -29,7 +28,7 @@ class DiscoveryFilter {
   final double? maxDistanceKm;
 
   /// Null = any value.
-  final RangeValues? valueRange;
+  final ValueRange? valueRange;
   final DiscoverySort sort;
 
   int get activeCount =>
@@ -56,7 +55,7 @@ class DiscoveryFilter {
         : maxDistanceKm as double?,
     valueRange: identical(valueRange, _keep)
         ? this.valueRange
-        : valueRange as RangeValues?,
+        : valueRange as ValueRange?,
     sort: sort ?? this.sort,
   );
 }
@@ -117,4 +116,19 @@ List<BookGroup> sortDiscoveryGroups(
       sorted.sort((a, b) => byThenTitle(nearest(a), nearest(b), a, b));
   }
   return sorted;
+}
+
+/// An inclusive range of estimated values. Plain Dart so the domain doesn't
+/// depend on Flutter's RangeValues (the filter sheet converts at the edge).
+class ValueRange {
+  const ValueRange(this.start, this.end);
+  final double start;
+  final double end;
+
+  @override
+  bool operator ==(Object other) =>
+      other is ValueRange && other.start == start && other.end == end;
+
+  @override
+  int get hashCode => Object.hash(start, end);
 }

@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/utils/friendly_error.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../../../../shared/widgets/primary_button.dart';
-import '../../domain/models/registration.dart';
+import '../../domain/entities/registration.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../providers/auth_providers.dart';
 

@@ -2,8 +2,9 @@ import 'dart:async';
 
 import 'package:hive_flutter/hive_flutter.dart';
 import '../../../../core/database/hive_service.dart';
-import '../../domain/models/reading_goal.dart';
+import '../../domain/entities/reading_goal.dart';
 import '../../domain/repositories/reading_goal_repository.dart';
+import '../models/reading_goal_dto.dart';
 
 class HiveReadingGoalRepository implements ReadingGoalRepository {
   Box<Map> get _box => HiveService.readingGoalsBox;
@@ -11,7 +12,7 @@ class HiveReadingGoalRepository implements ReadingGoalRepository {
   ReadingGoal? _decode(String userId) {
     final raw = _box.get(userId);
     if (raw == null) return null;
-    final goal = ReadingGoal.fromJson(Map<String, dynamic>.from(raw));
+    final goal = ReadingGoalDto.parse(Map<String, dynamic>.from(raw));
     return goal.deletedAtMs == null ? goal : null;
   }
 
@@ -37,7 +38,7 @@ class HiveReadingGoalRepository implements ReadingGoalRepository {
     final raw = _box.get(userId);
     if (raw == null) return;
     final now = DateTime.now().millisecondsSinceEpoch;
-    final goal = ReadingGoal.fromJson(Map<String, dynamic>.from(raw));
+    final goal = ReadingGoalDto.parse(Map<String, dynamic>.from(raw));
     await _box.put(
       userId,
       goal.copyWith(deletedAtMs: now, updatedAtMs: now).toJson(),

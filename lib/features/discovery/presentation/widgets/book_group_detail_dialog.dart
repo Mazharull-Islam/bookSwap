@@ -5,7 +5,7 @@ import '../../../../app/app_colors.dart';
 import '../../../../core/services/public_profile_service.dart';
 import '../../../../shared/widgets/owner_label.dart';
 import '../../../../shared/widgets/primary_button.dart';
-import '../../../books/domain/models/book.dart';
+import '../../../books/domain/entities/book.dart';
 import '../../../books/presentation/widgets/book_cover_image.dart';
 import '../../../books/presentation/widgets/book_list_tile.dart';
 import '../../../books/presentation/widgets/genre_pill_list.dart';
@@ -16,6 +16,7 @@ import '../../../location/presentation/providers/location_providers.dart';
 import '../../domain/book_group.dart';
 import '../../../../shared/widgets/section_heading.dart';
 import '../../../reviews/presentation/widgets/reviews_section.dart';
+import '../../../books/domain/book_genres.dart';
 
 Future<void> showBookGroupDetailDialog(BuildContext context, BookGroup group) {
   return showDialog(

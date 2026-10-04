@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../shared/genre_filter.dart';
 import '../../../../shared/widgets/filter_widgets.dart';
-import '../../domain/models/book.dart';
+import '../../domain/entities/book.dart';
 import '../../domain/shelf_filter.dart';
 import '../providers/book_providers.dart';
 

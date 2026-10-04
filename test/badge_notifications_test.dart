@@ -3,12 +3,12 @@ import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:bookswap_login/features/borrow_requests/domain/models/borrow_request.dart';
+import 'package:bookswap_login/features/borrow_requests/domain/entities/borrow_request.dart';
 import 'package:bookswap_login/features/borrow_requests/presentation/providers/request_providers.dart';
-import 'package:bookswap_login/features/reading/domain/models/reading_entry.dart';
+import 'package:bookswap_login/features/reading/domain/entities/reading_entry.dart';
 import 'package:bookswap_login/features/reading/presentation/providers/reading_providers.dart';
 import 'package:bookswap_login/features/reputation/domain/badge_notifications.dart';
-import 'package:bookswap_login/features/reputation/domain/models/achievement_badge.dart';
+import 'package:bookswap_login/features/reputation/domain/entities/achievement_badge.dart';
 import 'package:bookswap_login/features/reputation/presentation/providers/reputation_providers.dart';
 import 'support/test_app.dart';
 

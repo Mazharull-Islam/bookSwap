@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../domain/models/reading_entry.dart';
+import '../../domain/entities/reading_entry.dart';
 import '../../../../app/app_colors.dart';
 
 String readingStatusLabel(ReadingStatus status) => switch (status) {

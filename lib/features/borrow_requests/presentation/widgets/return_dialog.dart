@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../../../app/app_colors.dart';
 import '../../../../shared/widgets/filter_widgets.dart';
-import '../../../books/domain/models/book.dart';
+import '../../../books/domain/entities/book.dart';
 import '../../domain/loan_condition.dart';
-import '../../domain/models/borrow_request.dart';
+import '../../domain/entities/borrow_request.dart';
 
 /// Asks the lender to confirm the return and record the book's condition.
 /// Resolves to the chosen condition, or null if cancelled.

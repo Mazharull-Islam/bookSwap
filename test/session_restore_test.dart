@@ -7,11 +7,12 @@ import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bookswap_login/features/authentication/data/repositories/firebase_auth_repository.dart';
-import 'package:bookswap_login/features/authentication/domain/models/registration.dart';
+import 'package:bookswap_login/features/authentication/domain/entities/registration.dart';
 import 'package:bookswap_login/features/authentication/domain/repositories/auth_repository.dart';
 import 'registration_test.dart' show details;
 import 'support/demo_auth_repository.dart';
 import 'support/test_app.dart';
+import 'package:bookswap_login/features/authentication/data/models/reader_profile_dto.dart';
 
 // MockUser exposes mutable fields for tests.
 // ignore: must_be_immutable

@@ -1,4 +1,4 @@
-import '../models/reading_activity.dart';
+import '../entities/reading_activity.dart';
 
 abstract interface class LeaderboardRepository {
   Stream<List<ReadingActivity>> watchActivity(String periodId);

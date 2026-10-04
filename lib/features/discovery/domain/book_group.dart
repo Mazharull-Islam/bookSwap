@@ -1,9 +1,9 @@
-import '../../books/domain/models/book.dart';
+import '../../books/domain/entities/book.dart';
 
 /// Groups editions of the same underlying work together. Keyed by
-/// [Book.workKey] when available (the canonical cross-edition identity —
-/// see the duplicate-shelf-entry work this reuses), falling back to a
-/// normalized title+author match for books added before workKey existed.
+/// [Book.workKey] when available (the canonical cross-edition identity),
+/// falling back to a normalized title+author match for books added before
+/// workKey existed.
 String bookGroupKey(Book book) {
   final workKey = book.workKey;
   if (workKey != null && workKey.isNotEmpty) return workKey;

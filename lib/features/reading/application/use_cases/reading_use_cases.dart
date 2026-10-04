@@ -1,4 +1,4 @@
-import '../../domain/models/reading_entry.dart';
+import '../../domain/entities/reading_entry.dart';
 import '../../domain/repositories/reading_repository.dart';
 
 class AddReadingEntry {

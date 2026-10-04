@@ -7,11 +7,14 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:bookswap_login/core/database/hive_service.dart';
 import 'package:bookswap_login/core/services/book_sync_service.dart';
 import 'package:bookswap_login/core/services/reading_sync_service.dart';
-import 'package:bookswap_login/features/books/domain/models/book.dart';
+import 'package:bookswap_login/features/books/domain/entities/book.dart';
 import 'package:bookswap_login/features/reading/data/repositories/hive_reading_goal_repository.dart';
 import 'package:bookswap_login/features/reading/data/repositories/hive_reading_repository.dart';
-import 'package:bookswap_login/features/reading/domain/models/reading_entry.dart';
-import 'package:bookswap_login/features/reading/domain/models/reading_goal.dart';
+import 'package:bookswap_login/features/reading/domain/entities/reading_entry.dart';
+import 'package:bookswap_login/features/reading/domain/entities/reading_goal.dart';
+import 'package:bookswap_login/features/books/data/models/book_dto.dart';
+import 'package:bookswap_login/features/reading/data/models/reading_entry_dto.dart';
+import 'package:bookswap_login/features/reading/data/models/reading_goal_dto.dart';
 
 ReadingEntry entry(
   String id, {
@@ -58,12 +61,12 @@ void main() {
     final raw = HiveService.readingBox.get(id);
     return raw == null
         ? null
-        : ReadingEntry.fromJson(Map<String, dynamic>.from(raw));
+        : ReadingEntryDto.parse(Map<String, dynamic>.from(raw));
   }
 
   Future<ReadingEntry?> remote(String id) async {
     final doc = await db.collection('reading_entries').doc(id).get();
-    return doc.exists ? ReadingEntry.fromJson(doc.data()!) : null;
+    return doc.exists ? ReadingEntryDto.parse(doc.data()!) : null;
   }
 
   group('reading entries', () {
