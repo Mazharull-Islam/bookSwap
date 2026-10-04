@@ -9,6 +9,7 @@ import '../widgets/like_button.dart';
 import '../widgets/reply_tile.dart';
 import '../widgets/report_dialog.dart';
 import '../../../../app/app_colors.dart';
+import '../../../../shared/widgets/member_avatar.dart';
 
 class PostDetailPage extends ConsumerStatefulWidget {
   const PostDetailPage({super.key, required this.postId});
@@ -149,10 +150,22 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                         ),
                       ),
                       const SizedBox(height: 4),
-                      Text(
-                        '${post.authorName} · ${formatForumDate(post.createdAtMs)}'
-                        '${post.genre != null ? ' · ${post.genre}' : ''}',
-                        style: TextStyle(color: context.colors.textMuted),
+                      Row(
+                        children: [
+                          MemberAvatar(
+                            userId: post.authorId,
+                            name: post.authorName,
+                            radius: 14,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              '${post.authorName} · ${formatForumDate(post.createdAtMs)}'
+                              '${post.genre != null ? ' · ${post.genre}' : ''}',
+                              style: TextStyle(color: context.colors.textMuted),
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 12),
                       Text(post.body),

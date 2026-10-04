@@ -11,12 +11,16 @@ class PublicProfile {
     this.firstName,
     this.latitude,
     this.longitude,
+    this.photoUrl,
   });
 
   final String uid;
   final String? firstName;
   final double? latitude;
   final double? longitude;
+
+  /// A Cloudinary image URL, or null/empty when the member has no photo.
+  final String? photoUrl;
 
   bool get hasLocation => latitude != null && longitude != null;
 
@@ -26,6 +30,7 @@ class PublicProfile {
         firstName: data?['firstName'] as String?,
         latitude: (data?['latitude'] as num?)?.toDouble(),
         longitude: (data?['longitude'] as num?)?.toDouble(),
+        photoUrl: data?['photoUrl'] as String?,
       );
 }
 
@@ -56,6 +61,10 @@ class PublicProfileService {
         doc.id: PublicProfile.fromDoc(doc.id, doc.data()),
     },
   );
+
+  /// Sets (or, with an empty string, clears) the member's photo.
+  Future<void> updatePhoto(String uid, String url) =>
+      _collection.doc(uid).set({'photoUrl': url}, SetOptions(merge: true));
 
   /// Merge-set rather than update so accounts that predate public_profiles
   /// (no doc yet) get one created instead of being rejected.

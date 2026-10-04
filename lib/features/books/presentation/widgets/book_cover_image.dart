@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../app/app_colors.dart';
+import '../../../../core/utils/cached_image.dart';
 
 class BookCoverImage extends StatelessWidget {
   const BookCoverImage({
@@ -25,12 +26,22 @@ class BookCoverImage extends StatelessWidget {
   Widget build(BuildContext context) => ClipRRect(
     borderRadius: BorderRadius.circular(borderRadius),
     child: url != null
-        ? Image.network(
-            url!,
+        ? Image(
+            image: cachedImage(url!),
             width: width,
             height: height,
             fit: BoxFit.cover,
             excludeFromSemantics: true,
+            // A plain tile while the cover loads (no icon, so a book that does
+            // have a cover doesn't flash the "no cover" icon first).
+            frameBuilder: (context, child, frame, wasSynchronouslyLoaded) =>
+                wasSynchronouslyLoaded || frame != null
+                ? child
+                : Container(
+                    width: width,
+                    height: height,
+                    color: placeholderColor ?? context.colors.surfaceSoft,
+                  ),
             errorBuilder: (context, error, stackTrace) => _placeholder(context),
           )
         : _placeholder(context),

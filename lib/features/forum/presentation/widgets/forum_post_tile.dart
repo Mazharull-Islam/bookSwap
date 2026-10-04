@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/utils/date_format.dart';
 import '../../domain/models/forum_post.dart';
 import '../../../../app/app_colors.dart';
+import '../../../../shared/widgets/member_avatar.dart';
 
 String formatForumDate(int ms) => formatDateMs(ms);
 
@@ -59,12 +60,27 @@ class ForumPostTile extends StatelessWidget {
               runSpacing: 4,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                Text(
-                  '${post.authorName} · ${formatForumDate(post.createdAtMs)}',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: context.colors.textFaint,
-                  ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    MemberAvatar(
+                      userId: post.authorId,
+                      name: post.authorName,
+                      radius: 10,
+                    ),
+                    const SizedBox(width: 6),
+                    // Flexible so a long name wraps at large text sizes
+                    // instead of overflowing the row.
+                    Flexible(
+                      child: Text(
+                        '${post.authorName} · ${formatForumDate(post.createdAtMs)}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: context.colors.textFaint,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 if (post.isHidden)
                   Text(

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -283,6 +284,9 @@ const fixtureReply = ForumReply(
 /// screens can be exercised.
 List<Override> firestoreFixtureOverrides() => [
   displayNameProvider.overrideWith((ref, id) async => 'Rafi'),
+  publicProfileServiceProvider.overrideWithValue(
+    PublicProfileService(FakeFirebaseFirestore()),
+  ),
   reviewRepositoryProvider.overrideWithValue(
     InMemoryReviewRepository(fixtureReviews),
   ),

@@ -1,12 +1,18 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../app/app_colors.dart';
+import '../../../../core/services/photo_picker.dart';
+import '../../../../core/services/photo_uploader.dart';
+import '../../../../core/utils/photo_url.dart';
+import '../../../../shared/widgets/member_avatar.dart';
 import '../../../../shared/widgets/section_heading.dart';
 import '../../../location/presentation/widgets/location_settings_card.dart';
 import '../../../reputation/presentation/widgets/reputation_card.dart';
 import '../../domain/models/registration.dart';
 import '../providers/auth_providers.dart';
+import '../providers/profile_photo_providers.dart';
 
 class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
@@ -78,34 +84,153 @@ class ProfilePage extends ConsumerWidget {
   }
 }
 
-class _Header extends StatelessWidget {
+enum _PhotoChoice { camera, gallery, remove }
+
+class _Header extends ConsumerStatefulWidget {
   const _Header({required this.name, required this.email});
   final String name;
   final String email;
 
   @override
+  ConsumerState<_Header> createState() => _HeaderState();
+}
+
+class _HeaderState extends ConsumerState<_Header> {
+  bool _busy = false;
+
+  void _say(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  /// Runs a photo change, showing progress on the avatar and any failure as a
+  /// message. [job] returns what to announce on success (null: say nothing).
+  Future<void> _run(Future<String?> Function() job) async {
+    setState(() => _busy = true);
+    try {
+      final done = await job();
+      if (done != null) _say(done);
+    } on PhotoUploadFailure catch (e) {
+      _say(e.message);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _choose() async {
+    if (_busy) return;
+    final actions = ref.read(profilePhotoActionsProvider);
+    if (!actions.available) {
+      _say('Photos are not set up yet.');
+      return;
+    }
+    final hasPhoto = isOurPhotoUrl(ref.read(myPhotoUrlProvider));
+    final choice = await showModalBottomSheet<_PhotoChoice>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (!kIsWeb)
+              ListTile(
+                key: const Key('photoCamera'),
+                leading: const Icon(Icons.photo_camera_outlined),
+                title: const Text('Take a photo'),
+                onTap: () => Navigator.of(context).pop(_PhotoChoice.camera),
+              ),
+            ListTile(
+              key: const Key('photoGallery'),
+              leading: const Icon(Icons.photo_library_outlined),
+              title: Text(kIsWeb ? 'Choose a photo' : 'Choose from gallery'),
+              onTap: () => Navigator.of(context).pop(_PhotoChoice.gallery),
+            ),
+            if (hasPhoto)
+              ListTile(
+                key: const Key('photoRemove'),
+                leading: const Icon(Icons.delete_outline),
+                title: const Text('Remove photo'),
+                onTap: () => Navigator.of(context).pop(_PhotoChoice.remove),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (choice == null) return;
+    switch (choice) {
+      case _PhotoChoice.remove:
+        await _run(() async {
+          await actions.remove();
+          return 'Photo removed.';
+        });
+      case _PhotoChoice.camera || _PhotoChoice.gallery:
+        await _run(() async {
+          final changed = await actions.change(
+            choice == _PhotoChoice.camera
+                ? PhotoSource.camera
+                : PhotoSource.gallery,
+          );
+          return changed ? 'Photo updated.' : null;
+        });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final initial = name.trim().isEmpty ? '?' : name.trim()[0].toUpperCase();
+    final photo = ref.watch(myPhotoUrlProvider);
+    const radius = 44.0;
     return Column(
       children: [
-        CircleAvatar(
-          radius: 36,
-          backgroundColor: context.colors.surfaceSoft,
-          child: ExcludeSemantics(
-            child: Text(
-              initial,
-              style: Theme.of(context).textTheme.headlineMedium,
+        Semantics(
+          button: true,
+          label: 'Change profile photo',
+          child: InkWell(
+            key: const Key('changePhoto'),
+            customBorder: const CircleBorder(),
+            onTap: _choose,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                AvatarCircle(
+                  name: widget.name,
+                  photoUrl: photo,
+                  radius: radius,
+                ),
+                if (_busy)
+                  const SizedBox(
+                    width: radius * 2,
+                    height: radius * 2,
+                    child: CircularProgressIndicator(),
+                  ),
+                Positioned(
+                  right: 0,
+                  bottom: 0,
+                  child: ExcludeSemantics(
+                    child: CircleAvatar(
+                      radius: 15,
+                      backgroundColor: context.colors.brand,
+                      child: Icon(
+                        Icons.photo_camera,
+                        size: 16,
+                        color: context.colors.onBrand,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
         const SizedBox(height: 12),
         Text(
-          name,
+          widget.name,
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.titleLarge,
         ),
         const SizedBox(height: 2),
-        Text(email, style: Theme.of(context).textTheme.bodySmall),
+        Text(widget.email, style: Theme.of(context).textTheme.bodySmall),
       ],
     );
   }

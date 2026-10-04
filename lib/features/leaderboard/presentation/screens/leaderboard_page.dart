@@ -66,6 +66,7 @@ class _TopReadersTab extends ConsumerWidget {
         return RankingTile(
           rank: index + 1,
           label: reader.userName,
+          userId: reader.userId,
           count: reader.count,
           countLabel: reader.count == 1 ? 'book' : 'books',
         );

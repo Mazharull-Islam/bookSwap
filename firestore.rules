@@ -114,6 +114,15 @@ service cloud.firestore {
       allow update: if owns(uid)
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['firstName'])
         && text(request.resource.data.firstName, 1, 100) && request.resource.data.firstName.matches('.*[^ ].*');
+      // Profile photo: only a Cloudinary image from this app's own account
+      // (cloud o9we0m6d), or '' to remove it — so a profile can't be pointed
+      // at an arbitrary outside image.
+      allow update: if owns(uid)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['photoUrl'])
+        && request.resource.data.photoUrl is string
+        && request.resource.data.photoUrl.size() <= 300
+        && (request.resource.data.photoUrl == ''
+            || request.resource.data.photoUrl.matches('https://res[.]cloudinary[.]com/o9we0m6d/image/upload/[^ ]+'));
       allow delete: if false;
     }
     function validBook(data, bookId) {

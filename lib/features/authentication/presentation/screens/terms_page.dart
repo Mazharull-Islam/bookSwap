@@ -16,7 +16,7 @@ const communityTerms = <(String, String)>[
   ),
   (
     '3. Your profile and privacy',
-    'Use your area and city in the address field; an exact home address is not needed. Gender includes a “Prefer not to say” option. Reading preferences and an optional favourite book help personalise the experience. In the planned service, only approximate distance should be shown to other readers, and contact details should be shared only after a borrowing request is accepted. Do not put sensitive information in public listings.',
+    'Use your area and city in the address field; an exact home address is not needed. Gender includes a “Prefer not to say” option. Reading preferences and an optional favourite book help personalise the experience. In the planned service, only approximate distance should be shown to other readers, and contact details should be shared only after a borrowing request is accepted. Do not put sensitive information in public listings. An optional profile photo is stored with Cloudinary, an image-hosting service, and is shown to other BookSwap members; use a photo you are happy for them to see, and remove it from your profile at any time.',
   ),
   (
     '4. Honest book listings',

@@ -193,6 +193,17 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('profile photo sheet', (tester) async {
+      final handle = tester.ensureSemantics();
+      phone(tester, height: 2000);
+      await signInWithFixtures(tester);
+      await openRoute(tester, '/profile');
+      await tapVisible(tester, find.byKey(const Key('changePhoto')));
+      expect(find.text('Choose from gallery'), findsOneWidget);
+      await checkGuidelines(tester);
+      handle.dispose();
+    });
+
     testWidgets('report dialog', (tester) async {
       final handle = tester.ensureSemantics();
       phone(tester, height: 2000);

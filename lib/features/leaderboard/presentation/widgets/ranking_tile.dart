@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../app/app_colors.dart';
+import '../../../../shared/widgets/member_avatar.dart';
 
 class RankingTile extends StatelessWidget {
   const RankingTile({
@@ -8,12 +9,16 @@ class RankingTile extends StatelessWidget {
     required this.label,
     required this.count,
     required this.countLabel,
+    this.userId,
   });
 
   final int rank;
   final String label;
   final int count;
   final String countLabel;
+
+  /// Set for rows that are people (not authors), to show their photo.
+  final String? userId;
 
   @override
   Widget build(BuildContext context) {
@@ -45,6 +50,10 @@ class RankingTile extends StatelessWidget {
                 ),
               ),
             ),
+            if (userId != null) ...[
+              MemberAvatar(userId: userId!, name: label, radius: 14),
+              const SizedBox(width: 8),
+            ],
             Expanded(
               child: Text(
                 label,
