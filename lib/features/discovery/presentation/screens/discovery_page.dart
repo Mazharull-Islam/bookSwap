@@ -10,6 +10,7 @@ import '../widgets/book_group_detail_dialog.dart';
 import '../widgets/book_group_grid_tile.dart';
 import '../widgets/book_group_tile.dart';
 import '../widgets/discovery_filter_sheet.dart';
+import '../widgets/recommended_strip.dart';
 
 class DiscoveryPage extends ConsumerStatefulWidget {
   const DiscoveryPage({super.key});
@@ -98,6 +99,7 @@ class _DiscoveryPageState extends ConsumerState<DiscoveryPage> {
               ],
             ),
             const SizedBox(height: 16),
+            const RecommendedStrip(),
             Expanded(
               child: Builder(
                 builder: (context) {

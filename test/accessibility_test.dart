@@ -8,6 +8,8 @@ import 'package:bookswap_login/features/reading/presentation/providers/reading_p
 import 'support/tap_targets.dart';
 import 'package:bookswap_login/features/forum/domain/models/forum_report.dart';
 import 'package:bookswap_login/features/forum/presentation/providers/forum_providers.dart';
+import 'package:bookswap_login/features/books/domain/models/book.dart';
+import 'package:bookswap_login/features/discovery/presentation/providers/discovery_providers.dart';
 import 'support/test_app.dart';
 
 // Text contrast is checked exactly, per colour pair, in theme_contrast_test.
@@ -160,6 +162,33 @@ void main() {
       await tapVisible(tester, find.text('History'));
       await tapVisible(tester, find.byKey(const Key('rate-out-3')));
       expect(find.byTooltip('3 stars'), findsOneWidget);
+      await checkGuidelines(tester);
+      handle.dispose();
+    });
+
+    testWidgets('discover with recommendations', (tester) async {
+      final handle = tester.ensureSemantics();
+      phone(tester, height: 2000);
+      await signInWithFixtures(
+        tester,
+        overrides: [
+          allBooksProvider.overrideWith(
+            (ref) => Stream.value([
+              const Book(
+                id: 'rec-1',
+                ownerId: 'owner-2',
+                title: 'Project Hail Mary',
+                author: 'Andy Weir',
+                genre: 'Science fiction',
+                condition: 'Good',
+                estimatedValue: 100,
+              ),
+            ]),
+          ),
+        ],
+      );
+      await openRoute(tester, '/discover');
+      expect(find.text('Recommended for you'), findsOneWidget);
       await checkGuidelines(tester);
       handle.dispose();
     });
