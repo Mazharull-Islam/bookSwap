@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/book.dart';
-import 'book_cover_image.dart';
-import 'book_list_tile.dart';
+import '../../../../shared/widgets/book_cover_image.dart';
 import '../../../../app/app_colors.dart';
+import '../../../../shared/widgets/book_status.dart';
 
 class BookGridTile extends StatelessWidget {
   const BookGridTile({

@@ -2,16 +2,16 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../app/providers/current_user_provider.dart';
 import '../../../../app/app_colors.dart';
 import '../../../../core/services/open_library_service.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../../../books/domain/entities/book.dart';
 import '../../../books/domain/book_genres.dart';
-import '../../../books/presentation/widgets/book_suggestion_tile.dart';
+import '../../../../shared/widgets/book_suggestion_tile.dart';
 import '../../../discovery/domain/book_group.dart';
 import '../../../discovery/presentation/providers/discovery_providers.dart';
-import '../../../forum/presentation/screens/post_detail_page.dart';
 import '../../domain/entities/book_of_month_nomination.dart';
 import '../../domain/period.dart';
 import '../providers/book_of_month_providers.dart';
@@ -20,6 +20,7 @@ import '../../../../shared/widgets/section_heading.dart';
 import '../../../../core/utils/friendly_error.dart';
 import '../../domain/repositories/book_of_month_repository.dart';
 import '../../../../shared/genre_normalizer.dart';
+import '../../../../shared/domain/match_key.dart';
 
 class BookOfMonthPage extends ConsumerStatefulWidget {
   const BookOfMonthPage({super.key});
@@ -79,7 +80,7 @@ class _BookOfMonthPageState extends ConsumerState<BookOfMonthPage> {
     final seen = <String>{};
     final merged = <BookMetadata>[];
     for (final suggestion in [...localMatches, ...remote]) {
-      final key = bomMatchKey(
+      final key = workMatchKey(
         workKey: suggestion.workKey,
         title: suggestion.title,
         author: suggestion.author,
@@ -178,9 +179,7 @@ class _BookOfMonthPageState extends ConsumerState<BookOfMonthPage> {
     _ensuringThread = false;
   }
 
-  void _openDiscussion(String postId) => Navigator.of(
-    context,
-  ).push(MaterialPageRoute(builder: (_) => PostDetailPage(postId: postId)));
+  void _openDiscussion(String postId) => context.push('/forum/post/$postId');
 
   @override
   Widget build(BuildContext context) {

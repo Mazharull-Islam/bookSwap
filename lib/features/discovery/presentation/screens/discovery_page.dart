@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/app_colors.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../../../../shared/widgets/filter_widgets.dart';
-import '../../../book_of_month/presentation/widgets/book_of_month_banner.dart';
 import '../../../books/presentation/providers/book_providers.dart';
 import '../providers/discovery_providers.dart';
 import '../widgets/book_group_detail_dialog.dart';
@@ -13,7 +12,11 @@ import '../widgets/discovery_filter_sheet.dart';
 import '../widgets/recommended_strip.dart';
 
 class DiscoveryPage extends ConsumerStatefulWidget {
-  const DiscoveryPage({super.key});
+  const DiscoveryPage({super.key, this.banner});
+
+  /// Shown above the search row. Supplied by the app's router so Discover
+  /// doesn't depend on whichever feature provides it.
+  final Widget? banner;
 
   @override
   ConsumerState<DiscoveryPage> createState() => _DiscoveryPageState();
@@ -65,7 +68,7 @@ class _DiscoveryPageState extends ConsumerState<DiscoveryPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const BookOfMonthBanner(),
+            if (widget.banner != null) widget.banner!,
             Row(
               children: [
                 Expanded(

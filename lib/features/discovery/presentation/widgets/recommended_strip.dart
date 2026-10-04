@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/app_colors.dart';
 import '../../../../shared/widgets/section_heading.dart';
-import '../../../books/presentation/widgets/book_cover_image.dart';
+import '../../../../shared/widgets/book_cover_image.dart';
 import '../../domain/recommendations.dart';
 import '../providers/discovery_providers.dart';
 import '../providers/recommendation_providers.dart';

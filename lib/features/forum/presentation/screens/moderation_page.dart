@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../app/app_colors.dart';
 import '../../../../shared/widgets/section_heading.dart';
 import '../../domain/entities/forum_post.dart';
@@ -8,7 +9,6 @@ import '../../domain/entities/forum_report.dart';
 import '../providers/forum_providers.dart';
 import '../widgets/forum_post_tile.dart' show formatForumDate;
 import '../widgets/report_dialog.dart';
-import 'post_detail_page.dart';
 
 /// Moderators only (the More page doesn't link here for anyone else, and the
 /// rules refuse non-moderators regardless).
@@ -141,11 +141,8 @@ class _ReportedCard extends ConsumerWidget {
               children: [
                 if (!gone)
                   TextButton(
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => PostDetailPage(postId: target.postId),
-                      ),
-                    ),
+                    onPressed: () =>
+                        context.push('/forum/post/${target.postId}'),
                     child: Text(target.isReply ? 'Open thread' : 'Open post'),
                   ),
                 OutlinedButton(

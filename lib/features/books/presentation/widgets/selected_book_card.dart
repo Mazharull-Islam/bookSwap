@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'book_cover_image.dart';
-import 'genre_pill_list.dart';
+import '../../../../shared/widgets/book_cover_image.dart';
+import '../../../../shared/widgets/genre_pill_list.dart';
 import '../../../../app/app_colors.dart';
 
 /// Summary of the book chosen from title-search suggestions (or the book

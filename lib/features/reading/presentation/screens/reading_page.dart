@@ -9,7 +9,7 @@ import '../../../../shared/widgets/app_text_field.dart';
 import '../../../../shared/widgets/filter_widgets.dart';
 import '../../../books/domain/entities/book.dart';
 import '../../../books/domain/book_genres.dart';
-import '../../../books/presentation/widgets/book_suggestion_tile.dart';
+import '../../../../shared/widgets/book_suggestion_tile.dart';
 import '../../../discovery/domain/book_group.dart';
 import '../../../discovery/presentation/providers/discovery_providers.dart';
 import '../../domain/entities/reading_entry.dart';
@@ -22,6 +22,7 @@ import '../widgets/reading_filter_sheet.dart';
 import '../widgets/reading_stats_tab.dart';
 import '../../../../core/services/book_enrichment_service.dart';
 import '../../../../shared/genre_normalizer.dart';
+import '../../../../shared/domain/match_key.dart';
 
 class ReadingPage extends ConsumerStatefulWidget {
   const ReadingPage({super.key});
@@ -82,7 +83,7 @@ class _ReadingPageState extends ConsumerState<ReadingPage> {
     final seen = <String>{};
     final merged = <BookMetadata>[];
     for (final suggestion in [...localMatches, ...remote]) {
-      final key = readingMatchKey(
+      final key = workMatchKey(
         workKey: suggestion.workKey,
         title: suggestion.title,
         author: suggestion.author,

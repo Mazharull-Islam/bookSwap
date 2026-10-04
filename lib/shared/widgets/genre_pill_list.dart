@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../app/app_colors.dart';
+import '../../app/app_colors.dart';
 
 /// Small rounded genre tags, wrapped onto multiple lines as needed.
 class GenrePillList extends StatelessWidget {

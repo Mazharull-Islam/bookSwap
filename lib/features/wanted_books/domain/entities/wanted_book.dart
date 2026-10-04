@@ -81,14 +81,3 @@ class WantedBook {
   @override
   String toString() => 'WantedBook(id: $id)';
 }
-
-/// Same key as discovery's `bookGroupKey`, so a wanted title and a shelf
-/// listing of the same work match.
-String wantedBookMatchKey({
-  required String? workKey,
-  required String title,
-  required String author,
-}) {
-  if (workKey != null && workKey.isNotEmpty) return workKey;
-  return '${title.trim().toLowerCase()}|${author.trim().toLowerCase()}';
-}

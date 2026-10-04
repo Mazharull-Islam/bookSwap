@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../books/presentation/widgets/book_cover_image.dart';
+import '../../../../shared/widgets/book_cover_image.dart';
 import '../../domain/entities/wanted_book.dart';
 
 class WantedBookTile extends StatelessWidget {

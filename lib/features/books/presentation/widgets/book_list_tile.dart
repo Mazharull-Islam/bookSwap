@@ -1,21 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../../app/app_colors.dart';
 import '../../domain/entities/book.dart';
-import 'book_cover_image.dart';
-
-String bookStatusLabel(BookStatus status) => switch (status) {
-  BookStatus.available => 'Available',
-  BookStatus.requested => 'Requested',
-  BookStatus.lent => 'Lent out',
-  BookStatus.returned => 'Returned',
-};
-
-Color bookStatusColor(BookStatus status) => switch (status) {
-  BookStatus.available => StatusFills.accepted,
-  BookStatus.requested => StatusFills.pending,
-  BookStatus.lent => StatusFills.lent,
-  BookStatus.returned => StatusFills.returned,
-};
+import '../../../../shared/widgets/book_cover_image.dart';
+import '../../../../shared/widgets/book_status.dart';
 
 class BookListTile extends StatelessWidget {
   const BookListTile({

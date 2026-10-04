@@ -11,7 +11,7 @@ import '../../../../shared/widgets/primary_button.dart';
 import '../../domain/entities/book.dart';
 import '../../domain/repositories/book_repository.dart';
 import '../providers/book_providers.dart';
-import '../widgets/book_suggestion_tile.dart';
+import '../../../../shared/widgets/book_suggestion_tile.dart';
 import 'scan_isbn_page.dart';
 import '../widgets/selected_book_card.dart';
 import '../../../../app/app_colors.dart';

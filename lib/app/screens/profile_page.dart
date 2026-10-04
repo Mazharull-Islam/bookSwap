@@ -2,17 +2,17 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../app/app_colors.dart';
-import '../../../../core/services/photo_picker.dart';
-import '../../../../core/services/photo_uploader.dart';
-import '../../../../core/utils/photo_url.dart';
-import '../../../../shared/widgets/member_avatar.dart';
-import '../../../../shared/widgets/section_heading.dart';
-import '../../../location/presentation/widgets/location_settings_card.dart';
-import '../../../reputation/presentation/widgets/reputation_card.dart';
-import '../../domain/entities/registration.dart';
-import '../providers/auth_providers.dart';
-import '../providers/profile_photo_providers.dart';
+import '../app_colors.dart';
+import '../../core/services/photo_picker.dart';
+import '../../core/services/photo_uploader.dart';
+import '../../core/utils/photo_url.dart';
+import '../../shared/widgets/member_avatar.dart';
+import '../../shared/widgets/section_heading.dart';
+import '../../features/location/presentation/widgets/location_settings_card.dart';
+import '../../features/reputation/presentation/widgets/reputation_card.dart';
+import '../../features/authentication/domain/entities/registration.dart';
+import '../../features/authentication/presentation/providers/auth_providers.dart';
+import '../../features/authentication/presentation/providers/profile_photo_providers.dart';
 
 class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});

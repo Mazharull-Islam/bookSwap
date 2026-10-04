@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../../app/app_colors.dart';
-import '../../domain/rating_summary.dart';
+import '../../app/app_colors.dart';
+import '../../features/reviews/domain/rating_summary.dart';
 
 /// "★ 4.5 (3)" — nothing at all when a book has no reviews yet.
 class RatingBadge extends StatelessWidget {

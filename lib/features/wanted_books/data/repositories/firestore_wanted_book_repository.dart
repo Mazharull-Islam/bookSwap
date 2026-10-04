@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../domain/entities/wanted_book.dart';
 import '../../domain/repositories/wanted_book_repository.dart';
 import '../models/wanted_book_dto.dart';
+import '../../../../shared/domain/match_key.dart';
 
 /// Live, cross-user data like requests and public profiles — deliberately
 /// bypasses Hive so a wishlist add/remove is immediately visible to the
@@ -37,7 +38,7 @@ class FirestoreWantedBookRepository implements WantedBookRepository {
     String? coverUrl,
     String? workKey,
   }) async {
-    final matchKey = wantedBookMatchKey(
+    final matchKey = workMatchKey(
       workKey: workKey,
       title: title,
       author: author,

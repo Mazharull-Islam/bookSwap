@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../../app/app_colors.dart';
-import '../../../../core/utils/cached_image.dart';
+import '../../app/app_colors.dart';
+import '../../core/utils/cached_image.dart';
 
 class BookCoverImage extends StatelessWidget {
   const BookCoverImage({

@@ -136,14 +136,3 @@ class ReadingEntry {
   @override
   String toString() => 'ReadingEntry(id: $id)';
 }
-
-/// Same key as discovery's `bookGroupKey` (copied rather than imported across
-/// features).
-String readingMatchKey({
-  required String? workKey,
-  required String title,
-  required String author,
-}) {
-  if (workKey != null && workKey.isNotEmpty) return workKey;
-  return '${title.trim().toLowerCase()}|${author.trim().toLowerCase()}';
-}

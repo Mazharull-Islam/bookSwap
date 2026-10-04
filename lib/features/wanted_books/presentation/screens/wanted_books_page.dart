@@ -7,18 +7,18 @@ import '../../../../app/app_colors.dart';
 import '../../../../core/services/open_library_service.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../../../books/domain/entities/book.dart';
-import '../../../books/presentation/widgets/book_suggestion_tile.dart';
+import '../../../../shared/widgets/book_suggestion_tile.dart';
 import '../../../borrow_requests/domain/repositories/request_repository.dart';
 import '../../../borrow_requests/presentation/providers/request_providers.dart';
 import '../../../discovery/domain/book_group.dart';
 import '../../../discovery/presentation/providers/discovery_providers.dart';
-import '../../domain/entities/wanted_book.dart';
 import '../../domain/mutual_match.dart';
 import '../../domain/repositories/wanted_book_repository.dart';
 import '../providers/wanted_book_providers.dart';
 import '../widgets/mutual_match_card.dart';
 import '../widgets/wanted_book_tile.dart';
 import '../../../../shared/widgets/section_heading.dart';
+import '../../../../shared/domain/match_key.dart';
 
 class WantedBooksPage extends ConsumerStatefulWidget {
   const WantedBooksPage({super.key});
@@ -81,7 +81,7 @@ class _WantedBooksPageState extends ConsumerState<WantedBooksPage> {
     final seen = <String>{};
     final merged = <BookMetadata>[];
     for (final suggestion in [...localMatches, ...remote]) {
-      final key = wantedBookMatchKey(
+      final key = workMatchKey(
         workKey: suggestion.workKey,
         title: suggestion.title,
         author: suggestion.author,

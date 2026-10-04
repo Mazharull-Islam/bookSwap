@@ -6,9 +6,8 @@ import '../../../../core/services/public_profile_service.dart';
 import '../../../../shared/widgets/owner_label.dart';
 import '../../../../shared/widgets/primary_button.dart';
 import '../../../books/domain/entities/book.dart';
-import '../../../books/presentation/widgets/book_cover_image.dart';
-import '../../../books/presentation/widgets/book_list_tile.dart';
-import '../../../books/presentation/widgets/genre_pill_list.dart';
+import '../../../../shared/widgets/book_cover_image.dart';
+import '../../../../shared/widgets/genre_pill_list.dart';
 import '../../../borrow_requests/domain/repositories/request_repository.dart';
 import '../../../borrow_requests/presentation/providers/request_providers.dart';
 import '../../../location/domain/owner_distance.dart';
@@ -17,6 +16,7 @@ import '../../domain/book_group.dart';
 import '../../../../shared/widgets/section_heading.dart';
 import '../../../reviews/presentation/widgets/reviews_section.dart';
 import '../../../books/domain/book_genres.dart';
+import '../../../../shared/widgets/book_status.dart';
 
 Future<void> showBookGroupDetailDialog(BuildContext context, BookGroup group) {
   return showDialog(

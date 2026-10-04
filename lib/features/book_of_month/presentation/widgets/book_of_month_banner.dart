@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../app/app_colors.dart';
-import '../../../books/presentation/widgets/book_cover_image.dart';
+import '../../../../shared/widgets/book_cover_image.dart';
 import '../providers/book_of_month_providers.dart';
 
 /// Featured on Discovery per SRS §3.10 — the current period's leading

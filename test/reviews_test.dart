@@ -9,6 +9,7 @@ import 'package:bookswap_login/features/reviews/domain/rating_summary.dart';
 import 'package:bookswap_login/features/reviews/domain/repositories/review_repository.dart';
 import 'package:bookswap_login/features/reviews/presentation/providers/review_providers.dart';
 import 'support/test_app.dart';
+import 'package:bookswap_login/shared/domain/match_key.dart';
 
 BookReview review(
   String id, {
@@ -63,11 +64,11 @@ void main() {
 
     test('reviewMatchKey matches discovery grouping', () {
       expect(
-        reviewMatchKey(workKey: '/works/OL1W', title: 'Dune', author: 'F'),
+        workMatchKey(workKey: '/works/OL1W', title: 'Dune', author: 'F'),
         '/works/OL1W',
       );
       expect(
-        reviewMatchKey(workKey: null, title: ' Dune ', author: 'Frank Herbert'),
+        workMatchKey(workKey: null, title: ' Dune ', author: 'Frank Herbert'),
         'dune|frank herbert',
       );
     });

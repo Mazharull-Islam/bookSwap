@@ -102,14 +102,3 @@ class BookReview {
   @override
   String toString() => 'BookReview(id: $id)';
 }
-
-/// Same key as discovery's bookGroupKey (copied rather than imported across
-/// features).
-String reviewMatchKey({
-  required String? workKey,
-  required String title,
-  required String author,
-}) {
-  if (workKey != null && workKey.isNotEmpty) return workKey;
-  return '${title.trim().toLowerCase()}|${author.trim().toLowerCase()}';
-}

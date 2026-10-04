@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../app/app_colors.dart';
 import '../providers/forum_providers.dart';
 import '../widgets/create_post_dialog.dart';
 import '../widgets/forum_post_tile.dart';
-import 'post_detail_page.dart';
 
 class ForumPage extends ConsumerWidget {
   const ForumPage({super.key});
@@ -43,11 +43,7 @@ class ForumPage extends ConsumerWidget {
                 final post = posts[index];
                 return ForumPostTile(
                   post: post,
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => PostDetailPage(postId: post.id),
-                    ),
-                  ),
+                  onTap: () => context.push('/forum/post/${post.id}'),
                 );
               },
             ),

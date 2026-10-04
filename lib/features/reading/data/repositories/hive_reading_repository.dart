@@ -5,6 +5,7 @@ import '../../../../core/database/hive_service.dart';
 import '../../domain/entities/reading_entry.dart';
 import '../../domain/repositories/reading_repository.dart';
 import '../models/reading_entry_dto.dart';
+import '../../../../shared/domain/match_key.dart';
 
 /// Local-first, like the shelf: reads and writes go to Hive, and
 /// ReadingSyncService mirrors them to Firestore in the background.
@@ -27,18 +28,14 @@ class HiveReadingRepository implements ReadingRepository {
 
   @override
   Future<ReadingEntry> add(ReadingEntry entry) async {
-    final key = readingMatchKey(
+    final key = workMatchKey(
       workKey: entry.workKey,
       title: entry.title,
       author: entry.author,
     );
     final duplicate = _mineFor(entry.userId).any(
       (e) =>
-          readingMatchKey(
-            workKey: e.workKey,
-            title: e.title,
-            author: e.author,
-          ) ==
+          workMatchKey(workKey: e.workKey, title: e.title, author: e.author) ==
           key,
     );
     if (duplicate) {

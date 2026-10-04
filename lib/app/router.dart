@@ -5,7 +5,7 @@ import '../features/authentication/domain/entities/auth_user.dart';
 import '../features/authentication/presentation/providers/auth_providers.dart';
 import '../features/authentication/presentation/screens/edit_profile_page.dart';
 import '../features/authentication/presentation/screens/login_page.dart';
-import '../features/authentication/presentation/screens/profile_page.dart';
+import 'screens/profile_page.dart';
 import '../features/authentication/presentation/screens/register_page.dart';
 import '../features/authentication/presentation/screens/verification_page.dart';
 import '../features/authentication/presentation/screens/welcome_page.dart';
@@ -16,7 +16,9 @@ import '../features/books/presentation/screens/add_book_page.dart';
 import '../features/books/presentation/screens/my_shelf_page.dart';
 import '../features/borrow_requests/presentation/screens/requests_page.dart';
 import '../features/discovery/presentation/screens/discovery_page.dart';
+import '../features/book_of_month/presentation/widgets/book_of_month_banner.dart';
 import '../features/forum/presentation/screens/forum_page.dart';
+import '../features/forum/presentation/screens/post_detail_page.dart';
 import '../features/forum/presentation/screens/moderation_page.dart';
 import '../features/leaderboard/presentation/screens/leaderboard_page.dart';
 import '../features/reading/presentation/screens/reading_page.dart';
@@ -61,6 +63,7 @@ String? _redirectFor(_AuthStage stage, String location) {
               location == '/requests' ||
               location == '/blocked' ||
               location == '/forum' ||
+              location.startsWith('/forum/post/') ||
               location == '/moderation' ||
               location == '/book-of-month' ||
               location == '/leaderboard'
@@ -102,6 +105,11 @@ final routerProvider = Provider<GoRouter>((ref) {
             AddBookPage(existing: state.extra as Book?),
       ),
       GoRoute(
+        path: '/forum/post/:postId',
+        builder: (context, state) =>
+            PostDetailPage(postId: state.pathParameters['postId']!),
+      ),
+      GoRoute(
         path: '/blocked',
         builder: (context, state) => const BlockedUsersPage(),
       ),
@@ -115,7 +123,8 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: '/discover',
-            builder: (context, state) => const DiscoveryPage(),
+            builder: (context, state) =>
+                const DiscoveryPage(banner: BookOfMonthBanner()),
           ),
           GoRoute(
             path: '/wishlist',

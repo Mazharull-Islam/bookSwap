@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bookswap_login/app/theme.dart';
 import 'package:bookswap_login/core/utils/cached_image.dart';
-import 'package:bookswap_login/features/books/presentation/widgets/book_cover_image.dart';
+import 'package:bookswap_login/shared/widgets/book_cover_image.dart';
 import 'package:bookswap_login/shared/widgets/member_avatar.dart';
 
 const cover = 'https://covers.openlibrary.org/b/id/123-M.jpg';

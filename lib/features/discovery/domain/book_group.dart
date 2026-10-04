@@ -1,14 +1,12 @@
 import '../../books/domain/entities/book.dart';
+import '../../../shared/domain/match_key.dart';
 
 /// Groups editions of the same underlying work together. Keyed by
 /// [Book.workKey] when available (the canonical cross-edition identity),
 /// falling back to a normalized title+author match for books added before
 /// workKey existed.
-String bookGroupKey(Book book) {
-  final workKey = book.workKey;
-  if (workKey != null && workKey.isNotEmpty) return workKey;
-  return '${book.title.trim().toLowerCase()}|${book.author.trim().toLowerCase()}';
-}
+String bookGroupKey(Book book) =>
+    workMatchKey(workKey: book.workKey, title: book.title, author: book.author);
 
 /// One searchable result: every listing (one per owner/edition) of what a
 /// user would consider "the same book," regardless of which edition each

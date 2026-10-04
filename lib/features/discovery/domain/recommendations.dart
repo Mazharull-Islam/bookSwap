@@ -3,6 +3,7 @@ import '../../books/domain/entities/book.dart';
 import '../../reading/domain/entities/reading_entry.dart';
 import '../../reviews/domain/rating_summary.dart';
 import 'book_group.dart';
+import '../../../shared/domain/match_key.dart';
 
 /// Where a recommendation's score came from, strongest story first.
 enum RecommendationSignal { wishlist, taste, rating, preference, nearby }
@@ -123,7 +124,7 @@ List<Recommendation> recommendBooks({
 }) {
   final readKeys = {
     for (final e in reading)
-      readingMatchKey(workKey: e.workKey, title: e.title, author: e.author),
+      workMatchKey(workKey: e.workKey, title: e.title, author: e.author),
   };
   final taste = tasteProfile(reading);
   final preferenceTags = {for (final p in preferences) ...genreTags(p)};

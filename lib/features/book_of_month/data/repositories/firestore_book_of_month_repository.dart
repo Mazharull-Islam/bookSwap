@@ -6,6 +6,7 @@ import '../../domain/repositories/book_of_month_repository.dart';
 import '../models/book_of_month_nomination_dto.dart';
 import '../models/book_of_month_period_dto.dart';
 import '../models/book_of_month_vote_dto.dart';
+import '../../../../shared/domain/match_key.dart';
 
 class FirestoreBookOfMonthRepository implements BookOfMonthRepository {
   FirestoreBookOfMonthRepository(this._firestore);
@@ -70,7 +71,7 @@ class FirestoreBookOfMonthRepository implements BookOfMonthRepository {
     String? workKey,
     String? genre,
   }) async {
-    final matchKey = bomMatchKey(
+    final matchKey = workMatchKey(
       workKey: workKey,
       title: title,
       author: author,

@@ -36,8 +36,22 @@ what the app reasons about and knows nothing about storage. A DTO
 and JSON code. Repositories convert between the two (`BookDto.parse(map)` and
 `entity.toJson()`), so the domain never sees a storage format.
 
-`test/architecture_test.dart` enforces these rules, so a stray import (for
-example Flutter or Firestore inside `domain/`) fails the test run.
+**Features are independent blocks.** One feature may use another's `domain/`
+(entities and rules) and its `presentation/providers/` (its state API), but
+never its widgets, screens, data or application code:
+
+- UI that several features need lives in `lib/shared/widgets`
+  (for example `BookCoverImage`, `GenrePillList`, `RatingBadge`).
+- Screens link to each other by route (for example `/forum/post/:postId`).
+- A widget a feature shouldn't own is handed in by the router, as Discover
+  receives the Book of the Month banner.
+- Rules several features share, like the book match key, live in
+  `lib/shared/domain`.
+
+`test/architecture_test.dart` enforces all of this, so a stray import (for
+example Flutter or Firestore inside `domain/`, or one feature importing another
+feature's widget) fails the test run. The few remaining exceptions are listed
+by name in that file and the test fails if one becomes unnecessary.
 
 After changing a DTO, regenerate its code with:
 

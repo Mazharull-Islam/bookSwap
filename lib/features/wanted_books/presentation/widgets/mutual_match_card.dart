@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../app/app_colors.dart';
 import '../../../../shared/widgets/owner_label.dart';
 import '../../../../shared/widgets/primary_button.dart';
-import '../../../books/presentation/widgets/book_cover_image.dart';
+import '../../../../shared/widgets/book_cover_image.dart';
 import '../../domain/mutual_match.dart';
 import '../../../../shared/widgets/section_heading.dart';
 

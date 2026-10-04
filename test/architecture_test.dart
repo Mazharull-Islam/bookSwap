@@ -14,6 +14,12 @@ import 'package:flutter_test/flutter_test.dart';
 ///   the UI.
 /// * presentation: widgets and providers. Providers are the composition root
 ///   and are the only presentation files allowed to construct data classes.
+///
+/// Features are independent blocks. One feature may use another's domain
+/// (entities, rules) and its providers (its state API), but never its widgets,
+/// screens, data or application code. UI that several features need lives in
+/// `lib/shared/widgets`; screens link to each other by route; the app's router
+/// hands a feature any widget it should display but doesn't own.
 void main() {
   final libDir = Directory('lib');
 
@@ -138,6 +144,94 @@ void main() {
       appliesTo: (f) =>
           inLayer(f, 'presentation') && !f.contains('/presentation/providers/'),
       forbidden: (t) => inAnyFeatureLayer(t, 'data'),
+    );
+    expect(bad, isEmpty, reason: bad.join('\n'));
+  });
+
+  // --- feature independence ---------------------------------------------------
+
+  /// Host screens that embed another feature's widget directly. Each is a known
+  /// piece of coupling to be replaced (a slot supplied by the router, or a move
+  /// to shared/); the list may only shrink, so new couplings fail the build.
+  const compositionExceptions = <String, String>{
+    'lib/features/books/presentation/widgets/book_detail_dialog.dart':
+        'lib/features/borrow_requests/presentation/widgets/condition_history.dart',
+    'lib/features/borrow_requests/presentation/screens/requests_page.dart':
+        'lib/features/reviews/presentation/widgets/review_loan_action.dart',
+    'lib/features/discovery/presentation/widgets/book_group_detail_dialog.dart':
+        'lib/features/reviews/presentation/widgets/reviews_section.dart',
+  };
+
+  final featurePath = RegExp(r'^lib/features/([^/]+)/([^/]+)/(.*)$');
+
+  /// Imports that cross from one feature into another, as (file, target).
+  List<(String, String)> crossFeatureImports() => [
+    for (final entry in imports.entries)
+      for (final import in entry.value)
+        if (featurePath.firstMatch(entry.key) case final from?)
+          if (featurePath.firstMatch(resolve(entry.key, import)) case final to?)
+            if (from.group(1) != to.group(1))
+              (entry.key, resolve(entry.key, import)),
+  ];
+
+  bool isPublicToOtherFeatures(String target) {
+    final m = featurePath.firstMatch(target)!;
+    final layer = m.group(2);
+    if (layer == 'domain') return true;
+    // Providers are a feature's state API.
+    return layer == 'presentation' && m.group(3)!.startsWith('providers/');
+  }
+
+  test('features only use each other through domain and providers', () {
+    final bad = [
+      for (final (file, target) in crossFeatureImports())
+        if (!isPublicToOtherFeatures(target) &&
+            compositionExceptions[file] != target)
+          '$file imports $target',
+    ];
+    expect(
+      bad,
+      isEmpty,
+      reason:
+          "a feature may not import another feature's widgets, screens, data "
+          'or application code. Put shared UI in lib/shared/widgets, link '
+          'screens by route, or pass the widget in from the router:\n'
+          '${bad.join('\n')}',
+    );
+  });
+
+  test('the composition exceptions are all still needed', () {
+    final live = {
+      for (final (file, target) in crossFeatureImports()) '$file|$target',
+    };
+    final stale = [
+      for (final e in compositionExceptions.entries)
+        if (!live.contains('${e.key}|${e.value}')) '${e.key} -> ${e.value}',
+    ];
+    expect(
+      stale,
+      isEmpty,
+      reason:
+          'remove these from compositionExceptions, they are fixed:\n'
+          '${stale.join('\n')}',
+    );
+  });
+
+  test('shared code does not depend on a feature\'s UI or data', () {
+    final bad = violations(
+      appliesTo: (f) => f.startsWith('lib/shared/'),
+      forbidden: (t) {
+        final m = featurePath.firstMatch(t);
+        return m != null && m.group(2) != 'domain';
+      },
+    );
+    expect(bad, isEmpty, reason: bad.join('\n'));
+  });
+
+  test('shared/domain is plain Dart', () {
+    final bad = violations(
+      appliesTo: (f) => f.startsWith('lib/shared/domain/'),
+      forbidden: (t) => isStorageOrUi(t) || t.startsWith('lib/features/'),
     );
     expect(bad, isEmpty, reason: bad.join('\n'));
   });

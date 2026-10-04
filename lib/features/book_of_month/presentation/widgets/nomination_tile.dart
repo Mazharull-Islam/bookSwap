@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../shared/widgets/primary_button.dart';
-import '../../../books/presentation/widgets/book_cover_image.dart';
+import '../../../../shared/widgets/book_cover_image.dart';
 import '../../domain/entities/book_of_month_nomination.dart';
 import '../../../../app/app_colors.dart';
 

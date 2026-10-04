@@ -6,6 +6,7 @@ import '../../../discovery/presentation/providers/discovery_providers.dart';
 import '../../domain/entities/book_review.dart';
 import '../providers/review_providers.dart';
 import 'review_dialog.dart';
+import '../../../../shared/domain/match_key.dart';
 
 /// Shown on a returned loan you borrowed: rate it, or see/edit what you said.
 class ReviewLoanAction extends ConsumerWidget {
@@ -16,7 +17,7 @@ class ReviewLoanAction extends ConsumerWidget {
     final books = ref.read(allBooksProvider).valueOrNull ?? const [];
     for (final book in books) {
       if (book.id == request.bookId) {
-        return reviewMatchKey(
+        return workMatchKey(
           workKey: book.workKey,
           title: book.title,
           author: book.author,
@@ -24,7 +25,7 @@ class ReviewLoanAction extends ConsumerWidget {
       }
     }
     // The book has since left the local cache; fall back to its title.
-    return reviewMatchKey(workKey: null, title: request.bookTitle, author: '');
+    return workMatchKey(workKey: null, title: request.bookTitle, author: '');
   }
 
   void _open(BuildContext context, WidgetRef ref, BookReview? existing) =>

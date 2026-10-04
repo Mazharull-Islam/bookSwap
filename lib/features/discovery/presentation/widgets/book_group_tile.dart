@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/app_colors.dart';
-import '../../../books/presentation/widgets/book_cover_image.dart';
+import '../../../../shared/widgets/book_cover_image.dart';
 import '../../../reviews/presentation/providers/review_providers.dart';
-import '../../../reviews/presentation/widgets/rating_badge.dart';
+import '../../../../shared/widgets/rating_badge.dart';
 import '../../domain/book_group.dart';
 
 class BookGroupTile extends ConsumerWidget {
