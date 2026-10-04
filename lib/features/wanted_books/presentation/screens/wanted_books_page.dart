@@ -20,6 +20,7 @@ import '../widgets/wanted_book_tile.dart';
 import '../../../../shared/widgets/section_heading.dart';
 import '../../../../shared/domain/match_key.dart';
 import '../../../../shared/widgets/feedback.dart';
+import '../../../../shared/widgets/inline_spinner.dart';
 
 class WantedBooksPage extends ConsumerStatefulWidget {
   const WantedBooksPage({super.key});
@@ -161,11 +162,7 @@ class _WantedBooksPageState extends ConsumerState<WantedBooksPage> {
                     suffixIcon: _searching
                         ? const Padding(
                             padding: EdgeInsets.all(12),
-                            child: SizedBox(
-                              height: 16,
-                              width: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            ),
+                            child: InlineSpinner(),
                           )
                         : null,
                     onChanged: _onQueryChanged,

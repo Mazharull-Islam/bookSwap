@@ -6,6 +6,7 @@ import 'package:bookswap_login/app/app_colors.dart';
 import 'package:bookswap_login/app/theme.dart';
 import 'package:bookswap_login/shared/widgets/empty_state.dart';
 import 'package:bookswap_login/shared/widgets/feedback.dart';
+import 'package:bookswap_login/shared/widgets/inline_spinner.dart';
 import 'package:bookswap_login/shared/widgets/primary_button.dart';
 import 'package:bookswap_login/shared/widgets/secondary_button.dart';
 import 'package:bookswap_login/shared/widgets/status_chip.dart';
@@ -129,6 +130,14 @@ void main() {
         tester.getSize(find.byType(Chip).at(1)).height,
         lessThanOrEqualTo(tester.getSize(find.byType(Chip).at(0)).height),
       );
+    });
+  });
+
+  group('InlineSpinner', () {
+    testWidgets('is a small spinner', (tester) async {
+      await tester.pumpWidget(host(const Center(child: InlineSpinner())));
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(tester.getSize(find.byType(InlineSpinner)), const Size(16, 16));
     });
   });
 
@@ -431,6 +440,16 @@ void main() {
         );
       },
     );
+
+    test('small spinners use InlineSpinner', () {
+      expect(
+        filesContaining(
+          'CircularProgressIndicator(strokeWidth: 2)',
+          except: {'lib/shared/widgets/inline_spinner.dart'},
+        ),
+        isEmpty,
+      );
+    });
 
     test('there is one empty-state widget, not private copies', () {
       expect(

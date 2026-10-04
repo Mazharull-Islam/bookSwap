@@ -23,6 +23,7 @@ import '../../../../shared/genre_normalizer.dart';
 import '../../../../shared/domain/match_key.dart';
 import '../../../../shared/widgets/feedback.dart';
 import '../../../../shared/widgets/secondary_button.dart';
+import '../../../../shared/widgets/inline_spinner.dart';
 
 class BookOfMonthPage extends ConsumerStatefulWidget {
   const BookOfMonthPage({super.key});
@@ -218,11 +219,7 @@ class _BookOfMonthPageState extends ConsumerState<BookOfMonthPage> {
                   suffixIcon: _searching
                       ? const Padding(
                           padding: EdgeInsets.all(12),
-                          child: SizedBox(
-                            height: 16,
-                            width: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          ),
+                          child: InlineSpinner(),
                         )
                       : null,
                   onChanged: _onQueryChanged,

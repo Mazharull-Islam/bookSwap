@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'inline_spinner.dart';
 
 /// A lower-emphasis action next to (or instead of) a [PrimaryButton]. Looks
 /// come from the app theme. An [icon] puts a leading icon beside the label.
@@ -27,11 +28,7 @@ class SecondaryButton extends StatelessWidget {
       return OutlinedButton(
         key: buttonKey,
         onPressed: action,
-        child: const SizedBox(
-          height: 16,
-          width: 16,
-          child: CircularProgressIndicator(strokeWidth: 2),
-        ),
+        child: const InlineSpinner(),
       );
     }
     return icon == null

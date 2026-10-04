@@ -25,6 +25,7 @@ import '../../../../shared/genre_normalizer.dart';
 import '../../../../shared/domain/match_key.dart';
 import '../../../../shared/widgets/feedback.dart';
 import '../../../../shared/widgets/empty_state.dart';
+import '../../../../shared/widgets/inline_spinner.dart';
 
 class ReadingPage extends ConsumerStatefulWidget {
   const ReadingPage({super.key});
@@ -174,13 +175,7 @@ class _ReadingPageState extends ConsumerState<ReadingPage> {
                         suffixIcon: _searching
                             ? const Padding(
                                 padding: EdgeInsets.all(12),
-                                child: SizedBox(
-                                  height: 16,
-                                  width: 16,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                ),
+                                child: InlineSpinner(),
                               )
                             : null,
                         onChanged: _onQueryChanged,

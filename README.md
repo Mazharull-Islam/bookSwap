@@ -51,7 +51,8 @@ never its widgets, screens, data or application code:
 Common UI pieces live in `lib/shared/widgets` and should be used instead of
 re-writing them: `EmptyState` (nothing-to-show screens), `StatusChip`
 (status and count pills), `showMessage` (snackbars), `showConfirmDialog`
-(yes/no questions), and `PrimaryButton` / `SecondaryButton` (all buttons).
+(yes/no questions), `PrimaryButton` / `SecondaryButton` (all buttons) and
+`InlineSpinner` (small loading indicators).
 A test fails if a screen builds its own.
 
 `test/architecture_test.dart` enforces all of this, so a stray import (for
