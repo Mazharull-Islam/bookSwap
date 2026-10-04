@@ -8,6 +8,15 @@ class FakeRequestRepository implements RequestRepository {
   final declined = <String>[];
   final extensionsResolved = <String>[];
 
+  /// requestId -> "lenderContact|conditionOut" recorded on accept.
+  final accepted = <String, String>{};
+
+  /// requestId -> the contact the borrower shared.
+  final contactShared = <String, String>{};
+
+  /// requestId -> the return date the borrower proposed.
+  final extensionsRequested = <String, DateTime>{};
+
   /// requestId -> condition recorded on return.
   final returned = <String, String>{};
 
@@ -61,11 +70,18 @@ class FakeRequestRepository implements RequestRepository {
     required DateTime expectedReturnDate,
     required String lenderContact,
     required String conditionOut,
-  }) => throw UnimplementedError();
+  }) async {
+    if (failWith != null) throw failWith!;
+    accepted[requestId] = '$lenderContact|$conditionOut';
+  }
+
   @override
-  Future<void> shareBorrowerContact(String requestId, String contact) =>
-      throw UnimplementedError();
+  Future<void> shareBorrowerContact(String requestId, String contact) async {
+    contactShared[requestId] = contact;
+  }
+
   @override
-  Future<void> requestExtension(String requestId, DateTime proposed) =>
-      throw UnimplementedError();
+  Future<void> requestExtension(String requestId, DateTime proposed) async {
+    extensionsRequested[requestId] = proposed;
+  }
 }

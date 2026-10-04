@@ -156,7 +156,7 @@ void main() {
   const compositionExceptions = <String, String>{
     'lib/features/books/presentation/widgets/book_detail_dialog.dart':
         'lib/features/borrow_requests/presentation/widgets/condition_history.dart',
-    'lib/features/borrow_requests/presentation/screens/requests_page.dart':
+    'lib/features/borrow_requests/presentation/widgets/request_history_tab.dart':
         'lib/features/reviews/presentation/widgets/review_loan_action.dart',
     'lib/features/discovery/presentation/widgets/book_group_detail_dialog.dart':
         'lib/features/reviews/presentation/widgets/reviews_section.dart',
