@@ -25,6 +25,7 @@ import 'package:bookswap_login/features/borrow_requests/presentation/providers/r
 import 'package:bookswap_login/features/discovery/presentation/providers/discovery_providers.dart';
 import 'package:bookswap_login/features/forum/domain/models/forum_post.dart';
 import 'package:bookswap_login/features/forum/domain/models/forum_reply.dart';
+import 'package:bookswap_login/features/forum/domain/models/forum_report.dart';
 import 'package:bookswap_login/features/forum/presentation/providers/forum_providers.dart';
 import 'package:bookswap_login/features/leaderboard/domain/models/reading_activity.dart';
 import 'package:bookswap_login/features/leaderboard/presentation/providers/leaderboard_providers.dart';
@@ -313,6 +314,10 @@ List<Override> firestoreFixtureOverrides() => [
         createdAtMs: _fixtureNow,
       ),
     ]),
+  ),
+  isModeratorProvider.overrideWith((ref) => Stream.value(false)),
+  reportedTargetsProvider.overrideWith(
+    (ref) => Stream.value(const <ReportedTarget>[]),
   ),
   forumFeedProvider.overrideWithValue(const [fixturePost]),
   forumPostProvider.overrideWith((ref, id) => Stream.value(fixturePost)),

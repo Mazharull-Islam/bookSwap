@@ -17,6 +17,7 @@ class ForumPostTile extends StatelessWidget {
     return '${post.title}. ${post.body}. By ${post.authorName}, '
         '${formatForumDate(post.createdAtMs)}'
         '${post.genre != null ? ', ${post.genre}' : ''}. '
+        '${post.isHidden ? 'Under review. ' : ''}'
         '$likes ${likes == 1 ? 'like' : 'likes'}, '
         '$replies ${replies == 1 ? 'reply' : 'replies'}';
   }
@@ -65,6 +66,15 @@ class ForumPostTile extends StatelessWidget {
                     color: context.colors.textFaint,
                   ),
                 ),
+                if (post.isHidden)
+                  Text(
+                    'Under review',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: context.colors.danger,
+                    ),
+                  ),
                 if (post.genre != null)
                   Chip(
                     label: Text(

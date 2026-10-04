@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../domain/models/forum_post.dart';
 import '../../domain/models/forum_reply.dart';
+import '../../domain/models/forum_report.dart';
 import '../../domain/repositories/forum_repository.dart';
 
 /// Live, cross-user data like requests/wanted_books/blocks — bypasses Hive.
@@ -109,15 +110,129 @@ class FirestoreForumRepository implements ForumRepository {
         : FieldValue.arrayRemove([userId]),
   });
 
-  @override
-  Future<void> reportPost(String postId, String userId) =>
-      _posts.doc(postId).update({
+  CollectionReference<Map<String, dynamic>> get _reports =>
+      _firestore.collection('forum_reports');
+
+  Future<void> _report(
+    DocumentReference<Map<String, dynamic>> target,
+    String postId,
+    String? replyId,
+    String userId,
+    ForumReportReason reason,
+  ) async {
+    final id = ForumReport.idFor(postId, replyId, userId);
+    final report = ForumReport(
+      id: id,
+      postId: postId,
+      replyId: replyId,
+      reporterId: userId,
+      reason: reason.name,
+      createdAtMs: DateTime.now().millisecondsSinceEpoch,
+    );
+    try {
+      final batch = _firestore.batch();
+      batch.update(target, {
         'reportedBy': FieldValue.arrayUnion([userId]),
       });
+      batch.set(_reports.doc(id), report.toJson());
+      await batch.commit();
+    } on FirebaseException catch (e) {
+      // A second report by the same member fails the rules' add-self check.
+      if (e.code == 'permission-denied') {
+        throw const ForumValidationFailure(
+          "You can't report this (you may have already).",
+        );
+      }
+      rethrow;
+    }
+  }
 
   @override
-  Future<void> reportReply(String postId, String replyId, String userId) =>
-      _replies(postId).doc(replyId).update({
-        'reportedBy': FieldValue.arrayUnion([userId]),
-      });
+  Future<void> reportPost(
+    String postId,
+    String userId,
+    ForumReportReason reason,
+  ) => _report(_posts.doc(postId), postId, null, userId, reason);
+
+  @override
+  Future<void> reportReply(
+    String postId,
+    String replyId,
+    String userId,
+    ForumReportReason reason,
+  ) => _report(_replies(postId).doc(replyId), postId, replyId, userId, reason);
+
+  @override
+  Future<void> deletePost(String postId) => _posts.doc(postId).delete();
+
+  @override
+  Future<void> deleteReply(String postId, String replyId) async {
+    final batch = _firestore.batch();
+    batch.delete(_replies(postId).doc(replyId));
+    batch.update(_posts.doc(postId), {'replyCount': FieldValue.increment(-1)});
+    await batch.commit();
+  }
+
+  @override
+  Stream<bool> watchIsModerator(String userId) => _firestore
+      .collection('moderators')
+      .doc(userId)
+      .snapshots()
+      .map((d) => d.exists)
+      .handleError((_) {});
+
+  @override
+  Stream<List<ForumReport>> watchReports() => _reports.snapshots().map(
+    (s) => s.docs.map((d) => ForumReport.fromJson(d.data())).toList(),
+  );
+
+  @override
+  Future<ForumPost?> fetchPost(String postId) async {
+    final d = await _posts.doc(postId).get();
+    return d.data() == null ? null : ForumPost.fromJson(d.data()!);
+  }
+
+  @override
+  Future<ForumReply?> fetchReply(String postId, String replyId) async {
+    final d = await _replies(postId).doc(replyId).get();
+    return d.data() == null ? null : ForumReply.fromJson(d.data()!);
+  }
+
+  DocumentReference<Map<String, dynamic>> _targetRef(ReportedTarget t) =>
+      t.isReply ? _replies(t.postId).doc(t.replyId) : _posts.doc(t.postId);
+
+  Future<void> _deleteReports(WriteBatch batch, ReportedTarget t) async {
+    final docs = await _reports.where('targetKey', isEqualTo: t.key).get();
+    for (final d in docs.docs) {
+      batch.delete(d.reference);
+    }
+  }
+
+  @override
+  Future<void> dismissReports(ReportedTarget target) async {
+    final batch = _firestore.batch();
+    final ref = _targetRef(target);
+    // The item may already be gone (deleted by its author).
+    if ((await ref.get()).exists) {
+      batch.update(ref, {'reportedBy': <String>[]});
+    }
+    await _deleteReports(batch, target);
+    await batch.commit();
+  }
+
+  @override
+  Future<void> removeReported(ReportedTarget target) async {
+    final batch = _firestore.batch();
+    final ref = _targetRef(target);
+    if ((await ref.get()).exists) {
+      batch.delete(ref);
+      if (target.isReply) {
+        batch.update(_posts.doc(target.postId), {
+          'replyCount': FieldValue.increment(-1),
+        });
+      }
+    }
+    await _deleteReports(batch, target);
+    await batch.commit();
+  }
 }

@@ -36,11 +36,11 @@ const communityTerms = <(String, String)>[
   ),
   (
     '8. Disagreements and misuse',
-    'Keep the agreed exchange details and relevant condition photos. Try to resolve ordinary return or condition disagreements calmly. The planned service may restrict accounts for substantiated misuse; reporting, moderation and appeals are not implemented in this prototype. Do not assume that submitting a review or message triggers a safety response.',
+    'Keep the agreed exchange details and relevant condition photos. Try to resolve ordinary return or condition disagreements calmly. The planned service may restrict accounts for substantiated misuse; account suspensions and appeals are not implemented in this prototype. Forum posts and replies can be reported by any member and are reviewed by moderators, who may remove content that breaks these terms. Several reports hide a post from the feed until a moderator has looked at it. Appeals and account suspensions are not implemented in this prototype, and reporting is not an emergency service.',
   ),
   (
     '9. Recommendations and availability',
-    'Future recommendations, book metadata and AI-assisted condition estimates may be incomplete or inaccurate. Check important details yourself and confirm condition with the owner. Offline or delayed synchronization can leave availability out of date; confirm an exchange before travelling. BookSwap cannot promise that every listed book will be available.',
+    'Book details such as genres and synopses come from public book databases and may be incomplete or inaccurate. Check important details yourself and confirm condition with the owner. Offline or delayed synchronization can leave availability out of date; confirm an exchange before travelling. BookSwap cannot promise that every listed book will be available.',
   ),
   (
     '10. Your registration data',

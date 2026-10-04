@@ -4,6 +4,7 @@ import '../../../../app/providers/current_user_provider.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../../../../shared/widgets/primary_button.dart';
 import '../../../books/domain/models/book.dart' show bookGenreOptions;
+import '../../../../app/app_colors.dart';
 import '../providers/forum_providers.dart';
 
 Future<void> showCreatePostDialog(BuildContext context) {
@@ -87,6 +88,12 @@ class _CreatePostDialogState extends ConsumerState<_CreatePostDialog> {
               label: 'What do you want to say?',
               validator: (v) =>
                   v == null || v.trim().isEmpty ? 'Enter a message.' : null,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Be kind and stay on topic. Posts can be reported and reviewed '
+              'by moderators.',
+              style: TextStyle(fontSize: 12, color: context.colors.textMuted),
             ),
           ],
         ),

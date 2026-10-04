@@ -1,5 +1,6 @@
 import '../../domain/models/forum_post.dart';
 import '../../domain/models/forum_reply.dart';
+import '../../domain/models/forum_report.dart';
 import '../../domain/repositories/forum_repository.dart';
 
 class CreateForumPost {
@@ -58,14 +59,47 @@ class ReportForumPost {
   const ReportForumPost(this.repository);
   final ForumRepository repository;
 
-  Future<void> call(String postId, String userId) =>
-      repository.reportPost(postId, userId);
+  Future<void> call(String postId, String userId, ForumReportReason reason) =>
+      repository.reportPost(postId, userId, reason);
 }
 
 class ReportForumReply {
   const ReportForumReply(this.repository);
   final ForumRepository repository;
 
-  Future<void> call(String postId, String replyId, String userId) =>
-      repository.reportReply(postId, replyId, userId);
+  Future<void> call(
+    String postId,
+    String replyId,
+    String userId,
+    ForumReportReason reason,
+  ) => repository.reportReply(postId, replyId, userId, reason);
+}
+
+class DeleteForumPost {
+  const DeleteForumPost(this.repository);
+  final ForumRepository repository;
+
+  Future<void> call(String postId) => repository.deletePost(postId);
+}
+
+class DeleteForumReply {
+  const DeleteForumReply(this.repository);
+  final ForumRepository repository;
+
+  Future<void> call(String postId, String replyId) =>
+      repository.deleteReply(postId, replyId);
+}
+
+class DismissReports {
+  const DismissReports(this.repository);
+  final ForumRepository repository;
+
+  Future<void> call(ReportedTarget target) => repository.dismissReports(target);
+}
+
+class RemoveReported {
+  const RemoveReported(this.repository);
+  final ForumRepository repository;
+
+  Future<void> call(ReportedTarget target) => repository.removeReported(target);
 }

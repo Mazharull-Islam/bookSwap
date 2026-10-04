@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'forum_post.dart' show forumHideThreshold;
 
 part 'forum_reply.freezed.dart';
 part 'forum_reply.g.dart';
@@ -22,4 +23,6 @@ abstract class ForumReply with _$ForumReply {
       _$ForumReplyFromJson(json);
 
   bool get isReported => reportedBy.isNotEmpty;
+
+  bool get isHidden => reportedBy.length >= forumHideThreshold;
 }

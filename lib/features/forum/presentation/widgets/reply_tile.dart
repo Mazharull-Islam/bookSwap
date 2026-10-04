@@ -11,12 +11,20 @@ class ReplyTile extends StatelessWidget {
     required this.likedByMe,
     required this.onToggleLike,
     required this.onReport,
+    this.onRemove,
+    this.canReport = true,
   });
 
   final ForumReply reply;
   final bool likedByMe;
   final VoidCallback onToggleLike;
   final VoidCallback onReport;
+
+  /// Set when the viewer may delete this reply (its author, or a moderator).
+  final VoidCallback? onRemove;
+
+  /// False for your own reply.
+  final bool canReport;
 
   @override
   Widget build(BuildContext context) => Container(
@@ -37,11 +45,30 @@ class ReplyTile extends StatelessWidget {
                 style: TextStyle(fontSize: 12, color: context.colors.textMuted),
               ),
             ),
-            IconButton(
-              tooltip: 'Report this reply',
-              icon: const Icon(Icons.flag_outlined, size: 18),
-              onPressed: onReport,
-            ),
+            if (reply.isHidden)
+              Padding(
+                padding: const EdgeInsets.only(right: 4),
+                child: Text(
+                  'Under review',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: context.colors.danger,
+                  ),
+                ),
+              ),
+            if (canReport)
+              IconButton(
+                tooltip: 'Report this reply',
+                icon: const Icon(Icons.flag_outlined, size: 18),
+                onPressed: onReport,
+              ),
+            if (onRemove != null)
+              IconButton(
+                tooltip: 'Delete this reply',
+                icon: const Icon(Icons.delete_outline, size: 18),
+                onPressed: onRemove,
+              ),
           ],
         ),
         const SizedBox(height: 4),

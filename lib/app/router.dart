@@ -18,6 +18,7 @@ import '../features/books/presentation/screens/my_shelf_page.dart';
 import '../features/borrow_requests/presentation/screens/requests_page.dart';
 import '../features/discovery/presentation/screens/discovery_page.dart';
 import '../features/forum/presentation/screens/forum_page.dart';
+import '../features/forum/presentation/screens/moderation_page.dart';
 import '../features/leaderboard/presentation/screens/leaderboard_page.dart';
 import '../features/reading/presentation/screens/reading_page.dart';
 import '../features/wanted_books/presentation/screens/wanted_books_page.dart';
@@ -62,6 +63,7 @@ String? _redirectFor(_AuthStage stage, String location) {
               location == '/requests' ||
               location == '/blocked' ||
               location == '/forum' ||
+              location == '/moderation' ||
               location == '/book-of-month' ||
               location == '/leaderboard'
           ? null
@@ -133,6 +135,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: '/forum',
             builder: (context, state) => const ForumPage(),
+          ),
+          GoRoute(
+            path: '/moderation',
+            builder: (context, state) => const ModerationPage(),
           ),
           GoRoute(
             path: '/book-of-month',

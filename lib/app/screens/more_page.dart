@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../providers/theme_mode_provider.dart';
 import '../app_colors.dart';
 import '../../features/authentication/presentation/providers/auth_providers.dart';
+import '../../features/forum/presentation/providers/forum_providers.dart';
 
 class MorePage extends ConsumerWidget {
   const MorePage({super.key});
@@ -22,7 +23,11 @@ class MorePage extends ConsumerWidget {
     body: ListView(
       padding: const EdgeInsets.symmetric(vertical: 8),
       children: [
-        for (final (path, label, icon) in _destinations)
+        for (final (path, label, icon) in [
+          ..._destinations,
+          if (ref.watch(isModeratorProvider).valueOrNull ?? false)
+            ('/moderation', 'Moderation', Icons.shield_outlined),
+        ])
           ListTile(
             leading: Icon(icon, color: context.colors.brand),
             title: Text(label),

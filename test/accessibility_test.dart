@@ -6,6 +6,8 @@ import 'package:go_router/go_router.dart';
 import 'package:bookswap_login/features/reading/domain/models/reading_entry.dart';
 import 'package:bookswap_login/features/reading/presentation/providers/reading_providers.dart';
 import 'support/tap_targets.dart';
+import 'package:bookswap_login/features/forum/domain/models/forum_report.dart';
+import 'package:bookswap_login/features/forum/presentation/providers/forum_providers.dart';
 import 'support/test_app.dart';
 
 // Text contrast is checked exactly, per colour pair, in theme_contrast_test.
@@ -158,6 +160,49 @@ void main() {
       await tapVisible(tester, find.text('History'));
       await tapVisible(tester, find.byKey(const Key('rate-out-3')));
       expect(find.byTooltip('3 stars'), findsOneWidget);
+      await checkGuidelines(tester);
+      handle.dispose();
+    });
+
+    testWidgets('report dialog', (tester) async {
+      final handle = tester.ensureSemantics();
+      phone(tester, height: 2000);
+      await signInWithFixtures(tester);
+      await openRoute(tester, '/forum');
+      await tapVisible(tester, find.text(fixturePost.title));
+      await tapVisible(tester, find.byTooltip('Report'));
+      expect(find.text('Report this post'), findsOneWidget);
+      await checkGuidelines(tester);
+      handle.dispose();
+    });
+
+    testWidgets('moderation queue', (tester) async {
+      final handle = tester.ensureSemantics();
+      phone(tester, height: 2000);
+      await signInWithFixtures(
+        tester,
+        overrides: [
+          isModeratorProvider.overrideWith((ref) => Stream.value(true)),
+          reportedTargetsProvider.overrideWith(
+            (ref) => Stream.value([
+              ReportedTarget([
+                ForumReport(
+                  id: 'r1',
+                  postId: fixturePost.id,
+                  reporterId: 'a',
+                  reason: 'spam',
+                  createdAtMs: 0,
+                ),
+              ]),
+            ]),
+          ),
+          reportedContentProvider.overrideWith(
+            (ref, t) async => (post: fixturePost, reply: null),
+          ),
+        ],
+      );
+      await openRoute(tester, '/moderation');
+      expect(find.text('Dismiss reports'), findsOneWidget);
       await checkGuidelines(tester);
       handle.dispose();
     });

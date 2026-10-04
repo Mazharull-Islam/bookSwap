@@ -7,6 +7,7 @@ import '../providers/forum_providers.dart';
 import '../widgets/forum_post_tile.dart' show formatForumDate;
 import '../widgets/like_button.dart';
 import '../widgets/reply_tile.dart';
+import '../widgets/report_dialog.dart';
 import '../../../../app/app_colors.dart';
 
 class PostDetailPage extends ConsumerStatefulWidget {
@@ -51,43 +52,89 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
     }
   }
 
+  void _say(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
+  }
+
   Future<void> _reportPost() async {
-    await ref.read(reportForumPostProvider)(
-      widget.postId,
-      ref.read(currentUserProvider).id,
-    );
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Reported. This post is now hidden from the feed.'),
-        ),
+    final reason = await showReportDialog(context, what: 'post');
+    if (reason == null) return;
+    try {
+      await ref.read(reportForumPostProvider)(
+        widget.postId,
+        ref.read(currentUserProvider).id,
+        reason,
       );
+      _say('Reported. You will no longer see this post.');
+      if (mounted) Navigator.of(context).pop();
+    } on ForumValidationFailure catch (e) {
+      _say(e.message);
     }
   }
 
   Future<void> _reportReply(String replyId) async {
-    await ref.read(reportForumReplyProvider)(
-      widget.postId,
-      replyId,
-      ref.read(currentUserProvider).id,
-    );
-    if (mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Reported.')));
+    final reason = await showReportDialog(context, what: 'reply');
+    if (reason == null) return;
+    try {
+      await ref.read(reportForumReplyProvider)(
+        widget.postId,
+        replyId,
+        ref.read(currentUserProvider).id,
+        reason,
+      );
+      _say('Reported. You will no longer see this reply.');
+    } on ForumValidationFailure catch (e) {
+      _say(e.message);
     }
+  }
+
+  Future<void> _deletePost({required bool asModerator}) async {
+    if (!await confirmRemoval(
+      context,
+      what: 'post',
+      asModerator: asModerator,
+    )) {
+      return;
+    }
+    await ref.read(deleteForumPostProvider)(widget.postId);
+    _say(asModerator ? 'Post removed.' : 'Post deleted.');
+    if (mounted) Navigator.of(context).pop();
+  }
+
+  Future<void> _deleteReply(String replyId, {required bool asModerator}) async {
+    if (!await confirmRemoval(
+      context,
+      what: 'reply',
+      asModerator: asModerator,
+    )) {
+      return;
+    }
+    await ref.read(deleteForumReplyProvider)(widget.postId, replyId);
+    _say(asModerator ? 'Reply removed.' : 'Reply deleted.');
   }
 
   @override
   Widget build(BuildContext context) {
-    final post = ref.watch(forumPostProvider(widget.postId)).valueOrNull;
+    final postState = ref.watch(forumPostProvider(widget.postId));
+    final post = postState.valueOrNull;
     final replies = ref.watch(forumRepliesProvider(widget.postId));
     final myId = ref.watch(currentUserProvider).id;
+    final moderator = ref.watch(isModeratorProvider).valueOrNull ?? false;
 
     return Scaffold(
       appBar: AppBar(title: Text(post?.title ?? 'Post')),
       body: post == null
-          ? const Center(child: CircularProgressIndicator())
+          ? postState.hasValue
+                ? Center(
+                    child: Text(
+                      'This post is no longer available.',
+                      style: TextStyle(color: context.colors.textMuted),
+                    ),
+                  )
+                : const Center(child: CircularProgressIndicator())
           : Column(
               children: [
                 Expanded(
@@ -121,11 +168,30 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                             ),
                           ),
                           const Spacer(),
-                          IconButton(
-                            tooltip: 'Report',
-                            icon: const Icon(Icons.flag_outlined),
-                            onPressed: _reportPost,
-                          ),
+                          if (post.isHidden)
+                            Text(
+                              'Under review',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                color: context.colors.danger,
+                              ),
+                            ),
+                          if (post.authorId != myId)
+                            IconButton(
+                              tooltip: 'Report',
+                              icon: const Icon(Icons.flag_outlined),
+                              onPressed: _reportPost,
+                            ),
+                          if (post.authorId == myId || moderator)
+                            IconButton(
+                              tooltip: post.authorId == myId
+                                  ? 'Delete post'
+                                  : 'Remove post',
+                              icon: const Icon(Icons.delete_outline),
+                              onPressed: () => _deletePost(
+                                asModerator: post.authorId != myId,
+                              ),
+                            ),
                         ],
                       ),
                       const Divider(height: 24),
@@ -145,6 +211,13 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
                             !reply.likedBy.contains(myId),
                           ),
                           onReport: () => _reportReply(reply.id),
+                          canReport: reply.authorId != myId,
+                          onRemove: reply.authorId == myId || moderator
+                              ? () => _deleteReply(
+                                  reply.id,
+                                  asModerator: reply.authorId != myId,
+                                )
+                              : null,
                         ),
                       ),
                     ],

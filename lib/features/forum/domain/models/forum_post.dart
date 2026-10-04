@@ -3,6 +3,10 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'forum_post.freezed.dart';
 part 'forum_post.g.dart';
 
+/// Distinct reporters needed to hide a post or reply from the feed. One
+/// report alone would let a single member silence anyone.
+const forumHideThreshold = 3;
+
 @freezed
 abstract class ForumPost with _$ForumPost {
   const ForumPost._();
@@ -17,9 +21,8 @@ abstract class ForumPost with _$ForumPost {
     required int createdAtMs,
     @Default([]) List<String> likedBy,
 
-    /// Add-only — no "un-report." Non-empty means hidden from the general
-    /// feed (SRS §3.7's moderation-latency requirement), with no reviewer
-    /// role/UI to restore it — a deliberate, flagged gap for this pass.
+    /// Distinct members who reported this. Members can only add themselves;
+    /// a moderator dismissing the reports is the only way it shrinks.
     @Default([]) List<String> reportedBy,
     @Default(0) int replyCount,
   }) = _ForumPost;
@@ -28,4 +31,7 @@ abstract class ForumPost with _$ForumPost {
       _$ForumPostFromJson(json);
 
   bool get isReported => reportedBy.isNotEmpty;
+
+  /// Pulled from the general feed once enough different members report it.
+  bool get isHidden => reportedBy.length >= forumHideThreshold;
 }

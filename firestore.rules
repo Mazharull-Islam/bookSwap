@@ -9,6 +9,35 @@ service cloud.firestore {
         && request.auth.token.email_verified == true
         && exists(/databases/$(database)/documents/profiles/$(request.auth.uid));
     }
+    // Moderators are added by hand in the Firebase console (a doc at
+    // moderators/{uid}); no client write can create one.
+    function moderator() {
+      return member()
+        && exists(/databases/$(database)/documents/moderators/$(request.auth.uid));
+    }
+    match /moderators/{uid} {
+      allow get: if owns(uid);
+      allow list, write: if false;
+    }
+    // One doc per member per reported post/reply. Readable only by moderators.
+    function validForumReport(data, reportId) {
+      return data.keys().hasAll(['id', 'postId', 'replyId', 'targetKey', 'reporterId', 'reason', 'createdAtMs'])
+        && data.keys().hasOnly(['id', 'postId', 'replyId', 'targetKey', 'reporterId', 'reason', 'createdAtMs'])
+        && data.id == reportId
+        && data.reporterId == request.auth.uid
+        && text(data.postId, 1, 200)
+        && text(data.replyId, 0, 200)
+        && data.targetKey == (data.replyId == '' ? data.postId : data.postId + '_' + data.replyId)
+        && reportId == data.targetKey + '_' + request.auth.uid
+        && data.reason in ['spam', 'abuse', 'offTopic', 'other']
+        && data.createdAtMs is number;
+    }
+    match /forum_reports/{reportId} {
+      allow read: if moderator();
+      allow create: if member() && validForumReport(request.resource.data, reportId);
+      allow update: if false;
+      allow delete: if moderator();
+    }
     function text(value, min, max) {
       return value is string && value.size() >= min && value.size() <= max;
     }
@@ -408,14 +437,23 @@ service cloud.firestore {
               || removedSelf(resource.data.likedBy, request.resource.data.likedBy)))
         ||
         (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reportedBy'])
+          && resource.data.authorId != request.auth.uid
           && addedSelf(resource.data.reportedBy, request.resource.data.reportedBy))
         ||
+        // A moderator dismissing the reports restores the post.
+        (moderator()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reportedBy'])
+          && request.resource.data.reportedBy.size() == 0)
+        ||
         // Bumped alongside a reply create (see /replies below) — any member
-        // may do this, not just the post's author.
+        // may do this, not just the post's author. Dropped by one alongside a
+        // reply delete.
         (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['replyCount'])
-          && request.resource.data.replyCount == resource.data.replyCount + 1)
+          && (request.resource.data.replyCount == resource.data.replyCount + 1
+              || request.resource.data.replyCount == resource.data.replyCount - 1))
       );
-      allow delete: if false;
+      allow delete: if member()
+        && (resource.data.authorId == request.auth.uid || moderator());
       // postId is a parameter, not inherited from the enclosing match block —
       // a rules function only ever sees what's explicitly passed to it, the
       // same lesson learned earlier with validBook/bookId. Leaving it out
@@ -449,9 +487,15 @@ service cloud.firestore {
                 || removedSelf(resource.data.likedBy, request.resource.data.likedBy)))
           ||
           (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reportedBy'])
+            && resource.data.authorId != request.auth.uid
             && addedSelf(resource.data.reportedBy, request.resource.data.reportedBy))
+          ||
+          (moderator()
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reportedBy'])
+            && request.resource.data.reportedBy.size() == 0)
         );
-        allow delete: if false;
+        allow delete: if member()
+          && (resource.data.authorId == request.auth.uid || moderator());
       }
     }
     // Book of the Month (SRS §3.10). A "period" is just a calendar month

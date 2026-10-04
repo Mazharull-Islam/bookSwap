@@ -15,9 +15,8 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$ForumPost {
 
- String get id; String get authorId; String get authorName; String get title; String get body; String? get genre; int get createdAtMs; List<String> get likedBy;/// Add-only — no "un-report." Non-empty means hidden from the general
-/// feed (SRS §3.7's moderation-latency requirement), with no reviewer
-/// role/UI to restore it — a deliberate, flagged gap for this pass.
+ String get id; String get authorId; String get authorName; String get title; String get body; String? get genre; int get createdAtMs; List<String> get likedBy;/// Distinct members who reported this. Members can only add themselves;
+/// a moderator dismissing the reports is the only way it shrinks.
  List<String> get reportedBy; int get replyCount;
 /// Create a copy of ForumPost
 /// with the given fields replaced by the non-null parameter values.
@@ -238,13 +237,11 @@ class _ForumPost extends ForumPost {
   return EqualUnmodifiableListView(_likedBy);
 }
 
-/// Add-only — no "un-report." Non-empty means hidden from the general
-/// feed (SRS §3.7's moderation-latency requirement), with no reviewer
-/// role/UI to restore it — a deliberate, flagged gap for this pass.
+/// Distinct members who reported this. Members can only add themselves;
+/// a moderator dismissing the reports is the only way it shrinks.
  final  List<String> _reportedBy;
-/// Add-only — no "un-report." Non-empty means hidden from the general
-/// feed (SRS §3.7's moderation-latency requirement), with no reviewer
-/// role/UI to restore it — a deliberate, flagged gap for this pass.
+/// Distinct members who reported this. Members can only add themselves;
+/// a moderator dismissing the reports is the only way it shrinks.
 @override@JsonKey() List<String> get reportedBy {
   if (_reportedBy is EqualUnmodifiableListView) return _reportedBy;
   // ignore: implicit_dynamic_type
