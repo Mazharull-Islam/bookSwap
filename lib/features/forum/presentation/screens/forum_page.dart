@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../app/app_colors.dart';
 import '../providers/forum_providers.dart';
 import '../widgets/create_post_dialog.dart';
 import '../widgets/forum_post_tile.dart';
+import '../../../../shared/widgets/empty_state.dart';
 
 class ForumPage extends ConsumerWidget {
   const ForumPage({super.key});
@@ -15,26 +15,9 @@ class ForumPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Forum')),
       body: posts.isEmpty
-          ? Center(
-              child: Padding(
-                padding: const EdgeInsets.all(32),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.forum_outlined,
-                      size: 56,
-                      color: context.colors.brand,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'No discussions yet — start one!',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: context.colors.textMuted),
-                    ),
-                  ],
-                ),
-              ),
+          ? const EmptyState(
+              icon: Icons.forum_outlined,
+              message: 'No discussions yet — start one!',
             )
           : ListView.builder(
               padding: const EdgeInsets.fromLTRB(0, 12, 0, 88),

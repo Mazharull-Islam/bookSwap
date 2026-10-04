@@ -3,6 +3,7 @@ import '../../domain/entities/book.dart';
 import '../../../../shared/widgets/book_cover_image.dart';
 import '../../../../app/app_colors.dart';
 import '../../../../shared/widgets/book_status.dart';
+import '../../../../shared/widgets/status_chip.dart';
 
 class BookGridTile extends StatelessWidget {
   const BookGridTile({
@@ -35,19 +36,10 @@ class BookGridTile extends StatelessWidget {
                 Positioned(
                   top: 6,
                   right: 6,
-                  child: Chip(
-                    label: Text(
-                      bookStatusLabel(book.status),
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
-                    backgroundColor: bookStatusColor(book.status),
-                    padding: EdgeInsets.zero,
-                    visualDensity: VisualDensity.compact,
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  child: StatusChip(
+                    label: bookStatusLabel(book.status),
+                    color: bookStatusColor(book.status),
+                    shrinkTapTarget: true,
                   ),
                 ),
               ],

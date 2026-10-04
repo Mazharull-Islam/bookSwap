@@ -5,6 +5,7 @@ import '../../../../shared/widgets/book_cover_image.dart';
 import '../../../reviews/presentation/providers/review_providers.dart';
 import '../../../../shared/widgets/rating_badge.dart';
 import '../../domain/book_group.dart';
+import '../../../../shared/widgets/status_chip.dart';
 
 class BookGroupGridTile extends ConsumerWidget {
   const BookGroupGridTile({
@@ -38,20 +39,11 @@ class BookGroupGridTile extends ConsumerWidget {
                   Positioned(
                     top: 6,
                     right: 6,
-                    child: Chip(
-                      label: Text(
-                        group.ownerCount == 1
-                            ? '1 member'
-                            : '${group.ownerCount} members',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: context.colors.onBrand,
-                        ),
-                      ),
-                      backgroundColor: context.colors.brand,
-                      padding: EdgeInsets.zero,
-                      visualDensity: VisualDensity.compact,
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    child: StatusChip.brand(
+                      label: group.ownerCount == 1
+                          ? '1 member'
+                          : '${group.ownerCount} members',
+                      shrinkTapTarget: true,
                     ),
                   ),
                 ],

@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../app/providers/current_user_provider.dart';
-import '../../../../app/app_colors.dart';
 import '../../../../core/services/book_sync_service.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../../../../shared/widgets/filter_widgets.dart';
-import '../../../../shared/widgets/primary_button.dart';
 import '../../domain/entities/book.dart';
 import '../../domain/shelf_filter.dart';
 import '../providers/book_providers.dart';
@@ -14,6 +12,8 @@ import '../widgets/book_detail_dialog.dart';
 import '../widgets/book_grid_tile.dart';
 import '../widgets/book_list_tile.dart';
 import '../widgets/shelf_filter_sheet.dart';
+import '../../../../shared/widgets/empty_state.dart';
+import '../../../../shared/widgets/feedback.dart';
 
 class MyShelfPage extends ConsumerStatefulWidget {
   const MyShelfPage({super.key});
@@ -38,24 +38,13 @@ class _MyShelfPageState extends ConsumerState<MyShelfPage> {
   }
 
   Future<void> _delete(WidgetRef ref, BuildContext context, Book book) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Remove this book?'),
-        content: Text('"${book.title}" will be removed from your shelf.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          PrimaryButton(
-            label: 'Remove',
-            onPressed: () => Navigator.of(context).pop(true),
-          ),
-        ],
-      ),
+    final confirmed = await showConfirmDialog(
+      context,
+      title: 'Remove this book?',
+      message: '"${book.title}" will be removed from your shelf.',
+      confirmLabel: 'Remove',
     );
-    if (confirmed == true) {
+    if (confirmed) {
       await ref.read(removeBookFromShelfProvider)(book.id);
     }
   }
@@ -171,8 +160,17 @@ class _MyShelfPageState extends ConsumerState<MyShelfPage> {
                     if (books.isEmpty) {
                       return _ScrollableCenter(
                         child: allBooks.isEmpty
-                            ? const _EmptyShelf()
-                            : const _NoSearchResults(),
+                            ? const EmptyState(
+                                icon: Icons.menu_book_outlined,
+                                title: 'Your shelf is empty',
+                                message:
+                                    "Add a book you're willing to lend to get started.",
+                              )
+                            : const EmptyState(
+                                icon: Icons.search_off,
+                                message:
+                                    'No books on your shelf match your search or filters.',
+                              ),
                       );
                     }
                     return isGrid
@@ -242,59 +240,6 @@ class _ScrollableCenter extends StatelessWidget {
           child: Center(child: child),
         ),
       ],
-    ),
-  );
-}
-
-class _EmptyShelf extends StatelessWidget {
-  const _EmptyShelf();
-
-  @override
-  Widget build(BuildContext context) => Center(
-    child: Padding(
-      padding: const EdgeInsets.all(32),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.menu_book_outlined, size: 64, color: context.colors.brand),
-          const SizedBox(height: 16),
-          Text(
-            'Your shelf is empty',
-            style: Theme.of(
-              context,
-            ).textTheme.headlineLarge?.copyWith(fontSize: 22),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Add a book you\'re willing to lend to get started.',
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    ),
-  );
-}
-
-class _NoSearchResults extends StatelessWidget {
-  const _NoSearchResults();
-
-  @override
-  Widget build(BuildContext context) => Center(
-    child: Padding(
-      padding: const EdgeInsets.all(32),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.search_off, size: 56, color: context.colors.brand),
-          const SizedBox(height: 16),
-          Text(
-            'No books on your shelf match your search or filters.',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: context.colors.textMuted),
-          ),
-        ],
-      ),
     ),
   );
 }

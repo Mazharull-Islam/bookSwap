@@ -23,6 +23,8 @@ import '../widgets/reading_stats_tab.dart';
 import '../../../../core/services/book_enrichment_service.dart';
 import '../../../../shared/genre_normalizer.dart';
 import '../../../../shared/domain/match_key.dart';
+import '../../../../shared/widgets/feedback.dart';
+import '../../../../shared/widgets/empty_state.dart';
 
 class ReadingPage extends ConsumerStatefulWidget {
   const ReadingPage({super.key});
@@ -119,9 +121,7 @@ class _ReadingPageState extends ConsumerState<ReadingPage> {
       );
     } on ReadingValidationFailure catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(e.message)));
+        showMessage(context, e.message);
       }
       return;
     }
@@ -287,23 +287,23 @@ class _ReadingList extends ConsumerWidget {
     final filter = ref.watch(readingFilterProvider);
     return entries.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, _) => const _Hint(
+      error: (error, _) => const EmptyState(
         icon: Icons.error_outline,
-        text: 'Could not load your reading list. Please try again.',
+        message: 'Could not load your reading list. Please try again.',
       ),
       data: (all) {
         final inTab = all.where((e) => e.status == status).toList();
         final filtered = applyReadingFilter(inTab, filter);
         if (filtered.isEmpty && inTab.isNotEmpty) {
-          return const _Hint(
+          return const EmptyState(
             icon: Icons.search_off,
-            text: 'Nothing in this list matches your filters.',
+            message: 'Nothing in this list matches your filters.',
           );
         }
         if (filtered.isEmpty) {
-          return _Hint(
+          return EmptyState(
             icon: Icons.menu_book_outlined,
-            text: switch (status) {
+            message: switch (status) {
               ReadingStatus.planToRead =>
                 'Search above for a book to add to your list.',
               ReadingStatus.reading => 'Nothing marked as currently reading.',
@@ -326,29 +326,4 @@ class _ReadingList extends ConsumerWidget {
       },
     );
   }
-}
-
-class _Hint extends StatelessWidget {
-  const _Hint({required this.icon, required this.text});
-  final IconData icon;
-  final String text;
-
-  @override
-  Widget build(BuildContext context) => Center(
-    child: Padding(
-      padding: const EdgeInsets.all(32),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 56, color: context.colors.brand),
-          const SizedBox(height: 16),
-          Text(
-            text,
-            textAlign: TextAlign.center,
-            style: TextStyle(color: context.colors.textMuted),
-          ),
-        ],
-      ),
-    ),
-  );
 }

@@ -19,6 +19,7 @@ import '../widgets/mutual_match_card.dart';
 import '../widgets/wanted_book_tile.dart';
 import '../../../../shared/widgets/section_heading.dart';
 import '../../../../shared/domain/match_key.dart';
+import '../../../../shared/widgets/feedback.dart';
 
 class WantedBooksPage extends ConsumerStatefulWidget {
   const WantedBooksPage({super.key});
@@ -110,9 +111,7 @@ class _WantedBooksPageState extends ConsumerState<WantedBooksPage> {
       );
     } on WantedBookValidationFailure catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(e.message)));
+        showMessage(context, e.message);
       }
     }
   }
@@ -131,9 +130,7 @@ class _WantedBooksPageState extends ConsumerState<WantedBooksPage> {
       if (mounted) setState(() => _sentFor.add(id));
     } on RequestValidationFailure catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(e.message)));
+        showMessage(context, e.message);
       }
     } finally {
       if (mounted) setState(() => _sendingFor.remove(id));

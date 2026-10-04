@@ -9,6 +9,7 @@ import '../../../authentication/presentation/providers/auth_providers.dart';
 import '../providers/location_providers.dart';
 import '../screens/location_picker_page.dart';
 import '../../../../shared/widgets/section_heading.dart';
+import '../../../../shared/widgets/feedback.dart';
 
 const _distanceOptions = [1.0, 5.0, 10.0, 25.0, 50.0, 100.0];
 
@@ -48,9 +49,7 @@ class _LocationSettingsCardState extends ConsumerState<LocationSettingsCard> {
           );
     } on FirebaseException catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not save your area (${e.code}).')),
-        );
+        showMessage(context, 'Could not save your area (${e.code}).');
       }
     }
   }
@@ -66,9 +65,7 @@ class _LocationSettingsCardState extends ConsumerState<LocationSettingsCard> {
       );
     } on LocationFailure catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(e.message)));
+        showMessage(context, e.message);
       }
     } finally {
       if (mounted) setState(() => _settingLocation = false);

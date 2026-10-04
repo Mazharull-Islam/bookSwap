@@ -4,6 +4,7 @@ import '../../../../shared/widgets/owner_label.dart';
 import '../../../../shared/widgets/book_cover_image.dart';
 import '../../domain/entities/borrow_request.dart';
 import '../../../../app/app_colors.dart';
+import '../../../../shared/widgets/status_chip.dart';
 
 /// Active (accepted, not yet returned) and past its expected return date.
 bool isOverdue(BorrowRequest request) =>
@@ -88,18 +89,9 @@ class RequestCard extends StatelessWidget {
                   ],
                 ),
               ),
-              Chip(
-                label: Text(
-                  requestStatusLabel(request),
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-                backgroundColor: requestStatusColor(request),
-                padding: EdgeInsets.zero,
-                visualDensity: VisualDensity.compact,
+              StatusChip(
+                label: requestStatusLabel(request),
+                color: requestStatusColor(request),
               ),
               if (onBlock != null)
                 IconButton(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../domain/entities/book.dart';
 import '../../../../shared/widgets/book_cover_image.dart';
 import '../../../../shared/widgets/book_status.dart';
+import '../../../../shared/widgets/status_chip.dart';
 
 class BookListTile extends StatelessWidget {
   const BookListTile({
@@ -30,18 +31,9 @@ class BookListTile extends StatelessWidget {
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Chip(
-            label: Text(
-              bookStatusLabel(book.status),
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-            ),
-            backgroundColor: bookStatusColor(book.status),
-            padding: EdgeInsets.zero,
-            visualDensity: VisualDensity.compact,
+          StatusChip(
+            label: bookStatusLabel(book.status),
+            color: bookStatusColor(book.status),
           ),
           IconButton(
             tooltip: 'Remove ${book.title}',

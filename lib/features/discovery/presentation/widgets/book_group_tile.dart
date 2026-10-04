@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../app/app_colors.dart';
 import '../../../../shared/widgets/book_cover_image.dart';
 import '../../../reviews/presentation/providers/review_providers.dart';
 import '../../../../shared/widgets/rating_badge.dart';
 import '../../domain/book_group.dart';
+import '../../../../shared/widgets/status_chip.dart';
 
 class BookGroupTile extends ConsumerWidget {
   const BookGroupTile({super.key, required this.group, required this.onTap});
@@ -30,14 +30,10 @@ class BookGroupTile extends ConsumerWidget {
             RatingBadge(summary: summary),
           ],
         ),
-        trailing: Chip(
-          label: Text(
-            group.ownerCount == 1 ? '1 member' : '${group.ownerCount} members',
-            style: TextStyle(fontSize: 12, color: context.colors.onBrand),
-          ),
-          backgroundColor: context.colors.brand,
-          padding: EdgeInsets.zero,
-          visualDensity: VisualDensity.compact,
+        trailing: StatusChip.brand(
+          label: group.ownerCount == 1
+              ? '1 member'
+              : '${group.ownerCount} members',
         ),
       ),
     );

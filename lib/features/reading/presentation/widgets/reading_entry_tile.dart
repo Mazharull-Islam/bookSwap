@@ -3,6 +3,7 @@ import '../../../../shared/widgets/star_rating.dart';
 import '../../../../shared/widgets/book_cover_image.dart';
 import '../../domain/entities/reading_entry.dart';
 import 'reading_status.dart';
+import '../../../../shared/widgets/status_chip.dart';
 
 class ReadingEntryTile extends StatelessWidget {
   const ReadingEntryTile({super.key, required this.entry, required this.onTap});
@@ -30,18 +31,9 @@ class ReadingEntryTile extends StatelessWidget {
           ],
         ],
       ),
-      trailing: Chip(
-        label: Text(
-          readingStatusLabel(entry.status),
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: readingStatusColor(entry.status),
-        padding: EdgeInsets.zero,
-        visualDensity: VisualDensity.compact,
+      trailing: StatusChip(
+        label: readingStatusLabel(entry.status),
+        color: readingStatusColor(entry.status),
       ),
     ),
   );

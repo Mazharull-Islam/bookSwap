@@ -13,6 +13,7 @@ import '../../features/reputation/presentation/widgets/reputation_card.dart';
 import '../../features/authentication/domain/entities/registration.dart';
 import '../../features/authentication/presentation/providers/auth_providers.dart';
 import '../../features/authentication/presentation/providers/profile_photo_providers.dart';
+import '../../shared/widgets/feedback.dart';
 
 class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
@@ -100,9 +101,7 @@ class _HeaderState extends ConsumerState<_Header> {
 
   void _say(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    showMessage(context, message);
   }
 
   /// Runs a photo change, showing progress on the avatar and any failure as a

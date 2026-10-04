@@ -21,6 +21,7 @@ import '../../../../core/utils/friendly_error.dart';
 import '../../domain/repositories/book_of_month_repository.dart';
 import '../../../../shared/genre_normalizer.dart';
 import '../../../../shared/domain/match_key.dart';
+import '../../../../shared/widgets/feedback.dart';
 
 class BookOfMonthPage extends ConsumerStatefulWidget {
   const BookOfMonthPage({super.key});
@@ -119,18 +120,13 @@ class _BookOfMonthPageState extends ConsumerState<BookOfMonthPage> {
       );
     } on BookOfMonthValidationFailure catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(e.message)));
+        showMessage(context, e.message);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              friendlyError(e, fallback: 'Could not nominate that book.'),
-            ),
-          ),
+        showMessage(
+          context,
+          friendlyError(e, fallback: 'Could not nominate that book.'),
         );
       }
     }
@@ -145,18 +141,13 @@ class _BookOfMonthPageState extends ConsumerState<BookOfMonthPage> {
       );
     } on BookOfMonthValidationFailure catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(e.message)));
+        showMessage(context, e.message);
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              friendlyError(e, fallback: 'Could not save your vote.'),
-            ),
-          ),
+        showMessage(
+          context,
+          friendlyError(e, fallback: 'Could not save your vote.'),
         );
       }
     }

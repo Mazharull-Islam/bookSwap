@@ -9,6 +9,7 @@ import '../../domain/repositories/auth_repository.dart';
 import '../providers/auth_providers.dart';
 import '../widgets/auth_page.dart';
 import '../widgets/password_input.dart';
+import '../../../../shared/widgets/feedback.dart';
 
 class LoginPage extends ConsumerWidget {
   const LoginPage({super.key});
@@ -59,12 +60,9 @@ class _LoginFormState extends ConsumerState<_LoginForm> {
   Future<void> _passwordHelp() async {
     await ref.read(authControllerProvider.notifier).resetPassword(_email.text);
     if (!mounted || ref.read(authControllerProvider).hasError) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'If an account uses this email, you will receive a password reset link.',
-        ),
-      ),
+    showMessage(
+      context,
+      'If an account uses this email, you will receive a password reset link.',
     );
   }
 

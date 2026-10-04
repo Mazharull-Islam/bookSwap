@@ -18,6 +18,7 @@ import '../../../../app/app_colors.dart';
 import '../../../../core/services/book_enrichment_service.dart';
 import '../../../../shared/genre_normalizer.dart';
 import '../../domain/book_genres.dart';
+import '../../../../shared/widgets/feedback.dart';
 
 class AddBookPage extends ConsumerStatefulWidget {
   const AddBookPage({super.key, this.existing});
@@ -161,9 +162,7 @@ class _AddBookPageState extends ConsumerState<AddBookPage> {
   }
 
   void _say(String message) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    showMessage(context, message);
   }
 
   Future<void> _scanBarcode() async {

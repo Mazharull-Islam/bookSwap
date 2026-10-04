@@ -7,6 +7,7 @@ import '../../../../shared/widgets/primary_button.dart';
 import '../../domain/entities/registration.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../providers/auth_providers.dart';
+import '../../../../shared/widgets/feedback.dart';
 
 class EditProfilePage extends ConsumerStatefulWidget {
   const EditProfilePage({super.key});
@@ -66,9 +67,7 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
           );
       await ref.read(authControllerProvider.notifier).refreshSession();
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Profile updated.')));
+      showMessage(context, 'Profile updated.');
       context.go('/profile');
     } on AuthFailure catch (e) {
       if (mounted) setState(() => _error = e.message);

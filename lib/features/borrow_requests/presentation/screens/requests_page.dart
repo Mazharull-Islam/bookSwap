@@ -15,44 +15,15 @@ import '../widgets/request_card.dart';
 import '../../../reviews/presentation/widgets/review_loan_action.dart';
 import '../widgets/return_dialog.dart';
 import '../widgets/condition_line.dart';
-
-Future<bool> _confirm(
-  BuildContext context, {
-  required String title,
-  required String message,
-  required String confirmLabel,
-}) async {
-  final scheme = Theme.of(context).colorScheme;
-  return await showDialog<bool>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text(title),
-          content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              style: FilledButton.styleFrom(
-                backgroundColor: scheme.error,
-                foregroundColor: scheme.onError,
-              ),
-              onPressed: () => Navigator.of(context).pop(true),
-              child: Text(confirmLabel),
-            ),
-          ],
-        ),
-      ) ??
-      false;
-}
+import '../../../../shared/widgets/feedback.dart';
+import '../../../../shared/widgets/empty_state.dart';
 
 void _showError(BuildContext context, Object error, String fallback) {
   if (!context.mounted) return;
   final message = error is RequestValidationFailure
       ? error.message
       : friendlyError(error, fallback: fallback);
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  showMessage(context, message);
 }
 
 /// "Return by Oct 17, 2026 · due in 5 days" — overdue is in the words as well
@@ -131,12 +102,9 @@ class _IncomingTab extends ConsumerWidget {
         ?.profile
         ?.mobile;
     if (myMobile == null || myMobile.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Add a mobile number to your profile before accepting.',
-          ),
-        ),
+      showMessage(
+        context,
+        'Add a mobile number to your profile before accepting.',
       );
       return;
     }
@@ -170,13 +138,14 @@ class _IncomingTab extends ConsumerWidget {
     WidgetRef ref,
     BorrowRequest request,
   ) async {
-    final ok = await _confirm(
+    final ok = await showConfirmDialog(
       context,
       title: 'Decline this request?',
       message:
           'The member will be told you declined, and "${request.bookTitle}" '
           "stays on your shelf. This can't be undone.",
       confirmLabel: 'Decline request',
+      destructive: true,
     );
     if (!ok) return;
     try {
@@ -215,7 +184,7 @@ class _IncomingTab extends ConsumerWidget {
     required bool approve,
   }) async {
     if (!approve) {
-      final ok = await _confirm(
+      final ok = await showConfirmDialog(
         context,
         title: 'Decline this extension?',
         message:
@@ -223,6 +192,7 @@ class _IncomingTab extends ConsumerWidget {
             '${formatDateMs(request.expectedReturnDateMs!)}. This can\'t be '
             'undone.',
         confirmLabel: 'Decline extension',
+        destructive: true,
       );
       if (!ok) return;
     }
@@ -246,27 +216,15 @@ class _IncomingTab extends ConsumerWidget {
     final name =
         ref.read(displayNameProvider(request.borrowerId)).valueOrNull ??
         'this user';
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Block $name?'),
-        content: Text(
+    final confirmed = await showConfirmDialog(
+      context,
+      title: 'Block $name?',
+      message:
           "$name won't be able to send you new borrow requests. "
           'You can unblock them later from your profile.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          PrimaryButton(
-            label: 'Block',
-            onPressed: () => Navigator.of(context).pop(true),
-          ),
-        ],
-      ),
+      confirmLabel: 'Block',
     );
-    if (confirmed != true) return;
+    if (!confirmed) return;
     await ref.read(blockUserProvider)(
       blockerId: ref.read(currentUserProvider).id,
       blockedId: request.borrowerId,
@@ -278,9 +236,7 @@ class _IncomingTab extends ConsumerWidget {
       await _decline(ref, request);
     }
     if (context.mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Blocked $name.')));
+      showMessage(context, 'Blocked $name.');
     }
   }
 
@@ -289,16 +245,16 @@ class _IncomingTab extends ConsumerWidget {
     final requests = ref.watch(incomingRequestsProvider);
     return requests.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, _) => const _Hint(
+      error: (error, _) => const EmptyState(
         icon: Icons.error_outline,
-        text: 'Could not load requests. Please try again.',
+        message: 'Could not load requests. Please try again.',
       ),
       data: (all) {
         final requests = all.where((r) => r.returnedAt == null).toList();
         if (requests.isEmpty) {
-          return const _Hint(
+          return const EmptyState(
             icon: Icons.inbox_outlined,
-            text: 'No one has requested your books yet.',
+            message: 'No one has requested your books yet.',
           );
         }
         return ListView.builder(
@@ -417,9 +373,7 @@ class _OutgoingTab extends ConsumerWidget {
       await ref.read(requestLoanExtensionProvider)(request.id, newDate);
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not request an extension: $e')),
-        );
+        showMessage(context, 'Could not request an extension: $e');
       }
     }
   }
@@ -429,16 +383,16 @@ class _OutgoingTab extends ConsumerWidget {
     final requests = ref.watch(outgoingRequestsProvider);
     return requests.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, _) => const _Hint(
+      error: (error, _) => const EmptyState(
         icon: Icons.error_outline,
-        text: 'Could not load requests. Please try again.',
+        message: 'Could not load requests. Please try again.',
       ),
       data: (all) {
         final requests = all.where((r) => r.returnedAt == null).toList();
         if (requests.isEmpty) {
-          return const _Hint(
+          return const EmptyState(
             icon: Icons.outbox_outlined,
-            text: "You haven't requested any books yet.",
+            message: "You haven't requested any books yet.",
           );
         }
         return ListView.builder(
@@ -523,9 +477,9 @@ class _HistoryTab extends ConsumerWidget {
     final loans = [...lent, ...borrowed]
       ..sort((a, b) => b.request.returnedAt!.compareTo(a.request.returnedAt!));
     if (loans.isEmpty) {
-      return const _Hint(
+      return const EmptyState(
         icon: Icons.history,
-        text: 'Past loans will show up here once a loan is marked returned.',
+        message: 'Past loans will show up here once a loan is marked returned.',
       );
     }
     return ListView.builder(
@@ -561,29 +515,4 @@ class _HistoryTab extends ConsumerWidget {
       },
     );
   }
-}
-
-class _Hint extends StatelessWidget {
-  const _Hint({required this.icon, required this.text});
-  final IconData icon;
-  final String text;
-
-  @override
-  Widget build(BuildContext context) => Center(
-    child: Padding(
-      padding: const EdgeInsets.all(32),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 56, color: context.colors.brand),
-          const SizedBox(height: 16),
-          Text(
-            text,
-            textAlign: TextAlign.center,
-            style: TextStyle(color: context.colors.textMuted),
-          ),
-        ],
-      ),
-    ),
-  );
 }

@@ -17,6 +17,8 @@ import '../../../../shared/widgets/section_heading.dart';
 import '../../../reviews/presentation/widgets/reviews_section.dart';
 import '../../../books/domain/book_genres.dart';
 import '../../../../shared/widgets/book_status.dart';
+import '../../../../shared/widgets/feedback.dart';
+import '../../../../shared/widgets/status_chip.dart';
 
 Future<void> showBookGroupDetailDialog(BuildContext context, BookGroup group) {
   return showDialog(
@@ -49,9 +51,7 @@ class _BookGroupDetailDialogState
       if (mounted) setState(() => _sent.add(listing.id));
     } on RequestValidationFailure catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(e.message)));
+        showMessage(context, e.message);
       }
     } finally {
       if (mounted) setState(() => _sending.remove(listing.id));
@@ -180,18 +180,9 @@ class _BookGroupDetailDialogState
                   style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
               ),
-              Chip(
-                label: Text(
-                  bookStatusLabel(listing.status),
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-                backgroundColor: bookStatusColor(listing.status),
-                padding: EdgeInsets.zero,
-                visualDensity: VisualDensity.compact,
+              StatusChip(
+                label: bookStatusLabel(listing.status),
+                color: bookStatusColor(listing.status),
               ),
             ],
           ),

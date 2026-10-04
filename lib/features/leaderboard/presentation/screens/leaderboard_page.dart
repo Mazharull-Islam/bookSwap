@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../app/app_colors.dart';
 import '../../../book_of_month/domain/period.dart';
 import '../providers/leaderboard_providers.dart';
 import '../widgets/ranking_tile.dart';
 import '../../../../shared/widgets/section_heading.dart';
+import '../../../../shared/widgets/empty_state.dart';
 
 class LeaderboardPage extends ConsumerWidget {
   const LeaderboardPage({super.key});
@@ -53,9 +53,9 @@ class _TopReadersTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final readers = ref.watch(topReadersProvider(periodId));
     if (readers.isEmpty) {
-      return const _Hint(
+      return const EmptyState(
         icon: Icons.menu_book_outlined,
-        text: 'No books marked Read this month yet.',
+        message: 'No books marked Read this month yet.',
       );
     }
     return ListView.builder(
@@ -83,9 +83,9 @@ class _TopAuthorsTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authors = ref.watch(topAuthorsProvider(periodId));
     if (authors.isEmpty) {
-      return const _Hint(
+      return const EmptyState(
         icon: Icons.person_outline,
-        text: 'No authors recorded this month yet.',
+        message: 'No authors recorded this month yet.',
       );
     }
     return ListView.builder(
@@ -102,29 +102,4 @@ class _TopAuthorsTab extends ConsumerWidget {
       },
     );
   }
-}
-
-class _Hint extends StatelessWidget {
-  const _Hint({required this.icon, required this.text});
-  final IconData icon;
-  final String text;
-
-  @override
-  Widget build(BuildContext context) => Center(
-    child: Padding(
-      padding: const EdgeInsets.all(32),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 56, color: context.colors.brand),
-          const SizedBox(height: 16),
-          Text(
-            text,
-            textAlign: TextAlign.center,
-            style: TextStyle(color: context.colors.textMuted),
-          ),
-        ],
-      ),
-    ),
-  );
 }

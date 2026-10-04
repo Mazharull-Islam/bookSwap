@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/forum_report.dart';
+import '../../../../shared/widgets/feedback.dart';
 
 /// Asks why the member is reporting. Returns null if they cancel.
 Future<ForumReportReason?> showReportDialog(
@@ -67,26 +68,11 @@ Future<bool> confirmRemoval(
   BuildContext context, {
   required String what,
   bool asModerator = false,
-}) async =>
-    await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(asModerator ? 'Remove this $what?' : 'Delete this $what?'),
-        content: Text(
-          asModerator
-              ? "It will be removed for everyone. This can't be undone."
-              : "It will be deleted for everyone. This can't be undone.",
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(asModerator ? 'Remove' : 'Delete'),
-          ),
-        ],
-      ),
-    ) ??
-    false;
+}) => showConfirmDialog(
+  context,
+  title: asModerator ? 'Remove this $what?' : 'Delete this $what?',
+  message: asModerator
+      ? "It will be removed for everyone. This can't be undone."
+      : "It will be deleted for everyone. This can't be undone.",
+  confirmLabel: asModerator ? 'Remove' : 'Delete',
+);

@@ -6,6 +6,7 @@ import '../app_colors.dart';
 import '../../features/authentication/presentation/providers/auth_providers.dart';
 import '../../features/borrow_requests/presentation/providers/reminder_providers.dart';
 import '../../features/forum/presentation/providers/forum_providers.dart';
+import '../../shared/widgets/feedback.dart';
 
 class MorePage extends ConsumerWidget {
   const MorePage({super.key});
@@ -126,13 +127,10 @@ class _LoanRemindersTile extends ConsumerWidget {
                     .requestPermission();
                 if (!allowed) {
                   if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'Notifications are blocked. Allow them for BookSwap '
-                          'in your phone settings, then try again.',
-                        ),
-                      ),
+                    showMessage(
+                      context,
+                      'Notifications are blocked. Allow them for BookSwap '
+                      'in your phone settings, then try again.',
                     );
                   }
                   return;

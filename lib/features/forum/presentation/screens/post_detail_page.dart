@@ -10,6 +10,7 @@ import '../widgets/reply_tile.dart';
 import '../widgets/report_dialog.dart';
 import '../../../../app/app_colors.dart';
 import '../../../../shared/widgets/member_avatar.dart';
+import '../../../../shared/widgets/feedback.dart';
 
 class PostDetailPage extends ConsumerStatefulWidget {
   const PostDetailPage({super.key, required this.postId});
@@ -44,9 +45,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
       _reply.clear();
     } on ForumValidationFailure catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(e.message)));
+        showMessage(context, e.message);
       }
     } finally {
       if (mounted) setState(() => _sending = false);
@@ -55,9 +54,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
 
   void _say(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    showMessage(context, message);
   }
 
   Future<void> _reportPost() async {

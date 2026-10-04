@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../app/app_colors.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../../../../shared/widgets/filter_widgets.dart';
 import '../../../books/presentation/providers/book_providers.dart';
@@ -10,6 +9,7 @@ import '../widgets/book_group_grid_tile.dart';
 import '../widgets/book_group_tile.dart';
 import '../widgets/discovery_filter_sheet.dart';
 import '../widgets/recommended_strip.dart';
+import '../../../../shared/widgets/empty_state.dart';
 
 class DiscoveryPage extends ConsumerStatefulWidget {
   const DiscoveryPage({super.key, this.banner});
@@ -116,9 +116,9 @@ class _DiscoveryPageState extends ConsumerState<DiscoveryPage> {
                   if (results.isEmpty) {
                     final narrowed =
                         query.trim().isNotEmpty || filter.activeCount > 0;
-                    return _Hint(
+                    return EmptyState(
                       icon: Icons.menu_book_outlined,
-                      text: narrowed
+                      message: narrowed
                           ? 'No listings match your search and filters.'
                           : 'No members have listed any books yet.',
                     );
@@ -163,29 +163,4 @@ class _DiscoveryPageState extends ConsumerState<DiscoveryPage> {
       ),
     );
   }
-}
-
-class _Hint extends StatelessWidget {
-  const _Hint({required this.icon, required this.text});
-  final IconData icon;
-  final String text;
-
-  @override
-  Widget build(BuildContext context) => Center(
-    child: Padding(
-      padding: const EdgeInsets.all(32),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 56, color: context.colors.brand),
-          const SizedBox(height: 16),
-          Text(
-            text,
-            textAlign: TextAlign.center,
-            style: TextStyle(color: context.colors.textMuted),
-          ),
-        ],
-      ),
-    ),
-  );
 }

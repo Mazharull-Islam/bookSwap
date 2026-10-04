@@ -9,6 +9,7 @@ import '../../domain/entities/forum_report.dart';
 import '../providers/forum_providers.dart';
 import '../widgets/forum_post_tile.dart' show formatForumDate;
 import '../widgets/report_dialog.dart';
+import '../../../../shared/widgets/feedback.dart';
 
 /// Moderators only (the More page doesn't link here for anyone else, and the
 /// rules refuse non-moderators regardless).
@@ -68,11 +69,7 @@ class _ReportedCard extends ConsumerWidget {
   Future<void> _dismiss(BuildContext context, WidgetRef ref) async {
     await ref.read(dismissReportsProvider)(target);
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Reports dismissed. It is visible again.'),
-        ),
-      );
+      showMessage(context, 'Reports dismissed. It is visible again.');
     }
   }
 
@@ -81,9 +78,7 @@ class _ReportedCard extends ConsumerWidget {
     if (!await confirmRemoval(context, what: what, asModerator: true)) return;
     await ref.read(removeReportedProvider)(target);
     if (context.mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Removed the $what.')));
+      showMessage(context, 'Removed the $what.');
     }
   }
 

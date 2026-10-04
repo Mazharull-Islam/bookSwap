@@ -12,6 +12,7 @@ import '../providers/reading_goal_providers.dart';
 import '../providers/reading_providers.dart';
 import 'reading_goal_dialog.dart';
 import '../../../../shared/widgets/section_heading.dart';
+import '../../../../shared/widgets/feedback.dart';
 
 class ReadingStatsTab extends ConsumerWidget {
   const ReadingStatsTab({super.key});
@@ -116,9 +117,7 @@ class ReadingStatsTab extends ConsumerWidget {
     }
     await Clipboard.setData(ClipboardData(text: buffer.toString().trim()));
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Summary copied to clipboard')),
-      );
+      showMessage(context, 'Summary copied to clipboard');
     }
   }
 }
