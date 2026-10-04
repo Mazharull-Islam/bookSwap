@@ -12,34 +12,30 @@ import '../providers/book_sync_controller.dart';
 const shellRailBreakpoint = 720.0;
 
 class _Destination {
-  const _Destination(this.path, this.label, this.icon, this.selectedIcon);
-  final String path;
+  const _Destination(this.label, this.icon, this.selectedIcon);
   final String label;
   final IconData icon;
   final IconData selectedIcon;
 }
 
+/// In the same order as the router's branches.
 const _destinations = [
-  _Destination('/shelf', 'My Shelf', Icons.menu_book_outlined, Icons.menu_book),
-  _Destination('/discover', 'Discover', Icons.search, Icons.search),
-  _Destination('/wishlist', 'Wishlist', Icons.favorite_border, Icons.favorite),
-  _Destination('/requests', 'Requests', Icons.swap_horiz, Icons.swap_horiz),
-  _Destination('/more', 'More', Icons.menu, Icons.menu),
+  _Destination('My Shelf', Icons.menu_book_outlined, Icons.menu_book),
+  _Destination('Discover', Icons.search, Icons.search),
+  _Destination('Wishlist', Icons.favorite_border, Icons.favorite),
+  _Destination('Requests', Icons.swap_horiz, Icons.swap_horiz),
+  _Destination('More', Icons.menu, Icons.menu),
 ];
 
-/// Everything that isn't one of the first four tabs lives under More, so
-/// More stays highlighted while you're on any of those screens.
-int shellIndexFor(String location) {
-  for (var i = 0; i < _destinations.length - 1; i++) {
-    if (location.startsWith(_destinations[i].path)) return i;
-  }
-  return _destinations.length - 1;
-}
+const _wishlistIndex = 2;
+const _requestsIndex = 3;
 
+/// The signed-in frame: the tab bar (or side rail on wide screens) around the
+/// current tab. Each tab keeps its own state while another is showing; see the
+/// router's StatefulShellRoute.
 class AppShell extends ConsumerWidget {
-  const AppShell({super.key, required this.location, required this.child});
-  final String location;
-  final Widget child;
+  const AppShell({super.key, required this.navigationShell});
+  final StatefulNavigationShell navigationShell;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -53,11 +49,12 @@ class AppShell extends ConsumerWidget {
             .length ??
         0;
     final matches = ref.watch(mutualMatchesProvider).length;
-    final badges = {'/requests': pendingRequests, '/wishlist': matches};
-    final selected = shellIndexFor(location);
+    final badges = {_requestsIndex: pendingRequests, _wishlistIndex: matches};
+    final selected = navigationShell.currentIndex;
 
-    Widget icon(_Destination d, {required bool isSelected}) {
-      final count = badges[d.path] ?? 0;
+    Widget icon(int index, {required bool isSelected}) {
+      final d = _destinations[index];
+      final count = badges[index] ?? 0;
       return Badge.count(
         count: count,
         isLabelVisible: count > 0,
@@ -65,10 +62,15 @@ class AppShell extends ConsumerWidget {
       );
     }
 
-    void go(int index) => context.go(_destinations[index].path);
+    // Tapping the tab you're already on goes back to its first screen (for
+    // More, that's the menu); tapping another tab returns to where you left it.
+    void go(int index) => navigationShell.goBranch(
+      index,
+      initialLocation: index == navigationShell.currentIndex,
+    );
 
     final wide = MediaQuery.sizeOf(context).width >= shellRailBreakpoint;
-    final body = BadgeNotificationWatcher(child: child);
+    final body = BadgeNotificationWatcher(child: navigationShell);
     if (wide) {
       return Scaffold(
         body: Row(
@@ -80,8 +82,8 @@ class AppShell extends ConsumerWidget {
               destinations: [
                 for (var i = 0; i < _destinations.length; i++)
                   NavigationRailDestination(
-                    icon: icon(_destinations[i], isSelected: false),
-                    selectedIcon: icon(_destinations[i], isSelected: true),
+                    icon: icon(i, isSelected: false),
+                    selectedIcon: icon(i, isSelected: true),
                     label: Text(_destinations[i].label),
                   ),
               ],
@@ -100,8 +102,8 @@ class AppShell extends ConsumerWidget {
         destinations: [
           for (var i = 0; i < _destinations.length; i++)
             NavigationDestination(
-              icon: icon(_destinations[i], isSelected: false),
-              selectedIcon: icon(_destinations[i], isSelected: true),
+              icon: icon(i, isSelected: false),
+              selectedIcon: icon(i, isSelected: true),
               label: _destinations[i].label,
             ),
         ],

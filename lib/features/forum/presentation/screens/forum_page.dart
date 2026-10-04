@@ -35,6 +35,7 @@ class ForumPage extends ConsumerWidget {
               },
             ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'forum-new-post',
         onPressed: () => showCreatePostDialog(context),
         icon: const Icon(Icons.add),
         label: const Text('New post'),

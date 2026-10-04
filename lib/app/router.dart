@@ -113,55 +113,82 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/blocked',
         builder: (context, state) => const BlockedUsersPage(),
       ),
-      ShellRoute(
-        builder: (context, state, child) =>
-            AppShell(location: state.uri.path, child: child),
-        routes: [
-          GoRoute(
-            path: '/shelf',
-            builder: (context, state) => const MyShelfPage(),
-          ),
-          GoRoute(
-            path: '/discover',
-            builder: (context, state) =>
-                const DiscoveryPage(banner: BookOfMonthBanner()),
-          ),
-          GoRoute(
-            path: '/wishlist',
-            builder: (context, state) => const WantedBooksPage(),
-          ),
-          GoRoute(
-            path: '/reading',
-            builder: (context, state) => const ReadingPage(),
-          ),
-          GoRoute(
-            path: '/requests',
-            builder: (context, state) => const RequestsPage(),
-          ),
-          GoRoute(
-            path: '/forum',
-            builder: (context, state) => const ForumPage(),
-          ),
-          GoRoute(
-            path: '/moderation',
-            builder: (context, state) => const ModerationPage(),
-          ),
-          GoRoute(
-            path: '/book-of-month',
-            builder: (context, state) => const BookOfMonthPage(),
-          ),
-          GoRoute(
-            path: '/leaderboard',
-            builder: (context, state) => const LeaderboardPage(),
-          ),
-          GoRoute(path: '/more', builder: (context, state) => const MorePage()),
-          GoRoute(
-            path: '/profile',
-            builder: (context, state) => const ProfilePage(),
+      // One branch per bottom tab. A branch keeps its screens alive while you
+      // look at another tab, so a search, scroll position or sub-tab is still
+      // there when you come back. The order must match AppShell's destinations.
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) =>
+            AppShell(navigationShell: navigationShell),
+        branches: [
+          StatefulShellBranch(
             routes: [
               GoRoute(
-                path: 'edit',
-                builder: (context, state) => const EditProfilePage(),
+                path: '/shelf',
+                builder: (context, state) => const MyShelfPage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/discover',
+                builder: (context, state) =>
+                    const DiscoveryPage(banner: BookOfMonthBanner()),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/wishlist',
+                builder: (context, state) => const WantedBooksPage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/requests',
+                builder: (context, state) => const RequestsPage(),
+              ),
+            ],
+          ),
+          // More, and every screen opened from it.
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/more',
+                builder: (context, state) => const MorePage(),
+              ),
+              GoRoute(
+                path: '/reading',
+                builder: (context, state) => const ReadingPage(),
+              ),
+              GoRoute(
+                path: '/forum',
+                builder: (context, state) => const ForumPage(),
+              ),
+              GoRoute(
+                path: '/moderation',
+                builder: (context, state) => const ModerationPage(),
+              ),
+              GoRoute(
+                path: '/book-of-month',
+                builder: (context, state) => const BookOfMonthPage(),
+              ),
+              GoRoute(
+                path: '/leaderboard',
+                builder: (context, state) => const LeaderboardPage(),
+              ),
+              GoRoute(
+                path: '/profile',
+                builder: (context, state) => const ProfilePage(),
+                routes: [
+                  GoRoute(
+                    path: 'edit',
+                    builder: (context, state) => const EditProfilePage(),
+                  ),
+                ],
               ),
             ],
           ),

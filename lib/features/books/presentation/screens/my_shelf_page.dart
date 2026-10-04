@@ -208,6 +208,7 @@ class _MyShelfPageState extends ConsumerState<MyShelfPage> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'shelf-add',
         onPressed: () => context.push('/shelf/add'),
         icon: const Icon(Icons.add),
         label: const Text('Add a book'),
