@@ -7,6 +7,8 @@ import '../../../../shared/widgets/primary_button.dart';
 import '../../domain/entities/registration.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../providers/auth_providers.dart';
+import '../widgets/gender_dropdown.dart';
+import '../widgets/genre_preferences_field.dart';
 import '../../../../shared/widgets/feedback.dart';
 
 class EditProfilePage extends ConsumerStatefulWidget {
@@ -127,20 +129,10 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                       validator: (v) => requiredText(v, 'last name'),
                     ),
                     const SizedBox(height: 16),
-                    DropdownButtonFormField<String>(
-                      initialValue: _gender,
-                      isExpanded: true,
-                      decoration: const InputDecoration(labelText: 'Gender'),
-                      items: genders
-                          .map(
-                            (g) => DropdownMenuItem(value: g, child: Text(g)),
-                          )
-                          .toList(),
-                      onChanged: _saving
-                          ? null
-                          : (value) {
-                              if (value != null) _gender = value;
-                            },
+                    GenderDropdown(
+                      value: _gender,
+                      enabled: !_saving,
+                      onChanged: (value) => _gender = value,
                     ),
                     const SizedBox(height: 16),
                     AppTextField(
@@ -170,52 +162,10 @@ class _EditProfilePageState extends ConsumerState<EditProfilePage> {
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     const SizedBox(height: 20),
-                    FormField<List<String>>(
+                    GenrePreferencesField(
                       initialValue: _preferences,
-                      validator: (v) => v == null || v.isEmpty
-                          ? 'Choose at least one book preference.'
-                          : null,
-                      builder: (field) => Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Book preferences',
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                          const SizedBox(height: 10),
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 6,
-                            children: [
-                              for (final genre in bookGenres)
-                                FilterChip(
-                                  label: Text(genre),
-                                  selected: field.value!.contains(genre),
-                                  onSelected: _saving
-                                      ? null
-                                      : (selected) {
-                                          final next = [...field.value!];
-                                          selected
-                                              ? next.add(genre)
-                                              : next.remove(genre);
-                                          _preferences = next;
-                                          field.didChange(next);
-                                        },
-                                ),
-                            ],
-                          ),
-                          if (field.hasError)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 8),
-                              child: Text(
-                                field.errorText!,
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.error,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
+                      enabled: !_saving,
+                      onChanged: (next) => _preferences = next,
                     ),
                     const SizedBox(height: 20),
                     AppTextField(
