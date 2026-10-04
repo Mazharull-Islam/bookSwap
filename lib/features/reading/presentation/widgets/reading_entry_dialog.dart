@@ -4,7 +4,7 @@ import '../../../../app/providers/current_user_provider.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../../../../shared/widgets/primary_button.dart';
 import '../../../../shared/widgets/star_rating.dart';
-import '../../../book_of_month/domain/period.dart';
+import '../../../../shared/domain/period.dart';
 import '../../../../shared/widgets/book_cover_image.dart';
 import '../../../books/domain/book_genres.dart';
 import '../../../../shared/widgets/genre_pill_list.dart';

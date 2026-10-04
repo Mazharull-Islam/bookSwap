@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../book_of_month/domain/period.dart';
+import '../../../../shared/domain/period.dart';
 import '../../application/use_cases/record_read_activity.dart';
 import '../../data/repositories/firestore_leaderboard_repository.dart';
 import '../../domain/leaderboard_stats.dart';
@@ -11,10 +11,16 @@ final leaderboardRepositoryProvider = Provider<LeaderboardRepository>(
   (ref) => FirestoreLeaderboardRepository(FirebaseFirestore.instance),
 );
 
-/// Reuses Book of the Month's period concept (SRS §3.11): the current
-/// calendar month is always open, a past one is implicitly fixed.
-final leaderboardPeriodIdProvider = Provider<String>(
-  (ref) => currentPeriodId(),
+/// Which month the leaderboard is showing: 0 is this month, 1 last month, 2
+/// the month before that. Goes back to this month when the screen is closed.
+final leaderboardMonthsBackProvider = StateProvider.autoDispose<int>(
+  (ref) => 0,
+);
+
+/// The month being viewed. Reading activity is always recorded against the
+/// current month (see ReadingEntryDialog), whatever is shown here.
+final viewedLeaderboardPeriodProvider = Provider.autoDispose<String>(
+  (ref) => recentPeriodIds()[ref.watch(leaderboardMonthsBackProvider)],
 );
 
 final readingActivityProvider =

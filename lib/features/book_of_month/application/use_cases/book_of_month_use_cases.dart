@@ -1,7 +1,7 @@
 import '../../../forum/domain/entities/forum_post.dart';
 import '../../../forum/domain/repositories/forum_repository.dart';
 import '../../domain/entities/book_of_month_period.dart';
-import '../../domain/period.dart';
+import '../../../../shared/domain/period.dart';
 import '../../domain/repositories/book_of_month_repository.dart';
 
 class NominateBook {

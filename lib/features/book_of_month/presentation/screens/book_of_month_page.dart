@@ -13,10 +13,9 @@ import '../../../../shared/widgets/book_suggestion_tile.dart';
 import '../../../discovery/domain/book_group.dart';
 import '../../../discovery/presentation/providers/discovery_providers.dart';
 import '../../domain/entities/book_of_month_nomination.dart';
-import '../../domain/period.dart';
+import '../../../../shared/domain/period.dart';
 import '../providers/book_of_month_providers.dart';
 import '../widgets/nomination_tile.dart';
-import '../../../../shared/widgets/section_heading.dart';
 import '../../../../core/utils/friendly_error.dart';
 import '../../domain/repositories/book_of_month_repository.dart';
 import '../../../../shared/genre_normalizer.dart';
@@ -24,6 +23,8 @@ import '../../../../shared/domain/match_key.dart';
 import '../../../../shared/widgets/feedback.dart';
 import '../../../../shared/widgets/secondary_button.dart';
 import '../../../../shared/widgets/inline_spinner.dart';
+import '../../../../shared/widgets/back_to_more_button.dart';
+import '../../../../shared/widgets/period_selector.dart';
 
 class BookOfMonthPage extends ConsumerStatefulWidget {
   const BookOfMonthPage({super.key});
@@ -176,7 +177,8 @@ class _BookOfMonthPageState extends ConsumerState<BookOfMonthPage> {
 
   @override
   Widget build(BuildContext context) {
-    final periodId = ref.watch(currentPeriodIdProvider);
+    final periodId = ref.watch(viewedBookOfMonthPeriodProvider);
+    final isCurrent = periodId == ref.watch(currentPeriodIdProvider);
     final board = ref.watch(leaderboardProvider(periodId));
     final counts = ref.watch(voteCountsProvider(periodId));
     final period = ref.watch(periodInfoProvider(periodId)).valueOrNull;
@@ -189,77 +191,92 @@ class _BookOfMonthPageState extends ConsumerState<BookOfMonthPage> {
         const Iterable.empty();
     final myVote = myVotes.isEmpty ? null : myVotes.first;
 
-    ref.listen(
-      nominationsProvider(periodId),
-      (_, _) => _maybeEnsureThread(periodId),
-    );
-    ref.listen(
-      periodInfoProvider(periodId),
-      (_, _) => _maybeEnsureThread(periodId),
-    );
+    // A discussion thread is only ever started for the current month.
+    ref.listen(nominationsProvider(periodId), (_, _) {
+      if (isCurrent) _maybeEnsureThread(periodId);
+    });
+    ref.listen(periodInfoProvider(periodId), (_, _) {
+      if (isCurrent) _maybeEnsureThread(periodId);
+    });
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Book of the Month')),
+      appBar: AppBar(
+        leading: const BackToMoreButton(),
+        title: const Text('Book of the Month'),
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          SectionHeading(periodLabel(periodId), fontSize: 16),
-          const SizedBox(height: 12),
-          TapRegion(
-            onTapOutside: (_) => setState(() => _suggestions = []),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                AppTextField(
-                  controller: _query,
-                  focusNode: _focus,
-                  label: 'Nominate a book',
-                  hint: 'Try a title...',
-                  prefixIcon: Icons.add,
-                  suffixIcon: _searching
-                      ? const Padding(
-                          padding: EdgeInsets.all(12),
-                          child: InlineSpinner(),
-                        )
-                      : null,
-                  onChanged: _onQueryChanged,
-                ),
-                if (_suggestions.isNotEmpty)
-                  Container(
-                    margin: const EdgeInsets.only(top: 4),
-                    constraints: const BoxConstraints(maxHeight: 260),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
-                      border: Border.all(color: context.colors.border),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Material(
-                      type: MaterialType.transparency,
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        padding: EdgeInsets.zero,
-                        itemCount: _suggestions.length,
-                        itemBuilder: (context, index) {
-                          final suggestion = _suggestions[index];
-                          return BookSuggestionTile(
-                            title: suggestion.title,
-                            author: suggestion.author,
-                            coverUrl: suggestion.coverUrl,
-                            onTap: () => _nominate(suggestion),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-              ],
+          Align(
+            alignment: Alignment.centerLeft,
+            child: PeriodSelector(
+              periods: recentPeriodIds(),
+              selected: periodId,
+              onSelected: (id) =>
+                  ref.read(bookOfMonthMonthsBackProvider.notifier).state =
+                      recentPeriodIds().indexOf(id),
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 12),
+          if (isCurrent) ...[
+            TapRegion(
+              onTapOutside: (_) => setState(() => _suggestions = []),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  AppTextField(
+                    controller: _query,
+                    focusNode: _focus,
+                    label: 'Nominate a book',
+                    hint: 'Try a title...',
+                    prefixIcon: Icons.add,
+                    suffixIcon: _searching
+                        ? const Padding(
+                            padding: EdgeInsets.all(12),
+                            child: InlineSpinner(),
+                          )
+                        : null,
+                    onChanged: _onQueryChanged,
+                  ),
+                  if (_suggestions.isNotEmpty)
+                    Container(
+                      margin: const EdgeInsets.only(top: 4),
+                      constraints: const BoxConstraints(maxHeight: 260),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
+                        border: Border.all(color: context.colors.border),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Material(
+                        type: MaterialType.transparency,
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          padding: EdgeInsets.zero,
+                          itemCount: _suggestions.length,
+                          itemBuilder: (context, index) {
+                            final suggestion = _suggestions[index];
+                            return BookSuggestionTile(
+                              title: suggestion.title,
+                              author: suggestion.author,
+                              coverUrl: suggestion.coverUrl,
+                              onTap: () => _nominate(suggestion),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+          ],
           if (period?.discussionPostId != null)
             Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: SecondaryButton(
-                label: 'Open this month\'s discussion',
+                label: isCurrent
+                    ? 'Open this month\'s discussion'
+                    : 'Open that month\'s discussion',
                 icon: Icons.forum_outlined,
                 onPressed: () => _openDiscussion(period!.discussionPostId!),
               ),
@@ -268,7 +285,9 @@ class _BookOfMonthPageState extends ConsumerState<BookOfMonthPage> {
             Padding(
               padding: EdgeInsets.symmetric(vertical: 24),
               child: Text(
-                'No nominations yet this month — search above to start.',
+                isCurrent
+                    ? 'No nominations yet this month — search above to start.'
+                    : 'No books were nominated in ${periodLabel(periodId)}.',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: context.colors.textMuted),
               ),
@@ -282,53 +301,10 @@ class _BookOfMonthPageState extends ConsumerState<BookOfMonthPage> {
                     nomination.matchKey == board.first.matchKey &&
                     (counts[nomination.matchKey] ?? 0) > 0,
                 isMyVote: myVote?.matchKey == nomination.matchKey,
-                onVote: () => _vote(nomination),
+                onVote: isCurrent ? () => _vote(nomination) : null,
               ),
             ),
-          const SizedBox(height: 24),
-          const _ArchiveSection(),
         ],
-      ),
-    );
-  }
-}
-
-class _ArchiveSection extends ConsumerWidget {
-  const _ArchiveSection();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final periods = ref.watch(knownPeriodsProvider).valueOrNull ?? const [];
-    final current = ref.watch(currentPeriodIdProvider);
-    final past = periods.where((p) => p.id != current).toList();
-    if (past.isEmpty) return const SizedBox.shrink();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SectionHeading('Past picks'),
-        const SizedBox(height: 8),
-        ...past.map((period) => _PastPickTile(periodId: period.id)),
-      ],
-    );
-  }
-}
-
-class _PastPickTile extends ConsumerWidget {
-  const _PastPickTile({required this.periodId});
-  final String periodId;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final board = ref.watch(leaderboardProvider(periodId));
-    final counts = ref.watch(voteCountsProvider(periodId));
-    final winner = board.isNotEmpty ? board.first : null;
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      title: Text(periodLabel(periodId)),
-      subtitle: Text(
-        winner == null
-            ? 'No nominations'
-            : '${winner.title} · ${counts[winner.matchKey] ?? 0} votes',
       ),
     );
   }

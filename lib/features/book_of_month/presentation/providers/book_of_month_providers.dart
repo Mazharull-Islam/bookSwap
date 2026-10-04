@@ -6,7 +6,7 @@ import '../../data/repositories/firestore_book_of_month_repository.dart';
 import '../../domain/entities/book_of_month_nomination.dart';
 import '../../domain/entities/book_of_month_period.dart';
 import '../../domain/entities/book_of_month_vote.dart';
-import '../../domain/period.dart';
+import '../../../../shared/domain/period.dart';
 import '../../domain/repositories/book_of_month_repository.dart';
 
 final bookOfMonthRepositoryProvider = Provider<BookOfMonthRepository>(
@@ -14,6 +14,18 @@ final bookOfMonthRepositoryProvider = Provider<BookOfMonthRepository>(
 );
 
 final currentPeriodIdProvider = Provider<String>((ref) => currentPeriodId());
+
+/// Which month the page is showing: 0 is this month, 1 last month, 2 the month
+/// before that. Goes back to this month when the screen is closed.
+final bookOfMonthMonthsBackProvider = StateProvider.autoDispose<int>(
+  (ref) => 0,
+);
+
+/// The month being viewed. Only the current month can be nominated for or
+/// voted in; earlier ones are read-only.
+final viewedBookOfMonthPeriodProvider = Provider.autoDispose<String>(
+  (ref) => recentPeriodIds()[ref.watch(bookOfMonthMonthsBackProvider)],
+);
 
 final nominationsProvider =
     StreamProvider.family<List<BookOfMonthNomination>, String>(
@@ -29,10 +41,6 @@ final votesProvider = StreamProvider.family<List<BookOfMonthVote>, String>(
 final periodInfoProvider = StreamProvider.family<BookOfMonthPeriod?, String>(
   (ref, periodId) =>
       ref.watch(bookOfMonthRepositoryProvider).watchPeriod(periodId),
-);
-
-final knownPeriodsProvider = StreamProvider<List<BookOfMonthPeriod>>(
-  (ref) => ref.watch(bookOfMonthRepositoryProvider).watchKnownPeriods(),
 );
 
 /// Vote counts per nominee (matchKey -> count) for a period, derived from

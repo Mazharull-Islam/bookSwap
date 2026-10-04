@@ -1,21 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../book_of_month/domain/period.dart';
+import '../../../../shared/domain/period.dart';
 import '../providers/leaderboard_providers.dart';
 import '../widgets/ranking_tile.dart';
-import '../../../../shared/widgets/section_heading.dart';
 import '../../../../shared/widgets/empty_state.dart';
+import '../../../../shared/widgets/back_to_more_button.dart';
+import '../../../../shared/widgets/period_selector.dart';
 
 class LeaderboardPage extends ConsumerWidget {
   const LeaderboardPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final periodId = ref.watch(leaderboardPeriodIdProvider);
+    final periodId = ref.watch(viewedLeaderboardPeriodProvider);
     return DefaultTabController(
       length: 2,
       child: Scaffold(
         appBar: AppBar(
+          leading: const BackToMoreButton(),
           title: const Text('Leaderboard'),
           bottom: const TabBar(
             tabs: [
@@ -28,7 +30,16 @@ class LeaderboardPage extends ConsumerWidget {
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-              child: SectionHeading(periodLabel(periodId), fontSize: 16),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: PeriodSelector(
+                  periods: recentPeriodIds(),
+                  selected: periodId,
+                  onSelected: (id) =>
+                      ref.read(leaderboardMonthsBackProvider.notifier).state =
+                          recentPeriodIds().indexOf(id),
+                ),
+              ),
             ),
             Expanded(
               child: TabBarView(
@@ -53,9 +64,11 @@ class _TopReadersTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final readers = ref.watch(topReadersProvider(periodId));
     if (readers.isEmpty) {
-      return const EmptyState(
+      return EmptyState(
         icon: Icons.menu_book_outlined,
-        message: 'No books marked Read this month yet.',
+        message: periodId == currentPeriodId()
+            ? 'No books marked Read this month yet.'
+            : 'No books were marked Read in ${periodLabel(periodId)}.',
       );
     }
     return ListView.builder(
@@ -83,9 +96,11 @@ class _TopAuthorsTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authors = ref.watch(topAuthorsProvider(periodId));
     if (authors.isEmpty) {
-      return const EmptyState(
+      return EmptyState(
         icon: Icons.person_outline,
-        message: 'No authors recorded this month yet.',
+        message: periodId == currentPeriodId()
+            ? 'No authors recorded this month yet.'
+            : 'No authors were recorded in ${periodLabel(periodId)}.',
       );
     }
     return ListView.builder(

@@ -19,7 +19,9 @@ class NominationTile extends StatelessWidget {
   final int voteCount;
   final bool isLeader;
   final bool isMyVote;
-  final VoidCallback onVote;
+
+  /// Null for a past month, where voting is closed.
+  final VoidCallback? onVote;
 
   @override
   Widget build(BuildContext context) => Container(
@@ -78,10 +80,12 @@ class NominationTile extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(width: 8),
-        isMyVote
-            ? SecondaryButton(label: 'Voted ✓', onPressed: null)
-            : PrimaryButton(label: 'Vote', onPressed: onVote),
+        if (isMyVote || onVote != null) ...[
+          const SizedBox(width: 8),
+          isMyVote
+              ? const SecondaryButton(label: 'Voted ✓', onPressed: null)
+              : PrimaryButton(label: 'Vote', onPressed: onVote),
+        ],
       ],
     ),
   );

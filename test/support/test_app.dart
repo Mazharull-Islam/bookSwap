@@ -348,9 +348,6 @@ List<Override> firestoreFixtureOverrides() => [
   periodInfoProvider.overrideWith(
     (ref, periodId) => Stream.value(null as BookOfMonthPeriod?),
   ),
-  knownPeriodsProvider.overrideWith(
-    (ref) => Stream.value(const <BookOfMonthPeriod>[]),
-  ),
   readingActivityProvider.overrideWith(
     (ref, periodId) => Stream.value([
       ReadingActivity(

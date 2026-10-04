@@ -52,7 +52,9 @@ Common UI pieces live in `lib/shared/widgets` and should be used instead of
 re-writing them: `EmptyState` (nothing-to-show screens), `StatusChip`
 (status and count pills), `showMessage` (snackbars), `showConfirmDialog`
 (yes/no questions), `PrimaryButton` / `SecondaryButton` (all buttons) and
-`InlineSpinner` (small loading indicators).
+`InlineSpinner` (small loading indicators), `ViewModeButton` with
+`coverGridDelegate` (grid or list), `PeriodSelector` (month chips) and
+`BackToMoreButton` (the back arrow on screens opened from More).
 A test fails if a screen builds its own.
 
 `test/architecture_test.dart` enforces all of this, so a stray import (for
