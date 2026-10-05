@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../app/providers/current_user_provider.dart';
 import '../../../../app/app_colors.dart';
 import '../../../../core/services/open_library_service.dart';
@@ -221,6 +222,7 @@ class _WantedBooksPageState extends ConsumerState<WantedBooksPage> {
                   sending: _sendingFor.contains(_matchId(match)),
                   sent: _sentFor.contains(_matchId(match)),
                   onRequest: () => _requestMatch(match),
+                  onReview: () => context.go('/requests'),
                 ),
               ),
             ],

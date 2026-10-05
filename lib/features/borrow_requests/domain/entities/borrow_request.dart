@@ -68,6 +68,14 @@ class BorrowRequest {
   /// The borrower's explanation after a return flagged as worse. Optional.
   final String? borrowerNote;
 
+  /// Still in play: asked for, or out on loan. A declined request and a loan
+  /// that came back are both over.
+  bool get isOpen => status != RequestStatus.declined && returnedAt == null;
+
+  /// The whole lifecycle finished: it was accepted, lent and returned.
+  bool get isCompleted =>
+      status == RequestStatus.accepted && returnedAt != null;
+
   BorrowRequest copyWith({
     String? id,
     String? bookId,

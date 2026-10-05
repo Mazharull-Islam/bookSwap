@@ -18,12 +18,16 @@ class MutualMatchCard extends StatelessWidget {
     required this.sending,
     required this.sent,
     required this.onRequest,
+    required this.onReview,
   });
 
   final MutualMatch match;
   final bool sending;
   final bool sent;
   final VoidCallback onRequest;
+
+  /// Opens the Requests tab, for a match where they already asked for my book.
+  final VoidCallback onReview;
 
   @override
   Widget build(BuildContext context) => Container(
@@ -82,16 +86,30 @@ class MutualMatchCard extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 10),
-        SizedBox(
-          width: double.infinity,
-          child: sent
-              ? SecondaryButton(label: 'Requested ✓', onPressed: null)
-              : PrimaryButton(
-                  label: 'Request their book',
-                  onPressed: onRequest,
-                  loading: sending,
-                ),
-        ),
+        if (match.requestFromThem != null) ...[
+          Text(
+            'They have asked to borrow ${match.myBook.title}.',
+            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+          ),
+          const SizedBox(height: 10),
+          SizedBox(
+            width: double.infinity,
+            child: PrimaryButton(
+              label: 'Review their request',
+              onPressed: onReview,
+            ),
+          ),
+        ] else
+          SizedBox(
+            width: double.infinity,
+            child: sent
+                ? SecondaryButton(label: 'Requested ✓', onPressed: null)
+                : PrimaryButton(
+                    label: 'Request their book',
+                    onPressed: onRequest,
+                    loading: sending,
+                  ),
+          ),
       ],
     ),
   );

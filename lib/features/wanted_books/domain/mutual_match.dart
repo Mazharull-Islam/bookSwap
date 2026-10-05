@@ -1,4 +1,5 @@
 import '../../books/domain/entities/book.dart';
+import '../../borrow_requests/domain/entities/borrow_request.dart';
 import '../../discovery/domain/book_group.dart';
 import 'entities/wanted_book.dart';
 
@@ -9,11 +10,16 @@ class MutualMatch {
     required this.otherUserId,
     required this.myBook,
     required this.theirBook,
+    this.requestFromThem,
   });
 
   final String otherUserId;
   final Book myBook;
   final Book theirBook;
+
+  /// Set when [otherUserId] has already asked to borrow [myBook]. The next
+  /// step is then answering that request, not sending one back.
+  final BorrowRequest? requestFromThem;
 }
 
 /// Computed independently on each user's own device from the same two
@@ -23,6 +29,7 @@ List<MutualMatch> findMutualMatches({
   required String myId,
   required List<Book> allBooks,
   required List<WantedBook> allWanted,
+  List<BorrowRequest> incoming = const [],
 }) {
   final myBooks = allBooks
       .where((b) => b.ownerId == myId && b.status == BookStatus.available)
@@ -55,6 +62,7 @@ List<MutualMatch> findMutualMatches({
               otherUserId: wanted.userId,
               myBook: myBook,
               theirBook: theirBook,
+              requestFromThem: _openRequest(incoming, wanted.userId, myBook.id),
             ),
           );
         }
@@ -62,4 +70,15 @@ List<MutualMatch> findMutualMatches({
     }
   }
   return matches;
+}
+
+BorrowRequest? _openRequest(
+  List<BorrowRequest> incoming,
+  String borrowerId,
+  String bookId,
+) {
+  for (final r in incoming) {
+    if (r.borrowerId == borrowerId && r.bookId == bookId && r.isOpen) return r;
+  }
+  return null;
 }

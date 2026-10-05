@@ -20,6 +20,17 @@ String formatDate(DateTime date) =>
 String formatDateMs(int ms) =>
     formatDate(DateTime.fromMillisecondsSinceEpoch(ms).toLocal());
 
+/// "Oct 3, 2026 · 2:15 PM", in the viewer's own time zone.
+String formatDateTime(DateTime when) {
+  final hour = when.hour % 12 == 0 ? 12 : when.hour % 12;
+  final minute = when.minute.toString().padLeft(2, '0');
+  final half = when.hour < 12 ? 'AM' : 'PM';
+  return '${formatDate(when)} · $hour:$minute $half';
+}
+
+String formatDateTimeMs(int ms) =>
+    formatDateTime(DateTime.fromMillisecondsSinceEpoch(ms).toLocal());
+
 /// Calendar-day wording for a return date: "due today", "due tomorrow",
 /// "due in 5 days", "1 day overdue", "3 days overdue". Wording (not just
 /// colour) carries the overdue state.

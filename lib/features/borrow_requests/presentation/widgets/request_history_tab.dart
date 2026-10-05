@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/app_colors.dart';
+import '../../../../core/services/public_profile_service.dart';
 import '../../../../core/utils/date_format.dart';
 import '../../../../shared/widgets/empty_state.dart';
 import '../../../reviews/presentation/widgets/review_loan_action.dart';
@@ -46,9 +47,12 @@ class RequestHistoryTab extends ConsumerWidget {
           footer: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                '${loan.lent ? 'Lent' : 'Borrowed'} · Returned ${formatDateMs(loan.request.returnedAt!)}',
-                style: TextStyle(color: context.colors.textMuted),
+              _LoanLine(
+                lent: loan.lent,
+                otherPartyId: loan.lent
+                    ? loan.request.borrowerId
+                    : loan.request.lenderId,
+                returnedAtMs: loan.request.returnedAt!,
               ),
               ConditionLine(loan.request),
               BorrowerNoteSection(
@@ -64,6 +68,34 @@ class RequestHistoryTab extends ConsumerWidget {
           ),
         );
       },
+    );
+  }
+}
+
+/// "Lent to Rafi · Returned 5 Oct 2026" or "Borrowed from Rafi · ...", so each
+/// card says which way the book went and with whom.
+class _LoanLine extends ConsumerWidget {
+  const _LoanLine({
+    required this.lent,
+    required this.otherPartyId,
+    required this.returnedAtMs,
+  });
+  final bool lent;
+  final String otherPartyId;
+  final int returnedAtMs;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final name = ref
+        .watch(displayNameProvider(otherPartyId))
+        .when(
+          data: (name) => name ?? 'a member',
+          loading: () => '...',
+          error: (_, _) => 'a member',
+        );
+    return Text(
+      '${lent ? 'Lent to' : 'Borrowed from'} $name · Returned ${formatDateTimeMs(returnedAtMs)}',
+      style: TextStyle(color: context.colors.textMuted),
     );
   }
 }

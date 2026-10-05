@@ -41,6 +41,7 @@ class AppShell extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(bookSyncControllerProvider);
     ref.watch(loanReminderSyncProvider);
+    ref.watch(fulfilledWishlistCleanupProvider);
     final pendingRequests =
         ref
             .watch(incomingRequestsProvider)

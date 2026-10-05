@@ -83,7 +83,7 @@ class RequestCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Requested ${formatDateMs(request.requestedAt)}',
+                      'Requested ${formatDateTimeMs(request.requestedAt)}',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],

@@ -240,8 +240,16 @@ void main() {
     testWidgets('lists returned loans from both sides', (tester) async {
       await open(tester);
       await openTab(tester, 'History');
-      expect(find.textContaining('Lent · Returned'), findsOneWidget);
-      expect(find.textContaining('Borrowed · Returned'), findsOneWidget);
+      expect(find.textContaining('Lent to Rafi · Returned'), findsOneWidget);
+      expect(
+        find.textContaining('Borrowed from Rafi · Returned'),
+        findsOneWidget,
+      );
+      expect(
+        find.textContaining(RegExp(r'Returned .+ · \d{1,2}:\d{2} (AM|PM)')),
+        findsNWidgets(2),
+        reason: 'the time of day is shown, not just the date',
+      );
     });
 
     testWidgets('only a borrowed loan can be rated', (tester) async {
